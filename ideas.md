@@ -68,3 +68,9 @@ The mark is a simple **coral compass rose whose center is a pawprint**, bordered
 ### Signature Brand Color
 
 **Foxglove Coral — `#E66B5B`**. This is reserved for rescue action, important earned progress, and the compass-paw mark.
+
+## Style Decisions
+
+The 3D Babylon.js camp remains a plushie toy diorama, but it now acts as the central map page within the Hearthlight Field Journal system. The camp view retains a tangible journal ribbon, asymmetrical field-note and trail-map pocket panels on desktop, tactile tape and pin details, and a coral compass-paw identity mark. These surfaces make the 3D world feel collected by a gentle caretaker rather than presented as a generic game scene.
+
+Foxglove Coral remains limited to rescue calls-to-action, paper-tab and pin accents, earned harmony indicators, and the compass-paw mark. The remaining visual warmth comes from parchment, moss, felt ground, rounded wood, and pale firelight.

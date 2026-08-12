@@ -56,9 +56,15 @@ export default function App() {
   // Load state on mount
   useEffect(() => {
     const s = loadState();
-    setState(s);
+    const preview3d = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'camp3d';
+    const previewState = preview3d && !s.selectedCompanion
+      ? { ...s, selectedCompanion: 'fox', rescueCompletedCount: 3, forestHarmony: 20, unlockedZones: ['meadow', 'riverside'], zoneTaskProgress: { ...s.zoneTaskProgress, meadow: 3 } }
+      : s;
+    setState(previewState);
     setTimeout(() => {
-      if (!s.selectedCompanion) {
+      if (preview3d) {
+        setScene('camp');
+      } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
         setScene('camp');
