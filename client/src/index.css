@@ -1,3 +1,8 @@
+/* ─────────────────────────────────────────────
+   Critter Rescue — Hearthlight Field Journal
+   Design: warm parchment, mossy forest, Foxglove Coral accents
+   Fonts: Fraunces (display) + Nunito Sans (body)
+───────────────────────────────────────────── */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -27,151 +32,219 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Nunito Sans', system-ui, sans-serif;
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
-}
+  /* Critter Rescue palette */
+  --cr-forest-dark:   oklch(0.26 0.07 145);
+  --cr-forest-mid:    oklch(0.38 0.09 145);
+  --cr-forest-light:  oklch(0.52 0.10 145);
+  --cr-parchment:     oklch(0.97 0.02 80);
+  --cr-parchment-dark: oklch(0.92 0.03 75);
+  --cr-coral:         oklch(0.63 0.16 25);   /* Foxglove Coral #E66B5B */
+  --cr-coral-dark:    oklch(0.54 0.16 25);
+  --cr-gold:          oklch(0.80 0.14 80);
+  --cr-amber:         oklch(0.74 0.13 65);
+  --cr-soil:          oklch(0.30 0.06 50);
+  --cr-stone:         oklch(0.55 0.04 55);
+  --cr-stream:        oklch(0.65 0.09 220);
+  --cr-text-dark:     oklch(0.18 0.04 50);
+  --cr-text-mid:      oklch(0.35 0.05 50);
+  --cr-text-light:    oklch(0.96 0.01 80);
 
-.dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* shadcn token mapping */
+  --radius: 0.75rem;
+  --background:           var(--cr-parchment);
+  --foreground:           var(--cr-text-dark);
+  --card:                 oklch(1 0 0);
+  --card-foreground:      var(--cr-text-dark);
+  --popover:              oklch(1 0 0);
+  --popover-foreground:   var(--cr-text-dark);
+  --primary:              var(--cr-coral);
+  --primary-foreground:   oklch(1 0 0);
+  --secondary:            var(--cr-parchment-dark);
+  --secondary-foreground: var(--cr-text-mid);
+  --muted:                var(--cr-parchment-dark);
+  --muted-foreground:     var(--cr-stone);
+  --accent:               var(--cr-gold);
+  --accent-foreground:    var(--cr-text-dark);
+  --destructive:          oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  --border:               oklch(0.87 0.03 75);
+  --input:                oklch(0.87 0.03 75);
+  --ring:                 var(--cr-coral);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
   [type="submit"]:not(:disabled),
-  [type="reset"]:not(:disabled),
   a[href],
-  select:not(:disabled),
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
-    @apply cursor-pointer;
+  select:not(:disabled) {
+    cursor: pointer;
   }
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
+  .flex { min-height: 0; min-width: 0; }
 
-  .flex {
-    min-height: 0;
-    min-width: 0;
+  /* Game-specific utilities */
+  .game-screen {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
-
-  @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
-    }
+  .paper-card {
+    background: oklch(0.98 0.015 75);
+    border: 1.5px solid oklch(0.85 0.03 75);
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.10), 0 1px 2px oklch(0 0 0 / 0.06);
   }
+  .forest-bg {
+    background: linear-gradient(
+      180deg,
+      oklch(0.55 0.12 210) 0%,
+      oklch(0.45 0.10 175) 20%,
+      oklch(0.38 0.09 145) 50%,
+      oklch(0.26 0.07 145) 100%
+    );
+  }
+  .btn-coral {
+    background: var(--cr-coral);
+    color: white;
+    font-family: var(--font-body);
+    font-weight: 700;
+    border-radius: 9999px;
+    padding: 0.75rem 2rem;
+    border: none;
+    box-shadow: 0 4px 0 var(--cr-coral-dark), 0 6px 12px oklch(0 0 0 / 0.15);
+    transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+    letter-spacing: 0.01em;
+  }
+  .btn-coral:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--cr-coral-dark), 0 3px 6px oklch(0 0 0 / 0.12);
+  }
+  .btn-parchment {
+    background: var(--cr-parchment);
+    color: var(--cr-text-dark);
+    font-family: var(--font-body);
+    font-weight: 600;
+    border-radius: 9999px;
+    padding: 0.75rem 2rem;
+    border: 1.5px solid var(--cr-stone);
+    box-shadow: 0 3px 0 oklch(0.75 0.04 75), 0 4px 8px oklch(0 0 0 / 0.10);
+    transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+  }
+  .btn-parchment:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 oklch(0.75 0.04 75);
+  }
+  .harmony-bar-fill {
+    background: linear-gradient(90deg, var(--cr-forest-light), var(--cr-gold));
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 600ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .wellness-bar-fill {
+    background: linear-gradient(90deg, var(--cr-coral), var(--cr-gold));
+    border-radius: 9999px;
+    height: 100%;
+    transition: width 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .tile-food    { background: oklch(0.82 0.12 55);  }
+  .tile-water   { background: oklch(0.75 0.10 220); }
+  .tile-warmth  { background: oklch(0.80 0.14 35);  }
+  .tile-love    { background: oklch(0.82 0.12 0);   }
+  .tile-herbs   { background: oklch(0.75 0.12 145); }
 
-  @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
-    }
+  /* Entrance animations */
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.85); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+  @keyframes leaf-fall {
+    0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+  }
+  @keyframes firefly-glow {
+    0%, 100% { opacity: 0.1; transform: scale(0.8); }
+    50%       { opacity: 0.9; transform: scale(1.2); }
+  }
+  @keyframes tile-drop {
+    from { transform: translateY(-60px) scale(0.8); opacity: 0; }
+    to   { transform: translateY(0) scale(1);       opacity: 1; }
+  }
+  @keyframes tile-clear {
+    0%   { transform: scale(1);    opacity: 1; }
+    50%  { transform: scale(1.25); opacity: 0.6; }
+    100% { transform: scale(0);    opacity: 0; }
+  }
+  @keyframes score-float {
+    from { transform: translateY(0);    opacity: 1; }
+    to   { transform: translateY(-50px); opacity: 0; }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-5px); }
+    40%       { transform: translateX(5px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+  }
+  @keyframes sparkle {
+    0%   { transform: scale(0) rotate(0deg);   opacity: 0; }
+    50%  { transform: scale(1.4) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+  }
+  @keyframes critter-hop {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-8px) scale(1.05); }
+  }
+  .animate-rise-in    { animation: rise-in 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .animate-pop-in     { animation: pop-in  280ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .animate-float      { animation: float 3s ease-in-out infinite; }
+  .animate-critter-hop { animation: critter-hop 2.4s ease-in-out infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float, .animate-critter-hop { animation: none; }
   }
 }
