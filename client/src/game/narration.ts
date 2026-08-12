@@ -30,11 +30,12 @@ export function speakNarration(text: string, tone: 'critter' | 'guide' = 'guide'
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(phrase);
   const voices = window.speechSynthesis.getVoices();
-  const englishVoice = voices.find((voice) => /en(-|_)?(US|GB|AU|CA)/i.test(voice.lang) && /female|samantha|zira|karen|moira/i.test(voice.name))
+  const englishVoice = voices.find((voice) => /en(-|_)?(US|GB|AU|CA)/i.test(voice.lang) && /female|samantha|zira|karen|moira|ava|serena|aria|allison/i.test(voice.name))
     ?? voices.find((voice) => /^en/i.test(voice.lang));
   if (englishVoice) utterance.voice = englishVoice;
-  utterance.rate = tone === 'critter' ? 0.93 : 0.96;
-  utterance.pitch = tone === 'critter' ? 1.13 : 1.02;
-  utterance.volume = 0.86;
+  // A slower, brighter storybook delivery is easier for early readers to follow.
+  utterance.rate = tone === 'critter' ? 0.88 : 0.9;
+  utterance.pitch = tone === 'critter' ? 1.28 : 1.17;
+  utterance.volume = 0.9;
   window.speechSynthesis.speak(utterance);
 }

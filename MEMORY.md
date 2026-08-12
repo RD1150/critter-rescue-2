@@ -69,3 +69,7 @@
 ## Celebration and Companion Polish Verification
 - The graduation preview confirmed a full camp-arrival overlay with the graduated plushie, the Camp Arrival field label, a welcome message, the three-heart care stamp, and an explicit celebration action.
 - Each starter companion now carries a distinct rescue ability and narrated trail tip: Clover’s Meadow Pause, Ember’s Scout’s Lookout, Sage’s Moon Map, Nutty’s Acorn Tally, Shadow’s Quiet Moment, and Summit’s Courage Stamp.
+
+## First-Play Clarity Verification
+- The mobile first-play preview now opens with a clear child-friendly rescue guide: an encouraging rescue-buddy message, three visual steps (go to Sunny Meadow, do the little rescue game, bring the friend home), a narrated read-aloud option, and a single prominent “Let’s Help a Friend!” action.
+- The prior vague “drag around the camp” instruction has been replaced by a low-pressure optional exploration cue; starting a rescue is now the primary task explained in both the text and spoken narration.

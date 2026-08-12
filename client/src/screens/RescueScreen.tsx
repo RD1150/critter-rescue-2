@@ -19,7 +19,7 @@ interface Props {
 }
 
 // ── Intro overlay ──────────────────────────────
-function IntroOverlay({ mission, companionType, onStart }: { mission: MissionData; companionType: string; onStart: () => void }) {
+function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mission: MissionData; companionType: string; isFirstMission: boolean; onStart: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => { if (isNarrationEnabled()) speakNarration(`${mission.critter.name}. ${mission.introText}`, 'guide'); }, 320);
     return () => clearTimeout(timer);
@@ -36,8 +36,9 @@ function IntroOverlay({ mission, companionType, onStart }: { mission: MissionDat
           <p className="text-[#5C4D3C] text-xs font-body italic mb-2">{mission.critter.personality}</p>
           <p className="font-display italic text-[#2D2418] text-base leading-snug">{mission.introText}</p>
           <div className="mt-2"><NarrationControls text={`${mission.critter.name}. ${mission.introText}`} tone="guide" /></div>
+          {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
         </div>
-        <button onClick={onStart} className="btn-coral w-full text-base">I'll help!</button>
+        <button onClick={onStart} className="btn-coral w-full text-base">{isFirstMission ? 'Show Me the Rescue Game!' : 'I’ll help!'}</button>
       </div>
     </div>
   );
@@ -768,6 +769,13 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
         <div className="mt-2"><NarrationControls text={`${companion.name}'s ${companion.rescueAbility}. ${companion.rescueHint}`} tone="guide" /></div>
       </div></div>}
 
+      {isFirstMission && !showIntro && !completed && (
+        <div className="relative z-10 mx-4 mb-1 rounded-2xl px-3 py-2.5 flex items-center gap-2" style={{ background: 'rgba(250,245,232,.92)', border: '1px solid rgba(255,255,255,.55)', boxShadow: '0 2px 8px rgba(0,0,0,.14)' }}>
+          <span className="text-xl">👀</span>
+          <p className="font-body text-xs text-[#413326] leading-snug"><strong>First, look.</strong> Then try one little move. There is no rush—and your buddy can help!</p>
+        </div>
+      )}
+
       {/* Puzzle area */}
       <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-4 flex flex-col items-center justify-center gap-3">
         {renderPuzzle()}
@@ -775,7 +783,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
 
       {/* Intro overlay */}
       {showIntro && (
-        <IntroOverlay mission={mission} companionType={companionType} onStart={() => setShowIntro(false)} />
+        <IntroOverlay mission={mission} companionType={companionType} isFirstMission={isFirstMission} onStart={() => setShowIntro(false)} />
       )}
 
       {/* Completion overlay */}

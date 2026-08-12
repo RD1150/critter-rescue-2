@@ -63,9 +63,10 @@ export default function App() {
     const previewNursery = previewMode === 'nursery3d';
     const previewJournal = previewMode === 'journal';
     const previewGraduate = previewMode === 'graduate';
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate;
+    const previewFirstPlay = previewMode === 'firstplay';
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay;
     const previewState = previewRequested
-      ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: Math.max(s.rescueCompletedCount, 3), forestHarmony: Math.max(s.forestHarmony, 20), unlockedZones: s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
+      ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
     setState(previewState);
     setTimeout(() => {
@@ -76,6 +77,8 @@ export default function App() {
       } else if (previewJournal) {
         setScene('journal');
       } else if (previewGraduate) {
+        setScene('camp');
+      } else if (previewFirstPlay) {
         setScene('camp');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');

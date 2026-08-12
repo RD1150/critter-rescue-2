@@ -41,6 +41,7 @@ export default function CampScreen({
   const [dialogue, setDialogue] = useState<string | null>(null);
   const [friendNote, setFriendNote] = useState<CritterData | null>(null);
   const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
+  const [showFirstGuide, setShowFirstGuide] = useState(() => rescueCount === 0);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const rescuedCritters = useMemo(() => getRescuedCritters(zoneTaskProgress), [zoneTaskProgress]);
@@ -50,7 +51,7 @@ export default function CampScreen({
   const allComplete = completedTasks >= totalTasks;
 
   const companionLines = useMemo(() => {
-    if (rescueCount === 0) return ['I sense someone needs our help…', 'Drag around the camp. This whole world is ours.', 'A new rescue trail is waiting.'];
+    if (rescueCount === 0) return ['Hi, friend! We help little animals. Tap the big red Follow Trail button, and I will show you where to go!', 'This is our cozy camp. You can move it by dragging, but you do not need to. Let’s help a friend first!', 'A little friend is waiting in Sunny Meadow. Let’s go together!'];
     if (rescueCount < 4) return ['Look at this little camp growing!', 'Every rescued friend makes the forest brighter.', 'Let’s see who needs help next.'];
     if (allComplete) return ['Every critter has a safe place here.', 'You made this sanctuary possible.', 'The forest is singing for you today.'];
     return ['Our plushie friends are so happy here.', 'There is always room for one more friend.', 'The rescue trail is waiting.'];
@@ -60,6 +61,11 @@ export default function CampScreen({
     playWelcome();
     return () => { if (dialogueTimer.current) clearTimeout(dialogueTimer.current); };
   }, []);
+  useEffect(() => {
+    if (rescueCount !== 0) return;
+    const timer = setTimeout(() => speakNarration('Hi, friend! We help little animals. First, tap Let’s Help a Friend. Then we will go to Sunny Meadow together.', 'guide'), 700);
+    return () => clearTimeout(timer);
+  }, [rescueCount]);
   useEffect(() => { setCampArrival(lastNurseryGraduate); }, [lastNurseryGraduate]);
 
   const revealDialogue = useCallback((text: string) => {
@@ -86,6 +92,11 @@ export default function CampScreen({
     return `${rescueCount} friends are safe. The trail continues.`;
   };
   const companionCard = getStarterCompanion(companionType);
+  const beginFirstRescue = () => {
+    playButton();
+    setShowFirstGuide(false);
+    setTimeout(() => onStartRescue('meadow'), 180);
+  };
 
   return (
     <div className="game-screen overflow-hidden bg-[#103B2A] select-none">
@@ -106,7 +117,7 @@ export default function CampScreen({
           <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5">3D camp · drag to explore</p>
+            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5">Your cozy camp · help a friend first</p>
           </div>
           <div className="flex flex-col items-center px-1">
             <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
@@ -159,10 +170,27 @@ export default function CampScreen({
         </div>
       )}
 
+      {showFirstGuide && !campArrival && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center px-5 bg-[#103B2A]/45">
+          <div className="paper-card relative w-full max-w-md p-5 text-center animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
+            <div className="flex items-center justify-center gap-2"><CritterAvatar type={companionType as CritterType} size={52} expression="excited" animate /><div className="text-left"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#E66B5B] font-bold">Your Rescue Buddy</p><h2 className="font-display font-bold text-[#2D2418] text-xl">Let’s help a friend!</h2></div></div>
+            <p className="font-display italic text-[#5C4D3C] text-sm mt-3">“You do not need to know everything. We will do this together.”</p>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-left">
+              <div className="rounded-xl bg-[#F8E8D8] p-2"><span className="block text-lg">1. 🧭</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Go to Sunny Meadow</p></div>
+              <div className="rounded-xl bg-[#E2EEDB] p-2"><span className="block text-lg">2. 🧩</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Do the little rescue game</p></div>
+              <div className="rounded-xl bg-[#F9DDE0] p-2"><span className="block text-lg">3. 🏕️</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Bring your friend home</p></div>
+            </div>
+            <div className="mt-3"><NarrationControls text="Hi, friend! We help little animals. First, go to Sunny Meadow. Next, do the little rescue game. Then bring your new friend home to camp." tone="guide" /></div>
+            <button onClick={beginFirstRescue} className="btn-coral mt-4 w-full text-base">Let’s Help a Friend!</button>
+            <button onClick={() => setShowFirstGuide(false)} className="mt-2 font-body text-xs text-[#5C4D3C] underline">I want to look around first</button>
+          </div>
+        </div>
+      )}
+
       {/* 3D interaction cue */}
       <div className="absolute z-10 left-3 top-[116px] pointer-events-none">
         <div className="rounded-full px-3 py-1.5 bg-[#173D2C]/75 border border-white/15 backdrop-blur-sm">
-          <span className="font-body text-[10px] text-white/80">🧭 Tap a plushie to say hello</span>
+          <span className="font-body text-[10px] text-white/80">🧸 Tap a plushie to say hello · red button starts a rescue</span>
         </div>
       </div>
 

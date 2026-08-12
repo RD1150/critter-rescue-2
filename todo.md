@@ -20,3 +20,10 @@
 - [x] Add a nursery graduation celebration and camp-arrival feedback.
 - [x] Add companion-specific rescue hints and bonus interactions for all six starters.
 - [x] Verify the celebration and companion interactions, then save a publish-ready checkpoint.
+
+## First-Play Clarity Pass
+
+- [x] Replace vague camp narration with child-friendly spoken instructions.
+- [x] Add a clear, visual three-step first-play guide from camp to rescue to reward.
+- [x] Add contextual first-rescue help that explains the active puzzle in simple words.
+- [x] Verify the revised first-play flow and save an updated checkpoint.
