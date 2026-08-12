@@ -5,8 +5,8 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import CritterAvatar, { Expression } from '../components/CritterAvatar';
 import NarrationControls from '../components/NarrationControls';
-import { MissionData, MissionType, CritterType } from '../game/data';
-import { playSnap, playPickup, playError, playComplete, playButton, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
+import { getStarterCompanion, MissionData, MissionType, CritterType } from '../game/data';
+import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import { isNarrationEnabled, speakNarration } from '../game/narration';
 
 interface Props {
@@ -691,6 +691,9 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
   const [progress, setProgress] = useState(0);
   const [critterExpr, setCritterExpr] = useState<Expression>('worried');
   const [showExit, setShowExit] = useState(false);
+  const [showTrailTip, setShowTrailTip] = useState(false);
+  const [tipUsed, setTipUsed] = useState(false);
+  const companion = getStarterCompanion(companionType);
 
   const handlePuzzleComplete = useCallback(() => {
     setProgress(1);
@@ -698,6 +701,14 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
     playComplete();
     setTimeout(() => setCompleted(true), 400);
   }, []);
+
+  const useCompanionTip = () => {
+    if (tipUsed) return;
+    playChime();
+    setTipUsed(true);
+    setShowTrailTip(true);
+    speakNarration(`${companion.name}'s ${companion.rescueAbility}. ${companion.rescueHint}`, 'guide');
+  };
 
   const bgStyle: React.CSSProperties = {
     background: `linear-gradient(180deg, ${bgColors[0]} 0%, ${bgColors[Math.floor(bgColors.length/2)]} 50%, ${bgColors[bgColors.length-1]} 100%)`,
@@ -735,14 +746,27 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
             <div className="wellness-bar-fill" style={{ width: `${progress*100}%` }} />
           </div>
         </div>
-        <CritterAvatar type={mission.critter.type} size={36} expression={critterExpr} />
+        <button onClick={useCompanionTip} disabled={tipUsed} className="relative rounded-xl active:scale-95 transition-transform disabled:opacity-70" aria-label={`Use ${companion.name}'s ${companion.rescueAbility}`}>
+          <CritterAvatar type={companion.type} size={38} expression={tipUsed ? 'excited' : 'happy'} />
+          {!tipUsed && <span className="absolute -right-1 -top-1 w-3 h-3 rounded-full bg-[#E66B5B] border border-white animate-pulse" />}
+        </button>
       </div>
 
       {/* Scenario text */}
       <div className="relative z-10 px-4 pb-2">
         <p className="font-display italic text-white text-center text-sm drop-shadow">{mission.scenarioText}</p>
         <p className="text-white/60 text-xs text-center font-body mt-0.5">{mission.hintText}</p>
+        <button onClick={useCompanionTip} disabled={tipUsed} className="mx-auto mt-2 flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-body text-[#2D2418] active:scale-95 transition-transform disabled:opacity-65" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }}>
+          <span>{companion.rescueIcon}</span><span>{tipUsed ? `${companion.name}'s tip used` : `Ask ${companion.name}`}</span>
+        </button>
       </div>
+
+      {showTrailTip && <div className="absolute z-40 top-[108px] left-1/2 -translate-x-1/2 w-[min(330px,86vw)] animate-pop-in"><div className="paper-card relative px-4 py-4 text-center shadow-xl" style={{ borderTop: '3px solid #E66B5B' }}>
+        <button onClick={() => setShowTrailTip(false)} className="absolute right-2 top-1 text-[#5C4D3C]/60 text-sm">×</button>
+        <div className="flex justify-center items-center gap-2"><CritterAvatar type={companion.type} size={40} expression="happy" /><span className="font-body text-[10px] uppercase tracking-[.13em] text-[#E66B5B] font-bold">{companion.rescueIcon} {companion.rescueAbility}</span></div>
+        <p className="font-display text-[#2D2418] text-sm italic leading-snug mt-2">“{companion.rescueHint}”</p>
+        <div className="mt-2"><NarrationControls text={`${companion.name}'s ${companion.rescueAbility}. ${companion.rescueHint}`} tone="guide" /></div>
+      </div></div>}
 
       {/* Puzzle area */}
       <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-4 flex flex-col items-center justify-center gap-3">

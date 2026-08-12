@@ -32,16 +32,23 @@ export interface StarterCompanion {
   personality: string;
   note: string;
   badge: string;
+  rescueIcon: string;
+  rescueAbility: string;
+  rescueHint: string;
 }
 
 export const STARTER_COMPANIONS: StarterCompanion[] = [
-  { type: 'bunny', name: 'Clover', personality: 'Gentle & curious', note: 'A soft-hearted trail guide who notices every tiny pawprint.', badge: 'Meadow Guide' },
-  { type: 'fox', name: 'Ember', personality: 'Clever & bold', note: 'A bright-eyed scout with a warm campfire spirit.', badge: 'Trail Scout' },
-  { type: 'owl', name: 'Sage', personality: 'Wise & calm', note: 'A patient moonlit friend who hears the forest whisper.', badge: 'Night Watch' },
-  { type: 'squirrel', name: 'Nutty', personality: 'Brave & busy', note: 'A quick little helper who always packs an extra acorn.', badge: 'Acorn Keeper' },
-  { type: 'hedgehog', name: 'Shadow', personality: 'Gentle & steady', note: 'A quiet friend with a brave heart beneath soft spines.', badge: 'Cozy Guardian' },
-  { type: 'bear', name: 'Summit', personality: 'Warm & strong', note: 'A big-hearted companion who makes every camp feel safe.', badge: 'Mountain Friend' },
+  { type: 'bunny', name: 'Clover', personality: 'Gentle & curious', note: 'A soft-hearted trail guide who notices every tiny pawprint.', badge: 'Meadow Guide', rescueIcon: '🌼', rescueAbility: 'Meadow Pause', rescueHint: 'Start with the nearest piece, then let each small success point you toward the next one.' },
+  { type: 'fox', name: 'Ember', personality: 'Clever & bold', note: 'A bright-eyed scout with a warm campfire spirit.', badge: 'Trail Scout', rescueIcon: '🧭', rescueAbility: 'Scout’s Lookout', rescueHint: 'Before making a move, scan the whole puzzle from left to right. The clearest route usually appears first.' },
+  { type: 'owl', name: 'Sage', personality: 'Wise & calm', note: 'A patient moonlit friend who hears the forest whisper.', badge: 'Night Watch', rescueIcon: '🌙', rescueAbility: 'Moon Map', rescueHint: 'Look for what repeats: matching shapes, familiar colors, or the same small rhythm. Patterns are quiet clues.' },
+  { type: 'squirrel', name: 'Nutty', personality: 'Brave & busy', note: 'A quick little helper who always packs an extra acorn.', badge: 'Acorn Keeper', rescueIcon: '🌰', rescueAbility: 'Acorn Tally', rescueHint: 'Count the targets before you begin. A tiny tally keeps the busy parts of the trail from feeling too big.' },
+  { type: 'hedgehog', name: 'Shadow', personality: 'Gentle & steady', note: 'A quiet friend with a brave heart beneath soft spines.', badge: 'Cozy Guardian', rescueIcon: '🍃', rescueAbility: 'Quiet Moment', rescueHint: 'Take one slow breath. There is no timer on kindness, and a calm look can reveal the next safe step.' },
+  { type: 'bear', name: 'Summit', personality: 'Warm & strong', note: 'A big-hearted companion who makes every camp feel safe.', badge: 'Mountain Friend', rescueIcon: '⭐', rescueAbility: 'Courage Stamp', rescueHint: 'Choose one small move and make it with confidence. Brave rescues are built from one steady step at a time.' },
 ];
+
+export function getStarterCompanion(type: string): StarterCompanion {
+  return STARTER_COMPANIONS.find((companion) => companion.type === type) ?? STARTER_COMPANIONS[0];
+}
 
 export const EMOJI_TO_TYPE: Record<string, CritterType> = {
   '🐰': 'bunny', '🦊': 'fox', '🦉': 'owl', '🐿️': 'squirrel',

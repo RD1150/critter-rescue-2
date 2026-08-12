@@ -16,8 +16,8 @@ import CritterJournalScreen from './screens/CritterJournalScreen';
 import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
 import NurseryScreen from './screens/NurseryScreen';
 
-import { loadState, saveState, completeRescue, careForCritter, GameState } from './game/store';
-import { getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
+import { acknowledgeNurseryGraduate, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
+import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 
 type Scene =
@@ -62,8 +62,10 @@ export default function App() {
     const preview3d = previewMode === 'camp3d';
     const previewNursery = previewMode === 'nursery3d';
     const previewJournal = previewMode === 'journal';
-    const previewState = (preview3d || previewNursery || previewJournal) && !s.selectedCompanion
-      ? { ...s, selectedCompanion: 'fox', rescueCompletedCount: 3, forestHarmony: 20, unlockedZones: ['meadow', 'riverside'], zoneTaskProgress: { ...s.zoneTaskProgress, meadow: 3 } }
+    const previewGraduate = previewMode === 'graduate';
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate;
+    const previewState = previewRequested
+      ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: Math.max(s.rescueCompletedCount, 3), forestHarmony: Math.max(s.forestHarmony, 20), unlockedZones: s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
     setState(previewState);
     setTimeout(() => {
@@ -73,6 +75,8 @@ export default function App() {
         setScene('nursery');
       } else if (previewJournal) {
         setScene('journal');
+      } else if (previewGraduate) {
+        setScene('camp');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -156,11 +160,15 @@ export default function App() {
   const handleCloseMatch3 = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenNursery = useCallback(() => { playButton(); transition('nursery', 100); }, [transition]);
   const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
-  const handleCareCritter = useCallback((careKey: string) => {
+  const handleCareCritter = useCallback((careKey: string, graduate: NurseryGraduate) => {
     if (!state) return null;
-    const result = careForCritter(state, careKey);
+    const result = careForCritter(state, careKey, graduate);
     setState(result.newState);
     return { careLevel: result.careLevel, graduated: result.graduated };
+  }, [state]);
+  const handleAcknowledgeGraduate = useCallback(() => {
+    if (!state) return;
+    setState(acknowledgeNurseryGraduate(state));
   }, [state]);
 
   if (scene === 'loading' || !state) return <LoadingScreen />;
@@ -189,6 +197,8 @@ export default function App() {
               onOpenJournal={handleOpenJournal}
               onOpenMatch3={handleOpenMatch3}
               onOpenNursery={handleOpenNursery}
+              lastNurseryGraduate={state.lastNurseryGraduate}
+              onAcknowledgeGraduate={handleAcknowledgeGraduate}
             />
           )}
           {scene === 'rescue' && currentMission && (

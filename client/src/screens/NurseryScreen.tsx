@@ -4,6 +4,7 @@ import BabylonNurseryScene from '../components/BabylonNurseryScene';
 import CritterAvatar from '../components/CritterAvatar';
 import NarrationControls from '../components/NarrationControls';
 import { CritterData, CritterType } from '../game/data';
+import { NurseryGraduate } from '../game/store';
 import { playButton, playChime, playComplete } from '../game/sounds';
 import { speakNarration } from '../game/narration';
 
@@ -35,7 +36,7 @@ interface Props {
   companionType: CritterType;
   rescuedCritters: CritterData[];
   nurseryCare: Record<string, number>;
-  onCare: (careKey: string) => { careLevel: number; graduated: boolean } | null;
+  onCare: (careKey: string, graduate: NurseryGraduate) => { careLevel: number; graduated: boolean } | null;
   onBack: () => void;
 }
 
@@ -47,13 +48,14 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
   const [carePulse, setCarePulse] = useState(0);
   const [careAction, setCareAction] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [graduate, setGraduate] = useState<NurseryFriend | null>(null);
   const selected = careFriends.find((friend) => friend.careKey === selectedKey) ?? careFriends[0];
   const careLevel = selected ? (nurseryCare[selected.careKey] ?? 0) : 0;
 
   const interact = useCallback((action: string) => {
     if (!selected || careLevel >= 3) return;
     playButton();
-    const outcome = onCare(selected.careKey);
+    const outcome = onCare(selected.careKey, { careKey: selected.careKey, name: selected.name, type: selected.type });
     if (!outcome) return;
     setCarePulse((value) => value + 1);
     setCareAction(action);
@@ -62,6 +64,7 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
       const nextMessage = `${selected.name} is ready for camp!`;
       setMessage(nextMessage);
       speakNarration(nextMessage, 'critter');
+      setTimeout(() => setGraduate(selected), 850);
     } else {
       playChime();
       const nextMessage = action === 'Feed' ? `${selected.name} enjoyed a tiny snack.` : action === 'Groom' ? `${selected.name} feels soft and cared for.` : `${selected.name} loved that cozy story.`;
@@ -94,6 +97,15 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
       </header>
 
       {message && <div className="absolute z-30 top-[82px] left-1/2 -translate-x-1/2 w-[min(320px,86vw)] animate-pop-in pointer-events-none"><div className="paper-card px-4 py-3 text-center shadow-xl"><p className="font-display italic text-[#2D2418] text-sm">{message}</p></div></div>}
+
+      {graduate && <div className="absolute inset-0 z-50 flex items-center justify-center px-4 bg-[#2A1B26]/55"><div className="relative paper-card w-full max-w-sm px-6 py-7 text-center overflow-hidden animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
+        {Array.from({ length: 16 }).map((_, index) => <span key={index} className="absolute text-lg pointer-events-none" style={{ left: `${5 + (index * 23) % 90}%`, top: `${4 + (index * 17) % 54}%`, animation: `leaf-fall ${2 + (index % 3)}s ${index * 0.08}s linear infinite` }}>{index % 3 === 0 ? '🌼' : index % 3 === 1 ? '✨' : '🍃'}</span>)}
+        <CritterAvatar type={graduate.type} size={112} expression="excited" animate />
+        <p className="font-body text-xs uppercase tracking-[.14em] text-[#E66B5B] font-bold mt-2">Nursery Graduation</p>
+        <h2 className="font-display text-2xl font-bold text-[#2D2418] mt-1">{graduate.name} is ready for camp!</h2>
+        <p className="font-display italic text-[#5C4D3C] text-sm mt-2">“A cozy heart makes a brave explorer.”</p>
+        <button onClick={() => { playButton(); onBack(); }} className="btn-coral mt-5 w-full">Welcome them to camp</button>
+      </div></div>}
 
       <section className="absolute z-20 left-3 right-3 bottom-3 pointer-events-none flex flex-col gap-2">
         <div className="pointer-events-auto self-center rounded-2xl px-4 py-2 text-center" style={{ background: 'oklch(0.97 0.02 80 / .94)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / .2)' }}>

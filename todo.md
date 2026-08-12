@@ -14,3 +14,9 @@
 - [x] Add an accessible browser-based narration control and wire it to companion and critter dialogue.
 - [x] Expand the starter collection to six plushies and add companion collection cards to the journal.
 - [x] Verify the complete expanded game flow and save a new delivery checkpoint.
+
+## Celebration and Companion Polish
+
+- [x] Add a nursery graduation celebration and camp-arrival feedback.
+- [x] Add companion-specific rescue hints and bonus interactions for all six starters.
+- [x] Verify the celebration and companion interactions, then save a publish-ready checkpoint.

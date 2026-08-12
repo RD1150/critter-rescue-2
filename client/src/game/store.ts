@@ -1,7 +1,13 @@
 // ─────────────────────────────────────────────
 // Critter Rescue — Game State (localStorage)
 // ─────────────────────────────────────────────
-import { ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
+import { CritterType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
+
+export interface NurseryGraduate {
+  careKey: string;
+  name: string;
+  type: CritterType;
+}
 
 export interface GameState {
   deviceId: string;
@@ -14,6 +20,7 @@ export interface GameState {
   zoneTaskProgress: Record<string, number>;
   nurseryCare: Record<string, number>;
   nurseryVisits: number;
+  lastNurseryGraduate: NurseryGraduate | null;
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -36,6 +43,7 @@ export function loadState(): GameState {
         zoneTaskProgress: { ...fresh.zoneTaskProgress, ...(saved.zoneTaskProgress ?? {}) },
         nurseryCare: saved.nurseryCare ?? {},
         nurseryVisits: saved.nurseryVisits ?? 0,
+        lastNurseryGraduate: saved.lastNurseryGraduate ?? null,
       };
     }
   } catch {}
@@ -58,6 +66,7 @@ export function createFreshState(): GameState {
     zoneTaskProgress: { meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 },
     nurseryCare: {},
     nurseryVisits: 0,
+    lastNurseryGraduate: null,
   };
 }
 
@@ -143,14 +152,21 @@ export interface CareResult {
 }
 
 /** One kind care action per visit, capped at three actions per critter. */
-export function careForCritter(state: GameState, critterKey: string): CareResult {
+export function careForCritter(state: GameState, critterKey: string, graduate?: NurseryGraduate): CareResult {
   const current = state.nurseryCare[critterKey] ?? 0;
   const careLevel = Math.min(3, current + 1);
   const newState: GameState = {
     ...state,
     nurseryCare: { ...state.nurseryCare, [critterKey]: careLevel },
     nurseryVisits: state.nurseryVisits + 1,
+    lastNurseryGraduate: careLevel >= 3 ? graduate ?? state.lastNurseryGraduate : state.lastNurseryGraduate,
   };
   saveState(newState);
   return { newState, careLevel, graduated: careLevel >= 3 };
+}
+
+export function acknowledgeNurseryGraduate(state: GameState): GameState {
+  const newState = { ...state, lastNurseryGraduate: null };
+  saveState(newState);
+  return newState;
 }

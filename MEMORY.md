@@ -65,3 +65,7 @@
 - The revised mobile starter screen cleanly fits all six plush companions in a readable 3-by-2 journal-card grid: Clover, Ember, Sage, Nutty, Shadow, and Summit.
 - The journal preview confirms that all six companion cards render as a mobile-friendly collection, with the active companion clearly marked and rescued-friend records retained below.
 - TypeScript verification passed after the ordered upgrade. A production-bundle command was stopped when it exceeded the execution window under sandbox memory pressure; this did not affect the running development server or the verified browser rendering.
+
+## Celebration and Companion Polish Verification
+- The graduation preview confirmed a full camp-arrival overlay with the graduated plushie, the Camp Arrival field label, a welcome message, the three-heart care stamp, and an explicit celebration action.
+- Each starter companion now carries a distinct rescue ability and narrated trail tip: Clover’s Meadow Pause, Ember’s Scout’s Lookout, Sage’s Moon Map, Nutty’s Acorn Tally, Shadow’s Quiet Moment, and Summit’s Courage Stamp.

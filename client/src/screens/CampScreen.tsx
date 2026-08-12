@@ -4,9 +4,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
 import NarrationControls from '../components/NarrationControls';
-import { CritterData, CritterType, getRescuedCritters, ZONES } from '../game/data';
-import { playButton, playWelcome } from '../game/sounds';
+import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
+import { playButton, playComplete, playWelcome } from '../game/sounds';
 import { speakNarration } from '../game/narration';
+import { NurseryGraduate } from '../game/store';
 
 interface Props {
   forestHarmony: number;
@@ -19,6 +20,8 @@ interface Props {
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
+  lastNurseryGraduate: NurseryGraduate | null;
+  onAcknowledgeGraduate: () => void;
 }
 
 export default function CampScreen({
@@ -31,10 +34,13 @@ export default function CampScreen({
   onOpenJournal,
   onOpenMatch3,
   onOpenNursery,
+  lastNurseryGraduate,
+  onAcknowledgeGraduate,
 }: Props) {
   const [showZoneSelect, setShowZoneSelect] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
   const [friendNote, setFriendNote] = useState<CritterData | null>(null);
+  const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const rescuedCritters = useMemo(() => getRescuedCritters(zoneTaskProgress), [zoneTaskProgress]);
@@ -54,6 +60,7 @@ export default function CampScreen({
     playWelcome();
     return () => { if (dialogueTimer.current) clearTimeout(dialogueTimer.current); };
   }, []);
+  useEffect(() => { setCampArrival(lastNurseryGraduate); }, [lastNurseryGraduate]);
 
   const revealDialogue = useCallback((text: string) => {
     setDialogue(text);
@@ -78,6 +85,7 @@ export default function CampScreen({
     if (allComplete) return 'Every friend is safe in the sanctuary.';
     return `${rescueCount} friends are safe. The trail continues.`;
   };
+  const companionCard = getStarterCompanion(companionType);
 
   return (
     <div className="game-screen overflow-hidden bg-[#103B2A] select-none">
@@ -137,6 +145,20 @@ export default function CampScreen({
         </div>
       )}
 
+      {campArrival && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center px-5 bg-[#103B2A]/50">
+          <div className="paper-card relative w-full max-w-sm px-6 py-6 text-center overflow-hidden animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
+            <div className="absolute inset-x-0 top-0 h-10 bg-[#E66B5B]/10" />
+            <p className="relative font-body text-xs uppercase tracking-[.15em] text-[#E66B5B] font-bold">Camp Arrival</p>
+            <CritterAvatar type={campArrival.type} size={96} expression="excited" animate />
+            <h2 className="font-display text-2xl font-bold text-[#2D2418]">Welcome, {campArrival.name}!</h2>
+            <p className="font-display italic text-[#5C4D3C] text-sm mt-2">A nursery graduate has joined the plushie sanctuary.</p>
+            <div className="mt-3 flex justify-center gap-1 text-[#E66B5B]">♥ ♥ ♥</div>
+            <button onClick={() => { playComplete(); onAcknowledgeGraduate(); setCampArrival(null); }} className="btn-coral mt-4 w-full">Celebrate together</button>
+          </div>
+        </div>
+      )}
+
       {/* 3D interaction cue */}
       <div className="absolute z-10 left-3 top-[116px] pointer-events-none">
         <div className="rounded-full px-3 py-1.5 bg-[#173D2C]/75 border border-white/15 backdrop-blur-sm">
@@ -151,7 +173,7 @@ export default function CampScreen({
           <div className="absolute -top-2 left-7 h-4 w-12 bg-[#E66B5B]/60 rotate-[-5deg]" />
           <p className="font-body text-[9px] uppercase tracking-[0.14em] text-[#E66B5B] font-bold">Field Note 01</p>
           <p className="font-display text-[#2D2418] font-bold text-base leading-tight mt-1">{getWelcome()}</p>
-          <p className="font-body text-[#5C4D3C] text-[11px] leading-snug mt-1.5">Pack your kit and follow the feather trail.</p>
+          <p className="font-body text-[#5C4D3C] text-[11px] leading-snug mt-1.5"><strong>{companionCard.rescueIcon} {companionCard.rescueAbility}:</strong> {companionCard.rescueHint}</p>
           <div className="mt-2 flex items-center gap-1.5 text-[#5C4D3C]/60 text-xs">
             <span>🐾</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🪶</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🌼</span>
           </div>
