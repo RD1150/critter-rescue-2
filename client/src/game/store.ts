@@ -12,6 +12,8 @@ export interface GameState {
   currentZone: string;
   unlockedZones: string[];
   zoneTaskProgress: Record<string, number>;
+  nurseryCare: Record<string, number>;
+  nurseryVisits: number;
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -23,7 +25,19 @@ function generateId(): string {
 export function loadState(): GameState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as GameState;
+    if (raw) {
+      const saved = JSON.parse(raw) as Partial<GameState>;
+      const fresh = createFreshState();
+      // Hydrates older local saves cleanly after new progression systems are added.
+      return {
+        ...fresh,
+        ...saved,
+        unlockedZones: saved.unlockedZones ?? fresh.unlockedZones,
+        zoneTaskProgress: { ...fresh.zoneTaskProgress, ...(saved.zoneTaskProgress ?? {}) },
+        nurseryCare: saved.nurseryCare ?? {},
+        nurseryVisits: saved.nurseryVisits ?? 0,
+      };
+    }
   } catch {}
   return createFreshState();
 }
@@ -42,6 +56,8 @@ export function createFreshState(): GameState {
     currentZone: 'meadow',
     unlockedZones: ['meadow'],
     zoneTaskProgress: { meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 },
+    nurseryCare: {},
+    nurseryVisits: 0,
   };
 }
 
@@ -118,4 +134,23 @@ export function completeRescue(
       zoneTaskProgress: newProgress,
     },
   };
+}
+
+export interface CareResult {
+  newState: GameState;
+  careLevel: number;
+  graduated: boolean;
+}
+
+/** One kind care action per visit, capped at three actions per critter. */
+export function careForCritter(state: GameState, critterKey: string): CareResult {
+  const current = state.nurseryCare[critterKey] ?? 0;
+  const careLevel = Math.min(3, current + 1);
+  const newState: GameState = {
+    ...state,
+    nurseryCare: { ...state.nurseryCare, [critterKey]: careLevel },
+    nurseryVisits: state.nurseryVisits + 1,
+  };
+  saveState(newState);
+  return { newState, careLevel, graduated: careLevel >= 3 };
 }

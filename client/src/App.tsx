@@ -14,9 +14,10 @@ import ZoneUnlockedScreen from './screens/ZoneUnlockedScreen';
 import GameCompleteScreen from './screens/GameCompleteScreen';
 import CritterJournalScreen from './screens/CritterJournalScreen';
 import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
+import NurseryScreen from './screens/NurseryScreen';
 
-import { loadState, saveState, completeRescue, GameState } from './game/store';
-import { getZoneTask, MissionData, ZONES } from './game/data';
+import { loadState, saveState, completeRescue, careForCritter, GameState } from './game/store';
+import { getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 
 type Scene =
@@ -28,7 +29,8 @@ type Scene =
   | 'gameComplete'
   | 'journal'
   | 'exitAffirmation'
-  | 'match3';
+  | 'match3'
+  | 'nursery';
 
 function LoadingScreen() {
   return (
@@ -56,14 +58,21 @@ export default function App() {
   // Load state on mount
   useEffect(() => {
     const s = loadState();
-    const preview3d = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'camp3d';
-    const previewState = preview3d && !s.selectedCompanion
+    const previewMode = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('preview') : null;
+    const preview3d = previewMode === 'camp3d';
+    const previewNursery = previewMode === 'nursery3d';
+    const previewJournal = previewMode === 'journal';
+    const previewState = (preview3d || previewNursery || previewJournal) && !s.selectedCompanion
       ? { ...s, selectedCompanion: 'fox', rescueCompletedCount: 3, forestHarmony: 20, unlockedZones: ['meadow', 'riverside'], zoneTaskProgress: { ...s.zoneTaskProgress, meadow: 3 } }
       : s;
     setState(previewState);
     setTimeout(() => {
       if (preview3d) {
         setScene('camp');
+      } else if (previewNursery) {
+        setScene('nursery');
+      } else if (previewJournal) {
+        setScene('journal');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -145,6 +154,14 @@ export default function App() {
   const handleExitDone = useCallback(() => setScene('camp'), []);
   const handleOpenMatch3 = useCallback(() => { playButton(); transition('match3', 100); }, [transition]);
   const handleCloseMatch3 = useCallback(() => transition('camp', 100), [transition]);
+  const handleOpenNursery = useCallback(() => { playButton(); transition('nursery', 100); }, [transition]);
+  const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
+  const handleCareCritter = useCallback((careKey: string) => {
+    if (!state) return null;
+    const result = careForCritter(state, careKey);
+    setState(result.newState);
+    return { careLevel: result.careLevel, graduated: result.graduated };
+  }, [state]);
 
   if (scene === 'loading' || !state) return <LoadingScreen />;
 
@@ -171,6 +188,7 @@ export default function App() {
               onStartRescue={handleStartRescue}
               onOpenJournal={handleOpenJournal}
               onOpenMatch3={handleOpenMatch3}
+              onOpenNursery={handleOpenNursery}
             />
           )}
           {scene === 'rescue' && currentMission && (
@@ -201,6 +219,7 @@ export default function App() {
           {scene === 'journal' && (
             <CritterJournalScreen
               zoneTaskProgress={state.zoneTaskProgress}
+              selectedCompanion={(state.selectedCompanion || 'bunny') as any}
               onClose={handleCloseJournal}
             />
           )}
@@ -210,8 +229,17 @@ export default function App() {
           {scene === 'match3' && (
             <Match3Screen
               onClose={handleCloseMatch3}
-              critterName={state.selectedCompanion === 'fox' ? 'Ember' : state.selectedCompanion === 'owl' ? 'Sage' : 'Clover'}
-              critterEmoji={state.selectedCompanion === 'fox' ? '🦊' : state.selectedCompanion === 'owl' ? '🦉' : '🐰'}
+              critterName={STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.name || 'Clover'}
+              critterEmoji={STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'fox' ? '🦊' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'owl' ? '🦉' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'squirrel' ? '🐿️' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'hedgehog' ? '🦔' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'bear' ? '🐻' : '🐰'}
+            />
+          )}
+          {scene === 'nursery' && (
+            <NurseryScreen
+              companionType={(state.selectedCompanion || 'bunny') as any}
+              rescuedCritters={getRescuedCritters(state.zoneTaskProgress)}
+              nurseryCare={state.nurseryCare}
+              onCare={handleCareCritter}
+              onBack={handleCloseNursery}
             />
           )}
         </div>

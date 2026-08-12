@@ -4,8 +4,10 @@
 // ─────────────────────────────────────────────
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import CritterAvatar, { Expression } from '../components/CritterAvatar';
+import NarrationControls from '../components/NarrationControls';
 import { MissionData, MissionType, CritterType } from '../game/data';
 import { playSnap, playPickup, playError, playComplete, playButton, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
+import { isNarrationEnabled, speakNarration } from '../game/narration';
 
 interface Props {
   mission: MissionData;
@@ -18,6 +20,10 @@ interface Props {
 
 // ── Intro overlay ──────────────────────────────
 function IntroOverlay({ mission, companionType, onStart }: { mission: MissionData; companionType: string; onStart: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(() => { if (isNarrationEnabled()) speakNarration(`${mission.critter.name}. ${mission.introText}`, 'guide'); }, 320);
+    return () => clearTimeout(timer);
+  }, [mission]);
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-center pb-8 px-4 bg-black/40 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-5 flex flex-col items-center gap-4">
@@ -29,6 +35,7 @@ function IntroOverlay({ mission, companionType, onStart }: { mission: MissionDat
           <p className="font-display font-bold text-[#2D2418] text-lg">{mission.critter.name}</p>
           <p className="text-[#5C4D3C] text-xs font-body italic mb-2">{mission.critter.personality}</p>
           <p className="font-display italic text-[#2D2418] text-base leading-snug">{mission.introText}</p>
+          <div className="mt-2"><NarrationControls text={`${mission.critter.name}. ${mission.introText}`} tone="guide" /></div>
         </div>
         <button onClick={onStart} className="btn-coral w-full text-base">I'll help!</button>
       </div>
@@ -43,6 +50,10 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
     const t = setTimeout(() => setShowSecond(true), 2000);
     return () => clearTimeout(t);
   }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => { if (isNarrationEnabled()) speakNarration(`${mission.critter.name} says: ${mission.critter.thanksLine}`, 'critter'); }, 280);
+    return () => clearTimeout(timer);
+  }, [mission]);
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center px-4 bg-black/30 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-6 flex flex-col items-center gap-4 text-center">
@@ -50,6 +61,7 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
         <div>
           <p className="font-display font-bold text-[#E66B5B] text-xl">You saved them! 🌟</p>
           <p className="font-display italic text-[#2D2418] text-base mt-1 leading-snug">{mission.critter.thanksLine}</p>
+          <div className="mt-2"><NarrationControls text={`${mission.critter.name} says: ${mission.critter.thanksLine}`} tone="critter" /></div>
           {showSecond && (
             <p className="font-body text-[#5C4D3C] text-sm mt-1 animate-rise-in">{mission.critter.secondLine}</p>
           )}

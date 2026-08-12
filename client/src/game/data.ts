@@ -26,6 +26,23 @@ export type CritterType =
   | 'otter' | 'turtle' | 'fish' | 'duck' | 'hedgehog' | 'snail'
   | 'lizard' | 'bee' | 'eagle' | 'goat' | 'beaver' | 'bear';
 
+export interface StarterCompanion {
+  type: CritterType;
+  name: string;
+  personality: string;
+  note: string;
+  badge: string;
+}
+
+export const STARTER_COMPANIONS: StarterCompanion[] = [
+  { type: 'bunny', name: 'Clover', personality: 'Gentle & curious', note: 'A soft-hearted trail guide who notices every tiny pawprint.', badge: 'Meadow Guide' },
+  { type: 'fox', name: 'Ember', personality: 'Clever & bold', note: 'A bright-eyed scout with a warm campfire spirit.', badge: 'Trail Scout' },
+  { type: 'owl', name: 'Sage', personality: 'Wise & calm', note: 'A patient moonlit friend who hears the forest whisper.', badge: 'Night Watch' },
+  { type: 'squirrel', name: 'Nutty', personality: 'Brave & busy', note: 'A quick little helper who always packs an extra acorn.', badge: 'Acorn Keeper' },
+  { type: 'hedgehog', name: 'Shadow', personality: 'Gentle & steady', note: 'A quiet friend with a brave heart beneath soft spines.', badge: 'Cozy Guardian' },
+  { type: 'bear', name: 'Summit', personality: 'Warm & strong', note: 'A big-hearted companion who makes every camp feel safe.', badge: 'Mountain Friend' },
+];
+
 export const EMOJI_TO_TYPE: Record<string, CritterType> = {
   '🐰': 'bunny', '🦊': 'fox', '🦉': 'owl', '🐿️': 'squirrel',
   '🐦': 'bird', '🐛': 'ladybug', '🐸': 'frog', '🦦': 'otter',

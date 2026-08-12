@@ -3,14 +3,8 @@
 // ─────────────────────────────────────────────
 import React, { useState } from 'react';
 import CritterAvatar from '../components/CritterAvatar';
-import { CritterType } from '../game/data';
+import { STARTER_COMPANIONS } from '../game/data';
 import { playButton } from '../game/sounds';
-
-const STARTERS: { type: CritterType; name: string; personality: string }[] = [
-  { type: 'bunny',    name: 'Clover',  personality: 'Gentle & curious' },
-  { type: 'fox',      name: 'Ember',   personality: 'Clever & bold' },
-  { type: 'owl',      name: 'Sage',    personality: 'Wise & calm' },
-];
 
 interface Props { onSelect: (companion: string) => void; }
 
@@ -62,8 +56,8 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
         </div>
 
         {/* Companion cards — torn-note style */}
-        <div className="flex gap-3 px-4 animate-rise-in" style={{ animationDelay: '100ms' }}>
-          {STARTERS.map(({ type, name, personality }) => {
+        <div className="grid grid-cols-3 gap-2 px-4 animate-rise-in" style={{ animationDelay: '100ms' }}>
+          {STARTER_COMPANIONS.map(({ type, name, personality }) => {
             const isChosen = chosen === type;
             return (
               <button key={type} onClick={() => { playButton(); setChosen(type); }}
@@ -78,7 +72,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
                     <span className="text-white text-[10px] font-bold">✓</span>
                   </div>
                 )}
-                <CritterAvatar type={type} size={72} expression={isChosen ? 'excited' : 'happy'} animate={isChosen} />
+                <CritterAvatar type={type} size={56} expression={isChosen ? 'excited' : 'happy'} animate={isChosen} />
                 <span className="font-display font-bold text-[#2D2418] text-sm">{name}</span>
                 <span className="text-[#5C4D3C] text-[10px] font-body text-center leading-tight">{personality}</span>
               </button>
@@ -87,7 +81,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
         </div>
 
         {/* Intro note — torn paper card */}
-        <div className="mx-4 mt-3 animate-rise-in" style={{ animationDelay: '200ms' }}>
+        <div className="mx-4 mt-2 animate-rise-in" style={{ animationDelay: '200ms' }}>
           <div className="rounded-xl px-4 py-3 relative"
             style={{ background: 'oklch(0.99 0.01 80)', border: '1px solid oklch(0.88 0.03 75)',
               boxShadow: '0 2px 8px oklch(0 0 0 / 0.06)', borderTop: '3px solid #E66B5B' }}>
@@ -102,7 +96,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
         </div>
 
         {/* CTA */}
-        <div className="flex justify-center mt-5 pb-4 animate-rise-in" style={{ animationDelay: '300ms' }}>
+        <div className="flex justify-center mt-3 pb-4 animate-rise-in" style={{ animationDelay: '300ms' }}>
           <button onClick={handleConfirm} disabled={!chosen}
             className="btn-coral text-base px-10 disabled:opacity-40 disabled:cursor-not-allowed">
             Begin the Rescue

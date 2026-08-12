@@ -59,3 +59,9 @@
 - A visual pass found the plush image planes were vertically inverted and the campfire light overexposed the clearing. `BabylonCampScene.tsx` now flips the image texture V coordinate and reduces ambient/fire-light intensity for a softer product-diorama look.
 - The corrected desktop preview shows upright, readable plush critters in a warm forest clearing. The mobile viewport also preserves the close-up plushie diorama composition and keeps the Match-3 and Find a Friend controls visible and tappable above the canvas.
 - A reviewer screenshot pass returned a blank render despite the direct desktop and mobile preview captures rendering successfully. The valid visual passes were used for quality decisions. The accepted design refinement strengthens the field-journal identity with pinned desktop field-note and trail-map pocket surfaces, while preserving the 3D plushie world as the primary canvas.
+
+## Follow-up Upgrade Verification Notes
+- The new 3D nursery preview renders a warm toy-room care space with a plush bed, pillow, moonlit window, shelf, care controls, care-list panel, and the selected plush character as the focal point.
+- The revised mobile starter screen cleanly fits all six plush companions in a readable 3-by-2 journal-card grid: Clover, Ember, Sage, Nutty, Shadow, and Summit.
+- The journal preview confirms that all six companion cards render as a mobile-friendly collection, with the active companion clearly marked and rescued-friend records retained below.
+- TypeScript verification passed after the ordered upgrade. A production-bundle command was stopped when it exceeded the execution window under sandbox memory pressure; this did not affect the running development server or the verified browser rendering.

@@ -7,3 +7,10 @@
 - [x] Connect 3D critter interactions to rescue selection and existing progression state.
 - [x] Verify desktop and mobile rendering, TypeScript checks, and core gameplay flow.
 - [x] Save a final checkpoint and present the 3D version to the user.
+
+## Requested Follow-up Upgrade
+
+- [x] Build a persistent Critter Nursery care loop and interactive 3D nursery room.
+- [x] Add an accessible browser-based narration control and wire it to companion and critter dialogue.
+- [x] Expand the starter collection to six plushies and add companion collection cards to the journal.
+- [x] Verify the complete expanded game flow and save a new delivery checkpoint.

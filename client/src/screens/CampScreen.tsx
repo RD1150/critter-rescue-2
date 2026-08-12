@@ -3,8 +3,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
+import NarrationControls from '../components/NarrationControls';
 import { CritterData, CritterType, getRescuedCritters, ZONES } from '../game/data';
 import { playButton, playWelcome } from '../game/sounds';
+import { speakNarration } from '../game/narration';
 
 interface Props {
   forestHarmony: number;
@@ -16,6 +18,7 @@ interface Props {
   onStartRescue: (zone: string) => void;
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
+  onOpenNursery: () => void;
 }
 
 export default function CampScreen({
@@ -27,6 +30,7 @@ export default function CampScreen({
   onStartRescue,
   onOpenJournal,
   onOpenMatch3,
+  onOpenNursery,
 }: Props) {
   const [showZoneSelect, setShowZoneSelect] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
@@ -53,6 +57,7 @@ export default function CampScreen({
 
   const revealDialogue = useCallback((text: string) => {
     setDialogue(text);
+    speakNarration(text, 'guide');
     if (dialogueTimer.current) clearTimeout(dialogueTimer.current);
     dialogueTimer.current = setTimeout(() => setDialogue(null), 3600);
   }, []);
@@ -102,6 +107,10 @@ export default function CampScreen({
           <button onClick={() => { playButton(); onOpenJournal(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal">
             <span className="text-lg">📖</span>
           </button>
+          <button onClick={() => { playButton(); onOpenNursery(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open the Critter Nursery">
+            <span className="text-lg">🧸</span>
+          </button>
+          <NarrationControls compact />
         </div>
       </div>
 
@@ -182,6 +191,7 @@ export default function CampScreen({
           </div>
           <div className="flex-1" />
           <div className="pointer-events-auto flex gap-2 items-end">
+            <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
             {!allComplete ? (
               <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
