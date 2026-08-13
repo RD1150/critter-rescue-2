@@ -14,6 +14,8 @@ export interface CritterData {
   name: string;
   emoji: string;
   personality: string;
+  introLine: string;
+  helpLine: string;
   thanksLine: string;
   secondLine: string;
   encourageLine: string;
@@ -87,7 +89,7 @@ function c(
   name: string, emoji: string, personality: string,
   thanksLine: string, secondLine: string, encourageLine: string, stuckLine: string
 ): CritterData {
-  return { name, emoji, personality, thanksLine, secondLine, encourageLine, stuckLine,
+  return { name, emoji, personality, introLine: `Hi! I’m ${name}.`, helpLine: stuckLine, thanksLine, secondLine, encourageLine, stuckLine,
     type: EMOJI_TO_TYPE[emoji] || 'bunny' };
 }
 

@@ -30,15 +30,23 @@
 
 ## Cartoonish Nutty Voice Preview
 
-- [ ] Define the bright, playful fictional squirrel-guide voice profile and preview script.
+- [x] Define the bright, playful fictional squirrel-guide voice profile and preview script.
 - [ ] Restore ElevenLabs authorization and deployment stability without exposing credentials.
-- [ ] Generate cartoonish Nutty preview candidates and obtain approval before integration.
-- [ ] Integrate only the approved instructional voice with a silent, readable fallback.
+- [x] Generate cartoonish Nutty preview candidates and obtain approval before integration.
+- [x] Integrate only the approved instructional voice with a silent, readable fallback.
 
 ## Sparse Character Dialogue
 
-- [ ] Limit character audio to a first introduction, a rescue help call, and a thank-you line.
-- [ ] Keep all other gameplay guidance as on-screen text and nonverbal sound effects.
+- [x] Add per-critter introduction, help-call, and thank-you dialogue data.
+- [x] Restrict playback to those three story moments and keep all other guidance text-only/nonverbal.
+
+## Complete Rescue Voice and Sound System
+
+- [x] Inventory every rescue critter, mission type, dialogue moment, and existing sound-effect cue.
+- [x] Write a concise task-specific help call, thank-you, and voice-design setting for every rescue critter.
+- [ ] Generate and organize the remaining sparse character voice assets.
+- [x] Integrate the character cues and preserve nonverbal gameplay sound effects across all rescues.
+- [x] Produce a complete dialogue-and-sound flow for review, verify the production build, and save a deployable checkpoint.
 
 ## Deployment Recovery
 

@@ -4,10 +4,10 @@
 // ─────────────────────────────────────────────
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import CritterAvatar, { Expression } from '../components/CritterAvatar';
-import NarrationControls from '../components/NarrationControls';
 import { getStarterCompanion, MissionData, MissionType, CritterType } from '../game/data';
+import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
+import { getRescueDialogue } from '../game/characterDialogue';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
-import { isNarrationEnabled, speakNarration } from '../game/narration';
 
 interface Props {
   mission: MissionData;
@@ -18,12 +18,18 @@ interface Props {
   isFirstMission: boolean;
 }
 
+function CharacterVoiceButton({ name, moment, label }: { name: string; moment: CharacterMoment; label: string }) {
+  if (!hasCharacterAudio(name, moment)) return null;
+  return (
+    <button type="button" onClick={() => playCharacterAudio(name, moment)} className="mt-1.5 rounded-full px-2 py-1 text-[10px] font-body text-[#5C4D3C] active:scale-95 transition-transform" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }} aria-label={`Hear ${name}'s ${label}`}>
+      🔊 Hear {name}
+    </button>
+  );
+}
+
 // ── Intro overlay ──────────────────────────────
 function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mission: MissionData; companionType: string; isFirstMission: boolean; onStart: () => void }) {
-  useEffect(() => {
-    const timer = setTimeout(() => { if (isNarrationEnabled()) speakNarration(`${mission.critter.name}. ${mission.introText}`, 'guide'); }, 320);
-    return () => clearTimeout(timer);
-  }, [mission]);
+  const dialogue = getRescueDialogue(mission);
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-center pb-8 px-4 bg-black/40 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-5 flex flex-col items-center gap-4">
@@ -35,7 +41,13 @@ function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mis
           <p className="font-display font-bold text-[#2D2418] text-lg">{mission.critter.name}</p>
           <p className="text-[#5C4D3C] text-xs font-body italic mb-2">{mission.critter.personality}</p>
           <p className="font-display italic text-[#2D2418] text-base leading-snug">{mission.introText}</p>
-          <div className="mt-2"><NarrationControls text={`${mission.critter.name}. ${mission.introText}`} tone="guide" /></div>
+          <div className="mt-2 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}>
+            <p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">{mission.critter.name} says</p>
+            <p className="font-display text-[#2D2418] text-sm mt-0.5">“{dialogue.introduction}”</p>
+            <CharacterVoiceButton name={mission.critter.name} moment="intro" label="introduction" />
+            <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>
+            <CharacterVoiceButton name={mission.critter.name} moment="help" label="help call" />
+          </div>
           {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
         </div>
         <button onClick={onStart} className="btn-coral w-full text-base">{isFirstMission ? 'Show Me the Rescue Game!' : 'I’ll help!'}</button>
@@ -51,10 +63,6 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
     const t = setTimeout(() => setShowSecond(true), 2000);
     return () => clearTimeout(t);
   }, []);
-  useEffect(() => {
-    const timer = setTimeout(() => { if (isNarrationEnabled()) speakNarration(`${mission.critter.name} says: ${mission.critter.thanksLine}`, 'critter'); }, 280);
-    return () => clearTimeout(timer);
-  }, [mission]);
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center px-4 bg-black/30 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-6 flex flex-col items-center gap-4 text-center">
@@ -62,7 +70,7 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
         <div>
           <p className="font-display font-bold text-[#E66B5B] text-xl">You saved them! 🌟</p>
           <p className="font-display italic text-[#2D2418] text-base mt-1 leading-snug">{mission.critter.thanksLine}</p>
-          <div className="mt-2"><NarrationControls text={`${mission.critter.name} says: ${mission.critter.thanksLine}`} tone="critter" /></div>
+          <CharacterVoiceButton name={mission.critter.name} moment="thanks" label="thank-you" />
           {showSecond && (
             <p className="font-body text-[#5C4D3C] text-sm mt-1 animate-rise-in">{mission.critter.secondLine}</p>
           )}
@@ -708,7 +716,6 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
     playChime();
     setTipUsed(true);
     setShowTrailTip(true);
-    speakNarration(`${companion.name}'s ${companion.rescueAbility}. ${companion.rescueHint}`, 'guide');
   };
 
   const bgStyle: React.CSSProperties = {
@@ -766,7 +773,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
         <button onClick={() => setShowTrailTip(false)} className="absolute right-2 top-1 text-[#5C4D3C]/60 text-sm">×</button>
         <div className="flex justify-center items-center gap-2"><CritterAvatar type={companion.type} size={40} expression="happy" /><span className="font-body text-[10px] uppercase tracking-[.13em] text-[#E66B5B] font-bold">{companion.rescueIcon} {companion.rescueAbility}</span></div>
         <p className="font-display text-[#2D2418] text-sm italic leading-snug mt-2">“{companion.rescueHint}”</p>
-        <div className="mt-2"><NarrationControls text={`${companion.name}'s ${companion.rescueAbility}. ${companion.rescueHint}`} tone="guide" /></div>
+        <p className="font-body text-[10px] text-[#5C4D3C] mt-2">This helper note is shown quietly so you can think at your own pace.</p>
       </div></div>}
 
       {isFirstMission && !showIntro && !completed && (

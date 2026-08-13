@@ -64,7 +64,8 @@ export default function App() {
     const previewJournal = previewMode === 'journal';
     const previewGraduate = previewMode === 'graduate';
     const previewFirstPlay = previewMode === 'firstplay';
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay;
+    const previewRescue = previewMode === 'rescue';
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue;
     const previewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -80,6 +81,10 @@ export default function App() {
         setScene('camp');
       } else if (previewFirstPlay) {
         setScene('camp');
+      } else if (previewRescue) {
+        setCurrentMission(getZoneTask('meadow', 0));
+        setCurrentZoneBg(ZONES[0].bgColors);
+        setScene('rescue');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {

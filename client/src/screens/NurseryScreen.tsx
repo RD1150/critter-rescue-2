@@ -2,11 +2,9 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import BabylonNurseryScene from '../components/BabylonNurseryScene';
 import CritterAvatar from '../components/CritterAvatar';
-import NarrationControls from '../components/NarrationControls';
 import { CritterData, CritterType } from '../game/data';
 import { NurseryGraduate } from '../game/store';
 import { playButton, playChime, playComplete } from '../game/sounds';
-import { speakNarration } from '../game/narration';
 
 type NurseryFriend = CritterData & { careKey: string; isCompanion?: boolean };
 
@@ -41,7 +39,10 @@ interface Props {
 }
 
 export default function NurseryScreen({ companionType, rescuedCritters, nurseryCare, onCare, onBack }: Props) {
-  const companions = useMemo<NurseryFriend[]>(() => [{ ...COMPANION_DETAILS[companionType], careKey: `companion-${companionType}`, isCompanion: true }], [companionType]);
+  const companions = useMemo<NurseryFriend[]>(() => {
+    const companion = COMPANION_DETAILS[companionType];
+    return [{ ...companion, introLine: `Hi! I’m ${companion.name}.`, helpLine: companion.stuckLine, careKey: `companion-${companionType}`, isCompanion: true }];
+  }, [companionType]);
   const friends = useMemo<NurseryFriend[]>(() => rescuedCritters.map((critter, index) => ({ ...critter, careKey: `rescued-${critter.name}-${index}` })), [rescuedCritters]);
   const careFriends = useMemo(() => [...companions, ...friends], [companions, friends]);
   const [selectedKey, setSelectedKey] = useState(() => careFriends[0]?.careKey ?? `companion-${companionType}`);
@@ -63,13 +64,11 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
       playComplete();
       const nextMessage = `${selected.name} is ready for camp!`;
       setMessage(nextMessage);
-      speakNarration(nextMessage, 'critter');
       setTimeout(() => setGraduate(selected), 850);
     } else {
       playChime();
       const nextMessage = action === 'Feed' ? `${selected.name} enjoyed a tiny snack.` : action === 'Groom' ? `${selected.name} feels soft and cared for.` : `${selected.name} loved that cozy story.`;
       setMessage(nextMessage);
-      speakNarration(nextMessage, 'critter');
     }
     setTimeout(() => setCareAction(null), 1600);
     setTimeout(() => setMessage(null), 3200);
@@ -84,14 +83,13 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
 
   return (
     <div className="game-screen overflow-hidden bg-[#2A1B26]">
-      <BabylonNurseryScene type={selected.type} name={selected.name} careLevel={careLevel} carePulse={carePulse} careAction={careAction} onPlushClick={() => { const line = selected.encourageLine.replaceAll('"', ''); setMessage(line); speakNarration(line, 'critter'); }} />
+      <BabylonNurseryScene type={selected.type} name={selected.name} careLevel={careLevel} carePulse={carePulse} careAction={careAction} onPlushClick={() => { const line = selected.encourageLine.replaceAll('"', ''); setMessage(line); }} />
       <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(46,26,38,.24), transparent 32%, transparent 66%, rgba(46,26,38,.55))' }} />
 
       <header className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">
         <div className="pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'oklch(0.97 0.02 80 / .94)', border: '1.5px solid oklch(0.85 0.03 75)', borderTop: '3px solid #E66B5B', boxShadow: '0 4px 16px oklch(0 0 0 / .18)' }}>
           <img src="/manus-storage/game-logo_a4abbdba.png" alt="" className="w-7 h-7" />
           <div className="flex-1 min-w-0"><p className="font-display font-bold text-[#2D2418] leading-none">The Cozy Nursery</p><p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">A soft pause between adventures</p></div>
-          <NarrationControls compact />
           <button onClick={() => { playButton(); onBack(); }} className="btn-parchment text-xs px-3 py-1.5">Camp</button>
         </div>
       </header>

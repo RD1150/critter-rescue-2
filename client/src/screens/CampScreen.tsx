@@ -6,7 +6,6 @@ import CritterAvatar from '../components/CritterAvatar';
 import NarrationControls from '../components/NarrationControls';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
 import { playButton, playComplete, playWelcome } from '../game/sounds';
-import { speakNarration } from '../game/narration';
 import { NurseryGraduate } from '../game/store';
 
 interface Props {
@@ -61,16 +60,10 @@ export default function CampScreen({
     playWelcome();
     return () => { if (dialogueTimer.current) clearTimeout(dialogueTimer.current); };
   }, []);
-  useEffect(() => {
-    if (rescueCount !== 0) return;
-    const timer = setTimeout(() => speakNarration('Hi, friend! We help little animals. First, tap Let’s Help a Friend. Then we will go to Sunny Meadow together.', 'guide'), 700);
-    return () => clearTimeout(timer);
-  }, [rescueCount]);
   useEffect(() => { setCampArrival(lastNurseryGraduate); }, [lastNurseryGraduate]);
 
   const revealDialogue = useCallback((text: string) => {
     setDialogue(text);
-    speakNarration(text, 'guide');
     if (dialogueTimer.current) clearTimeout(dialogueTimer.current);
     dialogueTimer.current = setTimeout(() => setDialogue(null), 3600);
   }, []);
@@ -129,7 +122,6 @@ export default function CampScreen({
           <button onClick={() => { playButton(); onOpenNursery(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open the Critter Nursery">
             <span className="text-lg">🧸</span>
           </button>
-          <NarrationControls compact />
         </div>
       </div>
 
