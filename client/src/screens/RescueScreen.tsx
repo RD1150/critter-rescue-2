@@ -18,10 +18,10 @@ interface Props {
   isFirstMission: boolean;
 }
 
-function CharacterVoiceButton({ name, moment, label }: { name: string; moment: CharacterMoment; label: string }) {
-  if (!hasCharacterAudio(name, moment)) return null;
+function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zone: string; moment: CharacterMoment; label: string }) {
+  if (!hasCharacterAudio(name, moment, zone)) return null;
   return (
-    <button type="button" onClick={() => playCharacterAudio(name, moment)} className="mt-1.5 rounded-full px-2 py-1 text-[10px] font-body text-[#5C4D3C] active:scale-95 transition-transform" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }} aria-label={`Hear ${name}'s ${label}`}>
+    <button type="button" onClick={() => playCharacterAudio(name, moment, zone)} className="mt-1.5 rounded-full px-2 py-1 text-[10px] font-body text-[#5C4D3C] active:scale-95 transition-transform" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }} aria-label={`Hear ${name}'s ${label}`}>
       🔊 Hear {name}
     </button>
   );
@@ -44,9 +44,9 @@ function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mis
           <div className="mt-2 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}>
             <p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">{mission.critter.name} says</p>
             <p className="font-display text-[#2D2418] text-sm mt-0.5">“{dialogue.introduction}”</p>
-            <CharacterVoiceButton name={mission.critter.name} moment="intro" label="introduction" />
+            <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="intro" label="introduction" />
             <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>
-            <CharacterVoiceButton name={mission.critter.name} moment="help" label="help call" />
+            <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="help" label="help call" />
           </div>
           {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
         </div>
@@ -70,7 +70,7 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
         <div>
           <p className="font-display font-bold text-[#E66B5B] text-xl">You saved them! 🌟</p>
           <p className="font-display italic text-[#2D2418] text-base mt-1 leading-snug">{mission.critter.thanksLine}</p>
-          <CharacterVoiceButton name={mission.critter.name} moment="thanks" label="thank-you" />
+          <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="thanks" label="thank-you" />
           {showSecond && (
             <p className="font-body text-[#5C4D3C] text-sm mt-1 animate-rise-in">{mission.critter.secondLine}</p>
           )}

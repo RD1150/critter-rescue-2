@@ -44,7 +44,7 @@
 
 - [x] Inventory every rescue critter, mission type, dialogue moment, and existing sound-effect cue.
 - [x] Write a concise task-specific help call, thank-you, and voice-design setting for every rescue critter.
-- [ ] Generate and organize the remaining sparse character voice assets.
+- [x] Generate and organize the remaining sparse character voice assets.
 - [x] Integrate the character cues and preserve nonverbal gameplay sound effects across all rescues.
 - [x] Produce a complete dialogue-and-sound flow for review, verify the production build, and save a deployable checkpoint.
 

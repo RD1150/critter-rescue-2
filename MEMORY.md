@@ -77,3 +77,8 @@
 ## Deployment Recovery
 - Publishing timed out while Vite processed more than 3,400 modules from the root `@babylonjs/core` entry. The 3D runtime is now lazy-loaded from the reachable jsDelivr prebuilt Babylon.js distribution, leaving only erased type imports in the application bundle.
 - The repaired build transforms 1,625 modules and completes in roughly four seconds. The 3D camp and nursery previews both render correctly after the change; the camp shows the plush forest, companions, trees, campfire, and interactive HUD.
+
+## Complete Character Voice System
+- ElevenLabs Voice Design and Text-to-Speech successfully produced distinct fictional cartoon character profiles for 24 rescue critters plus two finale ensembles. Each has three short clips only: introduction, task-focused help, and thank-you.
+- All 78 clips are uploaded to project storage and mapped through `client/src/game/characterAudio.ts`. The rescue UI presents them as optional tap-to-play buttons next to the corresponding written line; browser speech synthesis is no longer player-facing.
+- The final mobile Nutty rescue preview shows a readable two-line character card with separate “Hear Nutty” controls for the introduction and the simple task instruction. The production build completes successfully in under four seconds.
