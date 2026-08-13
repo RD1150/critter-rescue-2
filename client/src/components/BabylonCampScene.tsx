@@ -1,27 +1,40 @@
 // Hearthlight Field Journal — Babylon.js plushie toy-diorama camp.
 // This file owns only the 3D scene graph; React owns game state and HUD overlays.
 import React, { useEffect, useRef } from 'react';
-import {
-  ActionManager,
-  ArcRotateCamera,
-  Color3,
-  Color4,
-  DynamicTexture,
-  Engine,
-  ExecuteCodeAction,
-  HemisphericLight,
-  Mesh,
-  MeshBuilder,
-  PointLight,
-  Scene,
-  ShadowGenerator,
-  StandardMaterial,
-  Texture,
-  TransformNode,
-  Vector3,
-} from '@babylonjs/core';
+import type * as Babylon from '@babylonjs/core';
+import { loadBabylon } from '../lib/babylonRuntime';
 import { CritterData, CritterType } from '../game/data';
 import { PLUSH_IMAGES } from './CritterAvatar';
+
+type Color3 = Babylon.Color3;
+type Mesh = Babylon.Mesh;
+type Scene = Babylon.Scene;
+type ShadowGenerator = Babylon.ShadowGenerator;
+type StandardMaterial = Babylon.StandardMaterial;
+type TransformNode = Babylon.TransformNode;
+type Vector3 = Babylon.Vector3;
+
+let ActionManager!: typeof Babylon.ActionManager;
+let ArcRotateCamera!: typeof Babylon.ArcRotateCamera;
+let Color3!: typeof Babylon.Color3;
+let Color4!: typeof Babylon.Color4;
+let DynamicTexture!: typeof Babylon.DynamicTexture;
+let Engine!: typeof Babylon.Engine;
+let ExecuteCodeAction!: typeof Babylon.ExecuteCodeAction;
+let HemisphericLight!: typeof Babylon.HemisphericLight;
+let Mesh!: typeof Babylon.Mesh;
+let MeshBuilder!: typeof Babylon.MeshBuilder;
+let PointLight!: typeof Babylon.PointLight;
+let Scene!: typeof Babylon.Scene;
+let ShadowGenerator!: typeof Babylon.ShadowGenerator;
+let StandardMaterial!: typeof Babylon.StandardMaterial;
+let Texture!: typeof Babylon.Texture;
+let TransformNode!: typeof Babylon.TransformNode;
+let Vector3!: typeof Babylon.Vector3;
+
+function initializeBabylon(B: typeof Babylon) {
+  ({ ActionManager, ArcRotateCamera, Color3, Color4, DynamicTexture, Engine, ExecuteCodeAction, HemisphericLight, Mesh, MeshBuilder, PointLight, Scene, ShadowGenerator, StandardMaterial, Texture, TransformNode, Vector3 } = B);
+}
 
 type Props = {
   companionType: CritterType;
@@ -31,14 +44,14 @@ type Props = {
   className?: string;
 };
 
-const FALLBACK_COLORS: Record<CritterType, Color3> = {
-  bunny: Color3.FromHexString('#F2E9E1'), fox: Color3.FromHexString('#D86F37'), owl: Color3.FromHexString('#9A6D4C'),
-  squirrel: Color3.FromHexString('#AE7042'), bird: Color3.FromHexString('#80C8E8'), ladybug: Color3.FromHexString('#D65642'),
-  frog: Color3.FromHexString('#6FAE5B'), otter: Color3.FromHexString('#A97043'), turtle: Color3.FromHexString('#5E9A62'),
-  fish: Color3.FromHexString('#4F9EC0'), duck: Color3.FromHexString('#F1CA54'), hedgehog: Color3.FromHexString('#B27749'),
-  snail: Color3.FromHexString('#A981B4'), lizard: Color3.FromHexString('#5FA49B'), bee: Color3.FromHexString('#E9B93D'),
-  eagle: Color3.FromHexString('#835B3E'), goat: Color3.FromHexString('#E9E4D7'), beaver: Color3.FromHexString('#865B3C'),
-  bear: Color3.FromHexString('#A8754F'),
+const FALLBACK_COLORS: Record<CritterType, string> = {
+  bunny: '#F2E9E1', fox: '#D86F37', owl: '#9A6D4C',
+  squirrel: '#AE7042', bird: '#80C8E8', ladybug: '#D65642',
+  frog: '#6FAE5B', otter: '#A97043', turtle: '#5E9A62',
+  fish: '#4F9EC0', duck: '#F1CA54', hedgehog: '#B27749',
+  snail: '#A981B4', lizard: '#5FA49B', bee: '#E9B93D',
+  eagle: '#835B3E', goat: '#E9E4D7', beaver: '#865B3C',
+  bear: '#A8754F',
 };
 
 function makeMaterial(scene: Scene, name: string, hex: string, emissive = 0): StandardMaterial {
@@ -109,7 +122,7 @@ function makePlushie(
 ) {
   const root = new TransformNode(`plush-${displayName}`, scene);
   root.position = position;
-  const plushColor = FALLBACK_COLORS[type] || Color3.FromHexString('#F2E9E1');
+  const plushColor = Color3.FromHexString(FALLBACK_COLORS[type] || '#F2E9E1');
   const bodyMaterial = new StandardMaterial(`plush-body-${displayName}`, scene);
   bodyMaterial.diffuseColor = plushColor;
   bodyMaterial.specularColor = new Color3(0.02, 0.02, 0.02);
@@ -167,8 +180,13 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    let disposed = false;
+    let cleanup: (() => void) | null = null;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    void loadBabylon().then((B) => {
+      if (disposed) return;
+      initializeBabylon(B);
     const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, adaptToDeviceRatio: true });
     const scene = new Scene(engine);
     scene.clearColor = new Color4(0.075, 0.20, 0.15, 1);
@@ -273,7 +291,6 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       firefly.material = fireflyMat;
       fireflies.push(firefly);
     }
-
     let elapsed = 0;
     let autoTurn = 0;
     scene.onBeforeRenderObservable.add(() => {
@@ -294,10 +311,15 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     engine.runRenderLoop(() => scene.render());
     const resize = () => engine.resize();
     window.addEventListener('resize', resize);
-    return () => {
+    cleanup = () => {
       window.removeEventListener('resize', resize);
       scene.dispose();
       engine.dispose();
+    };
+    }).catch((error) => console.error('Critter Rescue 3D camp could not load:', error));
+    return () => {
+      disposed = true;
+      cleanup?.();
     };
   }, [companionType, rescuedCritters, onCompanionClick, onCritterClick]);
 

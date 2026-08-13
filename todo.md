@@ -27,3 +27,23 @@
 - [x] Add a clear, visual three-step first-play guide from camp to rescue to reward.
 - [x] Add contextual first-rescue help that explains the active puzzle in simple words.
 - [x] Verify the revised first-play flow and save an updated checkpoint.
+
+## Cartoonish Nutty Voice Preview
+
+- [ ] Define the bright, playful fictional squirrel-guide voice profile and preview script.
+- [ ] Restore ElevenLabs authorization and deployment stability without exposing credentials.
+- [ ] Generate cartoonish Nutty preview candidates and obtain approval before integration.
+- [ ] Integrate only the approved instructional voice with a silent, readable fallback.
+
+## Sparse Character Dialogue
+
+- [ ] Limit character audio to a first introduction, a rescue help call, and a thank-you line.
+- [ ] Keep all other gameplay guidance as on-screen text and nonverbal sound effects.
+
+## Deployment Recovery
+
+- [x] Identify the publishing timeout’s build, dependency, or deployment configuration cause.
+- [x] Repair the deployment blocker without regressing the playable game.
+- [x] Verify a production build and save a fresh deployable checkpoint.
+- [x] Resolve the camp-only 3D rendering regression introduced during deployment optimization.
+- [x] Re-verify both camp and nursery previews after the final Babylon runtime change.

@@ -1,27 +1,37 @@
 // Hearthlight Field Journal — warm 3D nursery built as a toy-room diorama.
 // React owns the care controls; this component owns rendering, lighting, and plushie response.
 import React, { useEffect, useRef } from 'react';
-import {
-  ActionManager,
-  ArcRotateCamera,
-  Color3,
-  Color4,
-  DynamicTexture,
-  Engine,
-  ExecuteCodeAction,
-  HemisphericLight,
-  Mesh,
-  MeshBuilder,
-  PointLight,
-  Scene,
-  ShadowGenerator,
-  StandardMaterial,
-  Texture,
-  TransformNode,
-  Vector3,
-} from '@babylonjs/core';
+import type * as Babylon from '@babylonjs/core';
+import { loadBabylon } from '../lib/babylonRuntime';
 import { CritterType } from '../game/data';
 import { PLUSH_IMAGES } from './CritterAvatar';
+
+type Mesh = Babylon.Mesh;
+type Scene = Babylon.Scene;
+type ShadowGenerator = Babylon.ShadowGenerator;
+type Vector3 = Babylon.Vector3;
+
+let ActionManager!: typeof Babylon.ActionManager;
+let ArcRotateCamera!: typeof Babylon.ArcRotateCamera;
+let Color3!: typeof Babylon.Color3;
+let Color4!: typeof Babylon.Color4;
+let DynamicTexture!: typeof Babylon.DynamicTexture;
+let Engine!: typeof Babylon.Engine;
+let ExecuteCodeAction!: typeof Babylon.ExecuteCodeAction;
+let HemisphericLight!: typeof Babylon.HemisphericLight;
+let Mesh!: typeof Babylon.Mesh;
+let MeshBuilder!: typeof Babylon.MeshBuilder;
+let PointLight!: typeof Babylon.PointLight;
+let Scene!: typeof Babylon.Scene;
+let ShadowGenerator!: typeof Babylon.ShadowGenerator;
+let StandardMaterial!: typeof Babylon.StandardMaterial;
+let Texture!: typeof Babylon.Texture;
+let TransformNode!: typeof Babylon.TransformNode;
+let Vector3!: typeof Babylon.Vector3;
+
+function initializeBabylon(B: typeof Babylon) {
+  ({ ActionManager, ArcRotateCamera, Color3, Color4, DynamicTexture, Engine, ExecuteCodeAction, HemisphericLight, Mesh, MeshBuilder, PointLight, Scene, ShadowGenerator, StandardMaterial, Texture, TransformNode, Vector3 } = B);
+}
 
 type Props = {
   type: CritterType;
@@ -112,8 +122,13 @@ export default function BabylonNurseryScene({ type, name, careLevel, carePulse, 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    let disposed = false;
+    let cleanup: (() => void) | null = null;
     const canvas = canvasRef.current;
     if (!canvas) return;
+    void loadBabylon().then((B) => {
+      if (disposed) return;
+      initializeBabylon(B);
     const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, adaptToDeviceRatio: true });
     const scene = new Scene(engine);
     scene.clearColor = new Color4(0.20, 0.13, 0.17, 1);
@@ -209,10 +224,15 @@ export default function BabylonNurseryScene({ type, name, careLevel, carePulse, 
     engine.runRenderLoop(() => scene.render());
     const resize = () => engine.resize();
     window.addEventListener('resize', resize);
-    return () => {
+    cleanup = () => {
       window.removeEventListener('resize', resize);
       scene.dispose();
       engine.dispose();
+    };
+    }).catch((error) => console.error('Critter Rescue nursery could not load:', error));
+    return () => {
+      disposed = true;
+      cleanup?.();
     };
   }, [type, name, careLevel, carePulse, careAction, onPlushClick]);
 

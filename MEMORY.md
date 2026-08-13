@@ -73,3 +73,7 @@
 ## First-Play Clarity Verification
 - The mobile first-play preview now opens with a clear child-friendly rescue guide: an encouraging rescue-buddy message, three visual steps (go to Sunny Meadow, do the little rescue game, bring the friend home), a narrated read-aloud option, and a single prominent “Let’s Help a Friend!” action.
 - The prior vague “drag around the camp” instruction has been replaced by a low-pressure optional exploration cue; starting a rescue is now the primary task explained in both the text and spoken narration.
+
+## Deployment Recovery
+- Publishing timed out while Vite processed more than 3,400 modules from the root `@babylonjs/core` entry. The 3D runtime is now lazy-loaded from the reachable jsDelivr prebuilt Babylon.js distribution, leaving only erased type imports in the application bundle.
+- The repaired build transforms 1,625 modules and completes in roughly four seconds. The 3D camp and nursery previews both render correctly after the change; the camp shows the plush forest, companions, trees, campfire, and interactive HUD.
