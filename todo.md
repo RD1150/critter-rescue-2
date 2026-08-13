@@ -31,7 +31,7 @@
 ## Cartoonish Nutty Voice Preview
 
 - [x] Define the bright, playful fictional squirrel-guide voice profile and preview script.
-- [ ] Restore ElevenLabs authorization and deployment stability without exposing credentials.
+- [x] Restore ElevenLabs authorization and deployment stability without exposing credentials.
 - [x] Generate cartoonish Nutty preview candidates and obtain approval before integration.
 - [x] Integrate only the approved instructional voice with a silent, readable fallback.
 

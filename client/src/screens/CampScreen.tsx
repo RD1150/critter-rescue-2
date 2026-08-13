@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
-import NarrationControls from '../components/NarrationControls';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
 import { playButton, playComplete, playWelcome } from '../game/sounds';
 import { NurseryGraduate } from '../game/store';
@@ -172,7 +171,6 @@ export default function CampScreen({
               <div className="rounded-xl bg-[#E2EEDB] p-2"><span className="block text-lg">2. 🧩</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Do the little rescue game</p></div>
               <div className="rounded-xl bg-[#F9DDE0] p-2"><span className="block text-lg">3. 🏕️</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Bring your friend home</p></div>
             </div>
-            <div className="mt-3"><NarrationControls text="Hi, friend! We help little animals. First, go to Sunny Meadow. Next, do the little rescue game. Then bring your new friend home to camp." tone="guide" /></div>
             <button onClick={beginFirstRescue} className="btn-coral mt-4 w-full text-base">Let’s Help a Friend!</button>
             <button onClick={() => setShowFirstGuide(false)} className="mt-2 font-body text-xs text-[#5C4D3C] underline">I want to look around first</button>
           </div>

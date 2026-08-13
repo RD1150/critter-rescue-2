@@ -52,4 +52,4 @@ Nutty’s approved preview establishes the desired standard: high, warm, playful
 
 ## Current Recorded-Voice Integration
 
-Nutty’s three approved recordings are integrated as **tap-to-play** buttons beside the exact written line. They are never autoplayed. The first Sunny Meadow counting rescue can therefore play Nutty’s introduction, “Help me count and tap them all!”, and thank-you. The remaining rescue lines are fully integrated as text and remain intentionally silent until their corresponding character voice is generated and approved.
+Nutty’s three approved **ElevenLabs** recordings are integrated as **tap-to-play** buttons beside the exact written line. They are never autoplayed. The first Sunny Meadow counting rescue can therefore play Nutty’s introduction, “Help me count and tap them all!”, and thank-you. The remaining rescue lines are fully integrated as text and remain intentionally silent until their corresponding character voice is generated and approved.

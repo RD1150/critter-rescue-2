@@ -4,9 +4,9 @@ export type CharacterMoment = 'intro' | 'help' | 'thanks';
 
 const RECORDED_LINES: Partial<Record<string, Partial<Record<CharacterMoment, string>>>> = {
   Nutty: {
-    intro: '/manus-storage/nutty_cartoon_squirrel_preview_2094670b.wav',
-    help: '/manus-storage/nutty_help_counting_3cfe2201.wav',
-    thanks: '/manus-storage/nutty_thanks_5cd73d51.wav',
+    intro: '/manus-storage/nutty_intro_elevenlabs_c7894963.mp3',
+    help: '/manus-storage/nutty_help_elevenlabs_d8fa8e6c.mp3',
+    thanks: '/manus-storage/nutty_thanks_elevenlabs_67b891b2.mp3',
   },
 };
 
