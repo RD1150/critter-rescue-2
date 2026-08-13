@@ -82,3 +82,8 @@
 - ElevenLabs Voice Design and Text-to-Speech successfully produced distinct fictional cartoon character profiles for 24 rescue critters plus two finale ensembles. Each has three short clips only: introduction, task-focused help, and thank-you.
 - All 78 clips are uploaded to project storage and mapped through `client/src/game/characterAudio.ts`. The rescue UI presents them as optional tap-to-play buttons next to the corresponding written line; browser speech synthesis is no longer player-facing.
 - The final mobile Nutty rescue preview shows a readable two-line character card with separate “Hear Nutty” controls for the introduction and the simple task instruction. The production build completes successfully in under four seconds.
+
+## Accessibility Work in Progress
+- Journal replay controls and persistent voice-volume/captions preferences have compiled successfully. Two preview captures of the development-only journal route returned only the parchment background without a current browser-console exception, so the journal route requires a focused rendering check before delivery.
+- Direct browser inspection confirmed that the journal renders correctly with replay controls for every rescued critter, a character voice-volume slider, and a captions checkbox. The earlier blank screenshots were a capture timing artifact, not a runtime issue.
+- First-three-rescue mobile previews confirmed clear three-step cards for Nutty’s acorn count, Pip’s dotted-path trace, and Nutty’s stepping-stone bridge. The cards use brief imperative sentences and match the revised mission text.

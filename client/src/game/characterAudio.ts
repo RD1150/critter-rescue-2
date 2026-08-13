@@ -1,5 +1,6 @@
 // Recorded character dialogue is deliberately sparse and player-initiated.
 // Text always remains visible; a missing recording simply means the line stays quiet.
+import { getAudioPreferences } from './audioPreferences';
 export type CharacterMoment = 'intro' | 'help' | 'thanks';
 
 const RECORDED_LINES: Record<string, Partial<Record<CharacterMoment, string>>> = {
@@ -148,6 +149,6 @@ export function playCharacterAudio(name: string, moment: CharacterMoment, zone?:
   const source = RECORDED_LINES[getCharacterAudioKey(name, zone)]?.[moment];
   if (!source || typeof Audio === 'undefined') return;
   const audio = new Audio(source);
-  audio.volume = 0.92;
+  audio.volume = getAudioPreferences().voiceVolume;
   void audio.play().catch(() => {});
 }

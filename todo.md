@@ -55,3 +55,10 @@
 - [x] Verify a production build and save a fresh deployable checkpoint.
 - [x] Resolve the camp-only 3D rendering regression introduced during deployment optimization.
 - [x] Re-verify both camp and nursery previews after the final Babylon runtime change.
+
+## Audio Accessibility and First-Rescue Clarity
+
+- [x] Add journal replay controls for each rescued critter’s introduction, help, and thank-you clips.
+- [x] Add a persistent voice volume slider and a captions preference for character dialogue.
+- [x] Review and refine the first three rescue instructions for child-friendly clarity.
+- [x] Verify replay, accessibility settings, and the revised first three rescues, then save a deployable checkpoint.

@@ -6,6 +6,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import CritterAvatar, { Expression } from '../components/CritterAvatar';
 import { getStarterCompanion, MissionData, MissionType, CritterType } from '../game/data';
 import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
+import { useAudioPreferences } from '../game/audioPreferences';
 import { getRescueDialogue } from '../game/characterDialogue';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 
@@ -16,7 +17,14 @@ interface Props {
   onComplete: () => void;
   onBack: () => void;
   isFirstMission: boolean;
+  isEarlyMission: boolean;
 }
+
+const EARLY_RESCUE_COACH: Partial<Record<MissionType, { title: string; steps: string[] }>> = {
+  counting: { title: 'Find all 3 acorns', steps: ['Look for a golden acorn star.', 'Tap one star.', 'Keep going until it says 3 out of 3.'] },
+  tracing: { title: 'Draw Pip a path', steps: ['Put your finger on the starting dot.', 'Move slowly along the dotted line.', 'Try again if your finger slips off.'] },
+  bridge: { title: 'Build Nutty a bridge', steps: ['Pick up one round stone.', 'Drag it onto an empty water circle.', 'Do the same with the other stones.'] },
+};
 
 function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zone: string; moment: CharacterMoment; label: string }) {
   if (!hasCharacterAudio(name, moment, zone)) return null;
@@ -28,8 +36,10 @@ function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zon
 }
 
 // ── Intro overlay ──────────────────────────────
-function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mission: MissionData; companionType: string; isFirstMission: boolean; onStart: () => void }) {
+function IntroOverlay({ mission, companionType, isFirstMission, isEarlyMission, onStart }: { mission: MissionData; companionType: string; isFirstMission: boolean; isEarlyMission: boolean; onStart: () => void }) {
   const dialogue = getRescueDialogue(mission);
+  const [preferences] = useAudioPreferences();
+  const coach = isEarlyMission ? EARLY_RESCUE_COACH[mission.type] : undefined;
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-center pb-8 px-4 bg-black/40 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-5 flex flex-col items-center gap-4">
@@ -43,12 +53,13 @@ function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mis
           <p className="font-display italic text-[#2D2418] text-base leading-snug">{mission.introText}</p>
           <div className="mt-2 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}>
             <p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">{mission.critter.name} says</p>
-            <p className="font-display text-[#2D2418] text-sm mt-0.5">“{dialogue.introduction}”</p>
+            {preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm mt-0.5">“{dialogue.introduction}”</p>}
             <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="intro" label="introduction" />
-            <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>
+            {preferences.captionsEnabled && <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>}
             <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="help" label="help call" />
           </div>
           {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
+          {coach && <div className="mt-3 rounded-xl bg-[#F8E8D8] px-3 py-2.5 text-left" style={{ border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Three easy steps · {coach.title}</p><ol className="mt-1.5 space-y-1">{coach.steps.map((step, index) => <li key={step} className="flex gap-1.5 font-body text-xs text-[#49392C]"><span className="font-display text-[#E66B5B]">{index + 1}.</span><span>{step}</span></li>)}</ol></div>}
         </div>
         <button onClick={onStart} className="btn-coral w-full text-base">{isFirstMission ? 'Show Me the Rescue Game!' : 'I’ll help!'}</button>
       </div>
@@ -58,6 +69,7 @@ function IntroOverlay({ mission, companionType, isFirstMission, onStart }: { mis
 
 // ── Completion overlay ─────────────────────────
 function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: () => void }) {
+  const [preferences] = useAudioPreferences();
   const [showSecond, setShowSecond] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setShowSecond(true), 2000);
@@ -69,7 +81,7 @@ function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: 
         <CritterAvatar type={mission.critter.type} size={100} expression="grateful" animate />
         <div>
           <p className="font-display font-bold text-[#E66B5B] text-xl">You saved them! 🌟</p>
-          <p className="font-display italic text-[#2D2418] text-base mt-1 leading-snug">{mission.critter.thanksLine}</p>
+          {preferences.captionsEnabled && <p className="font-display italic text-[#2D2418] text-base mt-1 leading-snug">{mission.critter.thanksLine}</p>}
           <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="thanks" label="thank-you" />
           {showSecond && (
             <p className="font-body text-[#5C4D3C] text-sm mt-1 animate-rise-in">{mission.critter.secondLine}</p>
@@ -694,7 +706,7 @@ function TracingPuzzle({ difficulty, onComplete }: { difficulty: number; onCompl
 }
 
 // ── Main RescueScreen ──────────────────────────
-export default function RescueScreen({ mission, companionType, bgColors, onComplete, onBack, isFirstMission }: Props) {
+export default function RescueScreen({ mission, companionType, bgColors, onComplete, onBack, isFirstMission, isEarlyMission }: Props) {
   const [showIntro, setShowIntro] = useState(true);
   const [completed, setCompleted] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -790,7 +802,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
 
       {/* Intro overlay */}
       {showIntro && (
-        <IntroOverlay mission={mission} companionType={companionType} isFirstMission={isFirstMission} onStart={() => setShowIntro(false)} />
+        <IntroOverlay mission={mission} companionType={companionType} isFirstMission={isFirstMission} isEarlyMission={isEarlyMission} onStart={() => setShowIntro(false)} />
       )}
 
       {/* Completion overlay */}

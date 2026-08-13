@@ -65,7 +65,9 @@ export default function App() {
     const previewGraduate = previewMode === 'graduate';
     const previewFirstPlay = previewMode === 'firstplay';
     const previewRescue = previewMode === 'rescue';
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue;
+    const previewRescue2 = previewMode === 'rescue2';
+    const previewRescue3 = previewMode === 'rescue3';
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3;
     const previewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -85,12 +87,20 @@ export default function App() {
         setCurrentMission(getZoneTask('meadow', 0));
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
+      } else if (previewRescue2) {
+        setCurrentMission(getZoneTask('meadow', 1));
+        setCurrentZoneBg(ZONES[0].bgColors);
+        setScene('rescue');
+      } else if (previewRescue3) {
+        setCurrentMission(getZoneTask('meadow', 2));
+        setCurrentZoneBg(ZONES[0].bgColors);
+        setScene('rescue');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
         setScene('camp');
       }
-    }, 800);
+    }, previewRequested ? 0 : 800);
   }, []);
 
   const transition = useCallback((to: Scene, delay = 0) => {
@@ -217,6 +227,7 @@ export default function App() {
               onComplete={handleRescueComplete}
               onBack={handleRescueBack}
               isFirstMission={state.rescueCompletedCount === 0}
+              isEarlyMission={currentMission.zone === 'meadow' && currentMission.taskIndex < 3}
             />
           )}
           {scene === 'zoneUnlocked' && newZoneUnlocked && (
