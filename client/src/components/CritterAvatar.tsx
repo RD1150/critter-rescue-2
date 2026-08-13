@@ -71,8 +71,8 @@ export default function CritterAvatar({
         alt={type}
         width={size}
         height={size}
-        className={`object-contain select-none drop-shadow-md ${animClass} ${className}`}
-        style={{ filter, width: size, height: size, ...style }}
+        className={`critter-avatar object-contain select-none drop-shadow-md ${animClass} ${className}`}
+        style={{ '--critter-avatar-size': `${size}px`, filter, width: size, height: size, ...style } as React.CSSProperties}
         draggable={false}
       />
     );
@@ -80,8 +80,8 @@ export default function CritterAvatar({
 
   return (
     <span
-      className={`inline-flex items-center justify-center select-none ${animClass} ${className}`}
-      style={{ fontSize: size * 0.7, width: size, height: size, filter, ...style }}
+        className={`critter-avatar inline-flex items-center justify-center select-none ${animClass} ${className}`}
+        style={{ '--critter-avatar-size': `${size}px`, fontSize: size * 0.7, width: size, height: size, filter, ...style } as React.CSSProperties}
       role="img"
       aria-label={type}
     >

@@ -2,7 +2,7 @@
 import { CritterType, getRescuedCritters, STARTER_COMPANIONS, ZONES } from '../game/data';
 import CritterAvatar from '../components/CritterAvatar';
 import AudioAccessibilityPanel from '../components/AudioAccessibilityPanel';
-import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
+import { hasCharacterAudio, playCharacterAudio, playCharacterStory, CharacterMoment } from '../game/characterAudio';
 import { playButton } from '../game/sounds';
 
 interface Props {
@@ -41,7 +41,7 @@ export default function CritterJournalScreen({ zoneTaskProgress, selectedCompani
           <div className="paper-card p-6 text-center mt-4"><p className="font-display italic text-[#5C4D3C]">No rescues yet. Head out and find a friend!</p></div>
         ) : (
           <section className="mt-4"><h3 className="font-display font-bold text-white text-lg mb-2 drop-shadow">Rescued Friends</h3><div className="grid grid-cols-2 gap-3">
-            {rescued.map((critter, index) => <div key={`${critter.name}-${index}`} className="paper-card p-3 flex flex-col items-center gap-2 animate-rise-in" style={{ animationDelay: `${index * 40}ms` }}><CritterAvatar type={critter.type} size={64} expression="happy" animate /><p className="font-display font-bold text-[#2D2418] text-base">{critter.name}</p><p className="text-[#5C4D3C] text-xs font-body italic text-center">{critter.personality}</p><p className="text-[#5C4D3C] text-xs font-body text-center leading-snug">{critter.thanksLine}</p>{(['intro', 'help', 'thanks'] as CharacterMoment[]).some((moment) => hasCharacterAudio(critter.name, moment)) && <div className="flex flex-wrap justify-center gap-1 pt-0.5">{(['intro', 'help', 'thanks'] as CharacterMoment[]).map((moment) => hasCharacterAudio(critter.name, moment) && <button key={moment} onClick={() => replay(critter.name, moment)} className="rounded-full px-2 py-1 text-[9px] font-body text-[#5C4D3C] active:scale-95" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }}>🔊 {moment === 'intro' ? 'Hi' : moment === 'help' ? 'Help' : 'Thanks'}</button>)}</div>}</div>)}
+            {rescued.map((critter, index) => <div key={`${critter.name}-${index}`} className="paper-card p-3 flex flex-col items-center gap-2 animate-rise-in" style={{ animationDelay: `${index * 40}ms` }}><CritterAvatar type={critter.type} size={64} expression="happy" animate /><p className="font-display font-bold text-[#2D2418] text-base">{critter.name}</p><p className="text-[#5C4D3C] text-xs font-body italic text-center">{critter.personality}</p><p className="text-[#5C4D3C] text-xs font-body text-center leading-snug">{critter.thanksLine}</p>{(['intro', 'help', 'thanks'] as CharacterMoment[]).some((moment) => hasCharacterAudio(critter.name, moment)) && <div className="flex flex-wrap justify-center gap-1 pt-0.5"><button onClick={() => { playButton(); void playCharacterStory(critter.name); }} className="rounded-full px-2 py-1 text-[9px] font-body font-bold text-white active:scale-95" style={{ background: '#E66B5B' }}>▶ Hear story</button>{(['intro', 'help', 'thanks'] as CharacterMoment[]).map((moment) => hasCharacterAudio(critter.name, moment) && <button key={moment} onClick={() => replay(critter.name, moment)} className="rounded-full px-2 py-1 text-[9px] font-body text-[#5C4D3C] active:scale-95" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }}>🔊 {moment === 'intro' ? 'Hi' : moment === 'help' ? 'Help' : 'Thanks'}</button>)}</div>}</div>)}
           </div></section>
         )}
 

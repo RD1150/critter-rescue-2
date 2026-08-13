@@ -18,6 +18,7 @@ interface Props {
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
+  onOpenParentSettings: () => void;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
 }
@@ -32,6 +33,7 @@ export default function CampScreen({
   onOpenJournal,
   onOpenMatch3,
   onOpenNursery,
+  onOpenParentSettings,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
 }: Props) {
@@ -120,6 +122,9 @@ export default function CampScreen({
           </button>
           <button onClick={() => { playButton(); onOpenNursery(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open the Critter Nursery">
             <span className="text-lg">🧸</span>
+          </button>
+          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings">
+            <span className="text-lg">⚙️</span>
           </button>
         </div>
       </div>

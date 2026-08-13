@@ -15,10 +15,12 @@ import GameCompleteScreen from './screens/GameCompleteScreen';
 import CritterJournalScreen from './screens/CritterJournalScreen';
 import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
 import NurseryScreen from './screens/NurseryScreen';
+import ParentSettingsScreen from './screens/ParentSettingsScreen';
 
 import { acknowledgeNurseryGraduate, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
+import { useAudioPreferences } from './game/audioPreferences';
 
 type Scene =
   | 'loading'
@@ -30,7 +32,8 @@ type Scene =
   | 'journal'
   | 'exitAffirmation'
   | 'match3'
-  | 'nursery';
+  | 'nursery'
+  | 'parentSettings';
 
 function LoadingScreen() {
   return (
@@ -47,6 +50,7 @@ function LoadingScreen() {
 }
 
 export default function App() {
+  const [audioPreferences] = useAudioPreferences();
   const [state, setState] = useState<GameState | null>(null);
   const [scene, setScene] = useState<Scene>('loading');
   const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
@@ -67,7 +71,8 @@ export default function App() {
     const previewRescue = previewMode === 'rescue';
     const previewRescue2 = previewMode === 'rescue2';
     const previewRescue3 = previewMode === 'rescue3';
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3;
+    const previewParentSettings = previewMode === 'parentsettings';
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings;
     const previewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -95,6 +100,8 @@ export default function App() {
         setCurrentMission(getZoneTask('meadow', 2));
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
+      } else if (previewParentSettings) {
+        setScene('parentSettings');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -178,6 +185,8 @@ export default function App() {
   const handleCloseMatch3 = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenNursery = useCallback(() => { playButton(); transition('nursery', 100); }, [transition]);
   const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
+  const handleOpenParentSettings = useCallback(() => { playButton(); transition('parentSettings', 100); }, [transition]);
+  const handleCloseParentSettings = useCallback(() => transition('camp', 100), [transition]);
   const handleCareCritter = useCallback((careKey: string, graduate: NurseryGraduate) => {
     if (!state) return null;
     const result = careForCritter(state, careKey, graduate);
@@ -197,7 +206,7 @@ export default function App() {
         <Toaster />
         <div
           ref={fadeRef}
-          className="w-full h-full transition-opacity duration-200"
+          className={`w-full h-full transition-opacity duration-200 ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''}`}
           style={{ opacity: transitioning ? 0 : 1 }}
         >
           {scene === 'starterSelection' && (
@@ -215,6 +224,7 @@ export default function App() {
               onOpenJournal={handleOpenJournal}
               onOpenMatch3={handleOpenMatch3}
               onOpenNursery={handleOpenNursery}
+              onOpenParentSettings={handleOpenParentSettings}
               lastNurseryGraduate={state.lastNurseryGraduate}
               onAcknowledgeGraduate={handleAcknowledgeGraduate}
             />
@@ -271,6 +281,7 @@ export default function App() {
               onBack={handleCloseNursery}
             />
           )}
+          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} />}
         </div>
       </TooltipProvider>
     </ErrorBoundary>

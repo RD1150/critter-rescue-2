@@ -136,6 +136,8 @@ const RECORDED_LINES: Record<string, Partial<Record<CharacterMoment, string>>> =
   }
 };
 
+let activeAudio: HTMLAudioElement | null = null;
+
 export function getCharacterAudioKey(name: string, zone?: string): string {
   if (name === 'Everyone') return zone === 'riverside' ? 'River Friends' : 'Mountain Friends';
   return name;
@@ -148,7 +150,30 @@ export function hasCharacterAudio(name: string, moment: CharacterMoment, zone?: 
 export function playCharacterAudio(name: string, moment: CharacterMoment, zone?: string): void {
   const source = RECORDED_LINES[getCharacterAudioKey(name, zone)]?.[moment];
   if (!source || typeof Audio === 'undefined') return;
-  const audio = new Audio(source);
-  audio.volume = getAudioPreferences().voiceVolume;
-  void audio.play().catch(() => {});
+  if (activeAudio) activeAudio.pause();
+  activeAudio = new Audio(source);
+  activeAudio.volume = getAudioPreferences().voiceVolume;
+  void activeAudio.play().catch(() => {});
+}
+
+function playSource(source: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof Audio === 'undefined') { resolve(); return; }
+    const audio = new Audio(source);
+    activeAudio = audio;
+    audio.volume = getAudioPreferences().voiceVolume;
+    audio.addEventListener('ended', () => resolve(), { once: true });
+    audio.addEventListener('error', () => resolve(), { once: true });
+    void audio.play().catch(() => resolve());
+  });
+}
+
+export async function playCharacterStory(name: string, zone?: string): Promise<void> {
+  const clips = RECORDED_LINES[getCharacterAudioKey(name, zone)];
+  if (!clips || activeAudio === null && typeof Audio === 'undefined') return;
+  if (activeAudio) activeAudio.pause();
+  for (const moment of ['intro', 'help', 'thanks'] as CharacterMoment[]) {
+    const source = clips[moment];
+    if (source) await playSource(source);
+  }
 }

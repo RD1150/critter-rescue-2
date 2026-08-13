@@ -244,6 +244,13 @@
   .animate-float      { animation: float 3s ease-in-out infinite; }
   .animate-critter-hop { animation: critter-hop 2.4s ease-in-out infinite; }
 
+  /* A simple, persistent visual mode for early readers: plushies become notably easier to spot. */
+  .large-icon-mode .critter-avatar {
+    width: calc(var(--critter-avatar-size) * 1.28) !important;
+    height: calc(var(--critter-avatar-size) * 1.28) !important;
+  }
+  .large-icon-mode .critter-avatar + * { min-width: 0; }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-float, .animate-critter-hop { animation: none; }
   }

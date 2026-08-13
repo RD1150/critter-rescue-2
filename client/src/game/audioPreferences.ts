@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean };
+export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean; largeIconMode: boolean };
 
 const STORAGE_KEY = 'critter-rescue-audio-preferences';
 const EVENT_NAME = 'critter-rescue-audio-preferences-changed';
-const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true };
+export const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true, largeIconMode: false };
 
 export function getAudioPreferences(): AudioPreferences {
   if (typeof window === 'undefined') return DEFAULT_PREFERENCES;
@@ -13,6 +13,7 @@ export function getAudioPreferences(): AudioPreferences {
     return {
       voiceVolume: typeof stored.voiceVolume === 'number' ? Math.max(0, Math.min(1, stored.voiceVolume)) : DEFAULT_PREFERENCES.voiceVolume,
       captionsEnabled: typeof stored.captionsEnabled === 'boolean' ? stored.captionsEnabled : DEFAULT_PREFERENCES.captionsEnabled,
+      largeIconMode: typeof stored.largeIconMode === 'boolean' ? stored.largeIconMode : DEFAULT_PREFERENCES.largeIconMode,
     };
   } catch { return DEFAULT_PREFERENCES; }
 }

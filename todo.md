@@ -62,3 +62,10 @@
 - [x] Add a persistent voice volume slider and a captions preference for character dialogue.
 - [x] Review and refine the first three rescue instructions for child-friendly clarity.
 - [x] Verify replay, accessibility settings, and the revised first three rescues, then save a deployable checkpoint.
+
+## Parent Controls and Large-Icon Mode
+
+- [x] Add one-tap playback of a rescued critter’s introduction, help, and thank-you clips.
+- [x] Add and persist a large-icon mode for young players.
+- [x] Build a dedicated parent settings page for sound and accessibility preferences.
+- [x] Verify the full controls flow and save a deployable checkpoint.
