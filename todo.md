@@ -86,6 +86,6 @@
 
 ## GitHub Backup
 
-- [ ] Verify access to RD1150/critter-rescue-2 and inspect the local Git state.
-- [ ] Commit the current Critter Rescue source with a descriptive message.
-- [ ] Push the commit to the specified GitHub repository.
+- [x] Verify access to RD1150/critter-rescue-2 and inspect the local Git state.
+- [x] Commit the current Critter Rescue source with a descriptive message.
+- [x] Push the commit to the specified GitHub repository.
