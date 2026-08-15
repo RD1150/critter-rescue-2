@@ -69,3 +69,23 @@
 - [x] Add and persist a large-icon mode for young players.
 - [x] Build a dedicated parent settings page for sound and accessibility preferences.
 - [x] Verify the full controls flow and save a deployable checkpoint.
+
+## Motion Sensitivity Support
+
+- [ ] Add a persistent Reduce motion toggle to Parent Settings.
+- [ ] Apply the preference to disable nonessential game animations and transitions.
+- [ ] Verify the reduced-motion experience and save a deployable checkpoint.
+
+## Critter Homes and Daily Trail
+
+- [ ] Map camp state, rescued critters, and mission completion hooks for home and daily-trail rewards.
+- [ ] Add a persistent Reduce motion toggle to Parent Settings and disable nonessential animation when enabled.
+- [ ] Build visible Critter Homes in the 3D camp and assign rescued critters to suitable homes.
+- [ ] Add a daily three-rescue trail with a clear completion reward and reset logic.
+- [ ] Verify motion support, homes, daily rewards, and deployment, then save a checkpoint.
+
+## GitHub Backup
+
+- [ ] Verify access to RD1150/critter-rescue-2 and inspect the local Git state.
+- [ ] Commit the current Critter Rescue source with a descriptive message.
+- [ ] Push the commit to the specified GitHub repository.
