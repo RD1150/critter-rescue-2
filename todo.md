@@ -88,7 +88,7 @@
 
 - [x] Commit and push the verified Reduce motion accessibility milestone.
 - [x] Commit and push the verified Critter Homes camp milestone.
-- [ ] Commit and push the verified daily three-rescue trail milestone.
+- [x] Commit and push the verified daily three-rescue trail milestone.
 
 ## GitHub Backup
 
