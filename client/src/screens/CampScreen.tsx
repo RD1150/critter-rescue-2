@@ -5,7 +5,7 @@ import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
 import { playButton, playComplete, playWelcome } from '../game/sounds';
-import { NurseryGraduate } from '../game/store';
+import { DailyTrailState, NurseryGraduate } from '../game/store';
 
 interface Props {
   forestHarmony: number;
@@ -15,6 +15,10 @@ interface Props {
   unlockedZones: string[];
   zoneTaskProgress: Record<string, number>;
   onStartRescue: (zone: string) => void;
+  dailyTrail: DailyTrailState;
+  lastDailyReward: string | null;
+  onStartDailyTrail: () => void;
+  onAcknowledgeDailyReward: () => void;
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
@@ -31,6 +35,10 @@ export default function CampScreen({
   unlockedZones,
   zoneTaskProgress,
   onStartRescue,
+  dailyTrail,
+  lastDailyReward,
+  onStartDailyTrail,
+  onAcknowledgeDailyReward,
   onOpenJournal,
   onOpenMatch3,
   onOpenNursery,
@@ -51,6 +59,8 @@ export default function CampScreen({
   const totalTasks = ZONES.reduce((sum, zone) => sum + zone.totalTasks, 0);
   const completedTasks = Object.values(zoneTaskProgress).reduce((sum, value) => sum + value, 0);
   const allComplete = completedTasks >= totalTasks;
+  const dailyCompleted = dailyTrail.completedKeys.length;
+  const dailyDone = dailyTrail.rewardEarned;
 
   const companionLines = useMemo(() => {
     if (rescueCount === 0) return ['Hi, friend! We help little animals. Tap the big red Follow Trail button, and I will show you where to go!', 'This is our cozy camp. You can move it by dragging, but you do not need to. Let’s help a friend first!', 'A little friend is waiting in Sunny Meadow. Let’s go together!'];
@@ -169,6 +179,19 @@ export default function CampScreen({
         </div>
       )}
 
+      {lastDailyReward && !campArrival && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center px-5 bg-[#103B2A]/50">
+          <div className="paper-card relative w-full max-w-sm px-6 py-6 text-center overflow-hidden animate-pop-in" style={{ borderTop: '4px solid #F5C842' }}>
+            <div className="absolute inset-x-0 top-0 h-12 bg-[#F5C842]/15" />
+            <p className="relative font-body text-xs uppercase tracking-[.15em] text-[#A56C20] font-bold">Daily Trail Complete</p>
+            <div className="text-5xl mt-2">🎒</div>
+            <h2 className="font-display text-2xl font-bold text-[#2D2418] mt-2">Trail Treasure!</h2>
+            <p className="font-display italic text-[#5C4D3C] text-sm mt-2">{lastDailyReward}</p>
+            <p className="font-body text-xs text-[#5C4D3C] mt-3">Come back tomorrow for three new tiny rescues.</p>
+            <button onClick={() => { playComplete(); onAcknowledgeDailyReward(); }} className="btn-coral mt-4 w-full">Put treasure in camp</button>
+          </div>
+        </div>
+      )}
       {showFirstGuide && !campArrival && (
         <div className="absolute inset-0 z-40 flex items-center justify-center px-5 bg-[#103B2A]/45">
           <div className="paper-card relative w-full max-w-md p-5 text-center animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
@@ -241,6 +264,11 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] text-xs leading-tight">Critter Homes</p>
             <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{rescuedCritters.length} cozy corners found</p>
           </div>}
+          <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[142px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
+            <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
+            <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
+            <button onClick={() => { playButton(); onStartDailyTrail(); }} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
+          </div>
           <div className="flex-1" />
           <div className="pointer-events-auto flex gap-2 items-end">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>

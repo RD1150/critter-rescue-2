@@ -17,7 +17,7 @@ import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
 import NurseryScreen from './screens/NurseryScreen';
 import ParentSettingsScreen from './screens/ParentSettingsScreen';
 
-import { acknowledgeNurseryGraduate, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
+import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, completeDailyTrailRescue, getNextDailyMission, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
@@ -53,9 +53,10 @@ export default function App() {
   const [audioPreferences] = useAudioPreferences();
   const [state, setState] = useState<GameState | null>(null);
   const [scene, setScene] = useState<Scene>('loading');
-  const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
-  const [currentZoneBg, setCurrentZoneBg] = useState<string[]>(['#87CEEB', '#7EC8A0', '#3E6B2F']);
-  const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
+const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
+const [currentZoneBg, setCurrentZoneBg] = useState<string[]>(['#87CEEB', '#7EC8A0', '#3E6B2F']);
+const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
+  const [activeDailyKey, setActiveDailyKey] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const fadeRef = useRef<HTMLDivElement>(null);
 
@@ -72,14 +73,20 @@ export default function App() {
     const previewRescue2 = previewMode === 'rescue2';
     const previewRescue3 = previewMode === 'rescue3';
     const previewParentSettings = previewMode === 'parentsettings';
+    const previewDailyProgress = previewMode === 'dailyprogress';
+    const previewDailyReward = previewMode === 'dailyreward';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings;
-    const previewState = previewRequested
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward;
+    const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
+    const previewTrail = (previewDailyProgress || previewDailyReward) ? buildDailyTrail(basePreviewState, '2026-08-20') : basePreviewState.dailyTrail;
+    const previewState = (previewDailyProgress || previewDailyReward)
+      ? { ...basePreviewState, dailyTrail: { ...previewTrail, completedKeys: previewDailyReward ? previewTrail.missions.map((mission) => mission.key) : [previewTrail.missions[0].key], rewardEarned: previewDailyReward }, lastDailyReward: previewDailyReward ? 'Trail Treasure earned: 3 camp blossoms and 5 Forest Harmony!' : null }
+      : basePreviewState;
     setState(previewState);
     setTimeout(() => {
       if (preview3d) {
@@ -106,6 +113,8 @@ export default function App() {
         setScene('rescue');
       } else if (previewParentSettings) {
         setScene('parentSettings');
+      } else if (previewDailyProgress || previewDailyReward) {
+        setScene('camp');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -142,14 +151,34 @@ export default function App() {
     transition('rescue', 100);
   }, [state, transition]);
 
+  const handleStartDailyTrail = useCallback(() => {
+    if (!state) return;
+    const dailyMission = getNextDailyMission(state);
+    if (!dailyMission) return;
+    const mission = getZoneTask(dailyMission.zone, dailyMission.taskIndex);
+    if (!mission) return;
+    const zoneInfo = ZONES.find((zone) => zone.id === dailyMission.zone) || ZONES[0];
+    playButton();
+    setCurrentMission(mission);
+    setCurrentZoneBg(zoneInfo.bgColors);
+    setActiveDailyKey(dailyMission.key);
+    transition('rescue', 100);
+  }, [state, transition]);
+
   const handleRescueComplete = useCallback(() => {
     if (!state || !currentMission) return;
-    const { newState, result } = completeRescue(
+    const normalOutcome = completeRescue(
       state,
       currentMission.zone,
       currentMission.taskIndex,
       currentMission.difficulty,
     );
+    let newState = normalOutcome.newState;
+    const result = normalOutcome.result;
+    if (activeDailyKey) {
+      newState = completeDailyTrailRescue(newState, activeDailyKey).newState;
+      setActiveDailyKey(null);
+    }
     setState(newState);
 
     const totalTasks = ZONES.reduce((s, z) => s + z.totalTasks, 0);
@@ -163,9 +192,10 @@ export default function App() {
     } else {
       transition('camp', 300);
     }
-  }, [state, currentMission, transition]);
+  }, [state, currentMission, transition, activeDailyKey]);
 
   const handleRescueBack = useCallback(() => {
+    setActiveDailyKey(null);
     transition('camp', 100);
   }, [transition]);
 
@@ -201,6 +231,10 @@ export default function App() {
     if (!state) return;
     setState(acknowledgeNurseryGraduate(state));
   }, [state]);
+  const handleAcknowledgeDailyReward = useCallback(() => {
+    if (!state) return;
+    setState(acknowledgeDailyReward(state));
+  }, [state]);
 
   if (scene === 'loading' || !state) return <LoadingScreen />;
 
@@ -225,6 +259,10 @@ export default function App() {
               unlockedZones={state.unlockedZones}
               zoneTaskProgress={state.zoneTaskProgress}
               onStartRescue={handleStartRescue}
+              dailyTrail={state.dailyTrail}
+              lastDailyReward={state.lastDailyReward}
+              onStartDailyTrail={handleStartDailyTrail}
+              onAcknowledgeDailyReward={handleAcknowledgeDailyReward}
               onOpenJournal={handleOpenJournal}
               onOpenMatch3={handleOpenMatch3}
               onOpenNursery={handleOpenNursery}
