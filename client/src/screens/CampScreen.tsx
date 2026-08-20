@@ -237,6 +237,10 @@ export default function CampScreen({
               <span className="font-display text-[#E66B5B] text-xs">{forestHarmony}</span>
             </div>
           </div>
+          {rescuedCritters.length > 0 && <div className="pointer-events-auto hidden sm:block rounded-xl px-3 py-2" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
+            <p className="font-display text-[#2D2418] text-xs leading-tight">Critter Homes</p>
+            <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{rescuedCritters.length} cozy corners found</p>
+          </div>}
           <div className="flex-1" />
           <div className="pointer-events-auto flex gap-2 items-end">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>

@@ -111,6 +111,87 @@ function createFlower(scene: Scene, x: number, z: number, color: string) {
   bloom.material = makeMaterial(scene, `bloom-mat-${x}-${z}`, color, 0.04);
 }
 
+type HomeStyle = 'acorn-nook' | 'pond-patch' | 'nest-perch' | 'garden-hideout' | 'honey-hut';
+
+const HOME_DETAILS: Partial<Record<CritterType, { style: HomeStyle; title: string }>> = {
+  squirrel: { style: 'acorn-nook', title: 'Acorn Nook' },
+  fox: { style: 'acorn-nook', title: 'Cozy Den' },
+  hedgehog: { style: 'acorn-nook', title: 'Leafy Den' },
+  bear: { style: 'acorn-nook', title: 'Honey Hollow' },
+  beaver: { style: 'acorn-nook', title: 'Log Lodge' },
+  frog: { style: 'pond-patch', title: 'Lily Pad Pond' },
+  otter: { style: 'pond-patch', title: 'Pebble Pool' },
+  turtle: { style: 'pond-patch', title: 'Sunny Shore' },
+  fish: { style: 'pond-patch', title: 'Bubble Brook' },
+  duck: { style: 'pond-patch', title: 'Reed Nest' },
+  owl: { style: 'nest-perch', title: 'Moon Nest' },
+  bird: { style: 'nest-perch', title: 'Twig Nest' },
+  eagle: { style: 'nest-perch', title: 'Sky Perch' },
+  bee: { style: 'honey-hut', title: 'Honey Hut' },
+  ladybug: { style: 'garden-hideout', title: 'Petal Home' },
+  snail: { style: 'garden-hideout', title: 'Mossy Corner' },
+  lizard: { style: 'garden-hideout', title: 'Warm Rock' },
+  goat: { style: 'garden-hideout', title: 'Meadow Patch' },
+  bunny: { style: 'garden-hideout', title: 'Clover Burrow' },
+};
+
+function createCritterHome(scene: Scene, critter: CritterData, position: Vector3, shadow: ShadowGenerator) {
+  const detail = HOME_DETAILS[critter.type] ?? { style: 'garden-hideout' as HomeStyle, title: 'Cozy Corner' };
+  const root = new TransformNode(`home-${critter.name}`, scene);
+  root.position = position;
+  const soil = makeMaterial(scene, `home-soil-${critter.name}`, '#6A4931');
+  const wood = makeMaterial(scene, `home-wood-${critter.name}`, '#8A5737');
+  const cream = makeMaterial(scene, `home-cream-${critter.name}`, '#F1DFC3');
+  const water = makeMaterial(scene, `home-water-${critter.name}`, '#6EB9CE', 0.08);
+  const leaf = makeMaterial(scene, `home-leaf-${critter.name}`, '#548B50');
+  const petal = makeMaterial(scene, `home-petal-${critter.name}`, '#E89A9E', 0.05);
+  const homeParts: Mesh[] = [];
+  const addShadow = (part: Mesh) => { homeParts.push(part); shadow.addShadowCaster(part); };
+
+  if (detail.style === 'acorn-nook') {
+    const mound = MeshBuilder.CreateSphere(`home-mound-${critter.name}`, { diameter: 1.55, segments: 12 }, scene);
+    mound.parent = root; mound.position = new Vector3(0, 0.38, 0.12); mound.scaling = new Vector3(1.1, 0.75, 0.75); mound.material = wood; addShadow(mound);
+    const door = MeshBuilder.CreateDisc(`home-door-${critter.name}`, { radius: 0.34, tessellation: 18 }, scene);
+    door.parent = root; door.position = new Vector3(0, 0.32, -0.54); door.material = soil;
+    const roofLeaf = MeshBuilder.CreateSphere(`home-leafroof-${critter.name}`, { diameter: 1.05, segments: 10 }, scene);
+    roofLeaf.parent = root; roofLeaf.position = new Vector3(0.18, 0.92, 0.12); roofLeaf.scaling = new Vector3(1.05, 0.28, 0.72); roofLeaf.material = leaf; addShadow(roofLeaf);
+  } else if (detail.style === 'pond-patch') {
+    const pond = MeshBuilder.CreateDisc(`home-pond-${critter.name}`, { radius: 0.85, tessellation: 28 }, scene);
+    pond.parent = root; pond.rotation.x = Math.PI / 2; pond.position.y = 0.025; pond.material = water;
+    for (let i = 0; i < 3; i++) {
+      const pad = MeshBuilder.CreateDisc(`home-pad-${critter.name}-${i}`, { radius: 0.2, tessellation: 14 }, scene);
+      pad.parent = root; pad.rotation.x = Math.PI / 2; pad.position = new Vector3(-0.33 + i * 0.32, 0.05, 0.15 + (i % 2) * 0.2); pad.material = leaf;
+    }
+    const reed = MeshBuilder.CreateCylinder(`home-reed-${critter.name}`, { height: 0.75, diameter: 0.06, tessellation: 6 }, scene);
+    reed.parent = root; reed.position = new Vector3(0.62, 0.36, 0.12); reed.material = leaf; addShadow(reed);
+  } else if (detail.style === 'nest-perch') {
+    const stump = MeshBuilder.CreateCylinder(`home-stump-${critter.name}`, { height: 1.05, diameterTop: 0.38, diameterBottom: 0.58, tessellation: 10 }, scene);
+    stump.parent = root; stump.position.y = 0.52; stump.material = wood; addShadow(stump);
+    const nest = MeshBuilder.CreateTorus(`home-nest-${critter.name}`, { diameter: 0.88, thickness: 0.16, tessellation: 18 }, scene);
+    nest.parent = root; nest.rotation.x = Math.PI / 2; nest.position.y = 1.1; nest.material = soil; addShadow(nest);
+    const egg = MeshBuilder.CreateSphere(`home-egg-${critter.name}`, { diameter: 0.22, segments: 8 }, scene);
+    egg.parent = root; egg.position = new Vector3(-0.1, 1.18, 0); egg.material = cream; addShadow(egg);
+  } else if (detail.style === 'honey-hut') {
+    const hut = MeshBuilder.CreateCylinder(`home-hut-${critter.name}`, { height: 0.95, diameter: 0.82, tessellation: 10 }, scene);
+    hut.parent = root; hut.position.y = 0.48; hut.material = makeMaterial(scene, `home-honey-${critter.name}`, '#D9A943', 0.04); addShadow(hut);
+    const roof = MeshBuilder.CreateCylinder(`home-hutroof-${critter.name}`, { height: 0.32, diameterTop: 0.05, diameterBottom: 1.05, tessellation: 10 }, scene);
+    roof.parent = root; roof.position.y = 1.12; roof.material = wood; addShadow(roof);
+    const entrance = MeshBuilder.CreateSphere(`home-hutdoor-${critter.name}`, { diameter: 0.18, segments: 8 }, scene);
+    entrance.parent = root; entrance.position = new Vector3(0, 0.5, -0.43); entrance.material = soil;
+  } else {
+    const patch = MeshBuilder.CreateDisc(`home-patch-${critter.name}`, { radius: 0.75, tessellation: 22 }, scene);
+    patch.parent = root; patch.rotation.x = Math.PI / 2; patch.position.y = 0.025; patch.material = leaf;
+    const rock = MeshBuilder.CreateSphere(`home-rock-${critter.name}`, { diameter: 0.78, segments: 10 }, scene);
+    rock.parent = root; rock.position = new Vector3(0.04, 0.27, 0.1); rock.scaling = new Vector3(1.15, 0.72, 0.72); rock.material = cream; addShadow(rock);
+    for (let i = 0; i < 2; i++) {
+      const flower = MeshBuilder.CreateSphere(`home-flower-${critter.name}-${i}`, { diameter: 0.19, segments: 8 }, scene);
+      flower.parent = root; flower.position = new Vector3(-0.4 + i * 0.8, 0.31, -0.16); flower.material = petal; addShadow(flower);
+    }
+  }
+  label(scene, root, `${critter.name}'s ${detail.title}`, detail.style === 'nest-perch' ? 1.62 : 1.24, '#FBE8CA');
+  return root;
+}
+
 function makePlushie(
   scene: Scene,
   type: CritterType,
@@ -281,6 +362,9 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       new Vector3(4.7, 0.02, 0.1), new Vector3(-2.8, 0.02, -2.2), new Vector3(2.8, 0.02, -2.2),
     ];
     rescuedCritters.slice(0, friendSlots.length).forEach((critter, index) => {
+      const slot = friendSlots[index];
+      const homeOffset = new Vector3(slot.x < 0 ? -0.75 : 0.75, 0, slot.z > 0 ? 0.75 : -0.8);
+      createCritterHome(scene, critter, slot.add(homeOffset), shadow);
       makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onCritterClick(critter), shadow);
     });
 

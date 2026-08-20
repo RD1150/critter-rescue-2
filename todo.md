@@ -78,15 +78,15 @@
 
 ## Critter Homes and Daily Trail
 
-- [ ] Map camp state, rescued critters, and mission completion hooks for home and daily-trail rewards.
+- [x] Map camp state, rescued critters, and mission completion hooks for home and daily-trail rewards.
 - [x] Add a persistent Reduce motion toggle to Parent Settings and disable nonessential animation when enabled.
-- [ ] Build visible Critter Homes in the 3D camp and assign rescued critters to suitable homes.
+- [x] Build visible Critter Homes in the 3D camp and assign rescued critters to suitable homes.
 - [ ] Add a daily three-rescue trail with a clear completion reward and reset logic.
 - [ ] Verify motion support, homes, daily rewards, and deployment, then save a checkpoint.
 
 ## Continuous GitHub Sync
 
-- [ ] Commit and push the verified Reduce motion accessibility milestone.
+- [x] Commit and push the verified Reduce motion accessibility milestone.
 - [ ] Commit and push the verified Critter Homes camp milestone.
 - [ ] Commit and push the verified daily three-rescue trail milestone.
 
