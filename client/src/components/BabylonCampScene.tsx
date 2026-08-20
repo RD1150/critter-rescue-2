@@ -41,6 +41,7 @@ type Props = {
   rescuedCritters: CritterData[];
   onCompanionClick: () => void;
   onCritterClick: (critter: CritterData) => void;
+  reduceMotion?: boolean;
   className?: string;
 };
 
@@ -176,7 +177,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -296,6 +297,13 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     scene.onBeforeRenderObservable.add(() => {
       const dt = engine.getDeltaTime() / 1000;
       elapsed += dt;
+      if (reduceMotion) {
+        flame.scaling = new Vector3(0.7, 1.36, 0.72);
+        firelight.intensity = 2.2;
+        companion.root.position.y = 0.02;
+        fireflies.forEach((fly) => { fly.visibility = 0.75; });
+        return;
+      }
       flame.scaling.y = 1.36 + Math.sin(elapsed * 7) * 0.2;
       flame.scaling.x = 0.7 + Math.sin(elapsed * 5.5) * 0.07;
       firelight.intensity = 2.2 + Math.sin(elapsed * 8) * 0.35;
@@ -321,7 +329,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

@@ -254,4 +254,22 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-float, .animate-critter-hop { animation: none; }
   }
+
+  /* Parent-selected and operating-system motion preferences stop decorative movement everywhere. */
+  .reduce-motion-mode *,
+  .reduce-motion-mode *::before,
+  .reduce-motion-mode *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

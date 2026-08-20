@@ -20,7 +20,7 @@ import ParentSettingsScreen from './screens/ParentSettingsScreen';
 import { acknowledgeNurseryGraduate, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
-import { useAudioPreferences } from './game/audioPreferences';
+import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
 
 type Scene =
   | 'loading'
@@ -72,6 +72,10 @@ export default function App() {
     const previewRescue2 = previewMode === 'rescue2';
     const previewRescue3 = previewMode === 'rescue3';
     const previewParentSettings = previewMode === 'parentsettings';
+    const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
+    if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
+      saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
+    }
     const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings;
     const previewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
@@ -115,8 +119,8 @@ export default function App() {
     setTimeout(() => {
       setScene(to);
       setTransitioning(false);
-    }, delay + 200);
-  }, []);
+    }, delay + (audioPreferences.reduceMotion ? 0 : 200));
+  }, [audioPreferences.reduceMotion]);
 
   const handleSelectCompanion = useCallback((companion: string) => {
     if (!state) return;
@@ -206,7 +210,7 @@ export default function App() {
         <Toaster />
         <div
           ref={fadeRef}
-          className={`w-full h-full transition-opacity duration-200 ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''}`}
+          className={`w-full h-full transition-opacity duration-200 ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''} ${audioPreferences.reduceMotion ? 'reduce-motion-mode' : ''}`}
           style={{ opacity: transitioning ? 0 : 1 }}
         >
           {scene === 'starterSelection' && (
@@ -227,6 +231,7 @@ export default function App() {
               onOpenParentSettings={handleOpenParentSettings}
               lastNurseryGraduate={state.lastNurseryGraduate}
               onAcknowledgeGraduate={handleAcknowledgeGraduate}
+              reduceMotion={audioPreferences.reduceMotion}
             />
           )}
           {scene === 'rescue' && currentMission && (
@@ -279,6 +284,7 @@ export default function App() {
               nurseryCare={state.nurseryCare}
               onCare={handleCareCritter}
               onBack={handleCloseNursery}
+              reduceMotion={audioPreferences.reduceMotion}
             />
           )}
           {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} />}

@@ -72,17 +72,23 @@
 
 ## Motion Sensitivity Support
 
-- [ ] Add a persistent Reduce motion toggle to Parent Settings.
-- [ ] Apply the preference to disable nonessential game animations and transitions.
-- [ ] Verify the reduced-motion experience and save a deployable checkpoint.
+- [x] Add a persistent Reduce motion toggle to Parent Settings.
+- [x] Apply the preference to disable nonessential game animations and transitions.
+- [x] Verify the reduced-motion experience in camp and nursery, confirm the production build, and save a deployable checkpoint.
 
 ## Critter Homes and Daily Trail
 
 - [ ] Map camp state, rescued critters, and mission completion hooks for home and daily-trail rewards.
-- [ ] Add a persistent Reduce motion toggle to Parent Settings and disable nonessential animation when enabled.
+- [x] Add a persistent Reduce motion toggle to Parent Settings and disable nonessential animation when enabled.
 - [ ] Build visible Critter Homes in the 3D camp and assign rescued critters to suitable homes.
 - [ ] Add a daily three-rescue trail with a clear completion reward and reset logic.
 - [ ] Verify motion support, homes, daily rewards, and deployment, then save a checkpoint.
+
+## Continuous GitHub Sync
+
+- [ ] Commit and push the verified Reduce motion accessibility milestone.
+- [ ] Commit and push the verified Critter Homes camp milestone.
+- [ ] Commit and push the verified daily three-rescue trail milestone.
 
 ## GitHub Backup
 

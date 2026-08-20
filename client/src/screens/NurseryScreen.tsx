@@ -36,9 +36,10 @@ interface Props {
   nurseryCare: Record<string, number>;
   onCare: (careKey: string, graduate: NurseryGraduate) => { careLevel: number; graduated: boolean } | null;
   onBack: () => void;
+  reduceMotion: boolean;
 }
 
-export default function NurseryScreen({ companionType, rescuedCritters, nurseryCare, onCare, onBack }: Props) {
+export default function NurseryScreen({ companionType, rescuedCritters, nurseryCare, onCare, onBack, reduceMotion }: Props) {
   const companions = useMemo<NurseryFriend[]>(() => {
     const companion = COMPANION_DETAILS[companionType];
     return [{ ...companion, introLine: `Hi! I’m ${companion.name}.`, helpLine: companion.stuckLine, careKey: `companion-${companionType}`, isCompanion: true }];
@@ -83,7 +84,7 @@ export default function NurseryScreen({ companionType, rescuedCritters, nurseryC
 
   return (
     <div className="game-screen overflow-hidden bg-[#2A1B26]">
-      <BabylonNurseryScene type={selected.type} name={selected.name} careLevel={careLevel} carePulse={carePulse} careAction={careAction} onPlushClick={() => { const line = selected.encourageLine.replaceAll('"', ''); setMessage(line); }} />
+      <BabylonNurseryScene type={selected.type} name={selected.name} careLevel={careLevel} carePulse={carePulse} careAction={careAction} reduceMotion={reduceMotion} onPlushClick={() => { const line = selected.encourageLine.replaceAll('"', ''); setMessage(line); }} />
       <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(46,26,38,.24), transparent 32%, transparent 66%, rgba(46,26,38,.55))' }} />
 
       <header className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">

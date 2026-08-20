@@ -21,6 +21,7 @@ interface Props {
   onOpenParentSettings: () => void;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
+  reduceMotion: boolean;
 }
 
 export default function CampScreen({
@@ -36,6 +37,7 @@ export default function CampScreen({
   onOpenParentSettings,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
+  reduceMotion,
 }: Props) {
   const [showZoneSelect, setShowZoneSelect] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
@@ -99,6 +101,7 @@ export default function CampScreen({
         rescuedCritters={rescuedCritters}
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
+        reduceMotion={reduceMotion}
       />
 
       {/* Gentle visual vignette lets the journal controls remain legible without hiding the 3D world. */}

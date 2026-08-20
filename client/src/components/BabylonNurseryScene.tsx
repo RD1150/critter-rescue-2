@@ -40,6 +40,7 @@ type Props = {
   carePulse: number;
   careAction: string | null;
   onPlushClick: () => void;
+  reduceMotion?: boolean;
 };
 
 const PLUSH_COLORS: Record<CritterType, string> = {
@@ -118,7 +119,7 @@ function makePlush(scene: Scene, type: CritterType, name: string, shadow: Shadow
   return root;
 }
 
-export default function BabylonNurseryScene({ type, name, careLevel, carePulse, careAction, onPlushClick }: Props) {
+export default function BabylonNurseryScene({ type, name, careLevel, carePulse, careAction, onPlushClick, reduceMotion = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -214,6 +215,12 @@ export default function BabylonNurseryScene({ type, name, careLevel, carePulse, 
     scene.onBeforeRenderObservable.add(() => {
       const dt = engine.getDeltaTime() / 1000;
       elapsed += dt;
+      if (reduceMotion) {
+        plush.position.y = 0.04;
+        hearts.forEach((heart) => { heart.position.y = 3.58; });
+        if (careToken) { careToken.position.y = 2.9; careToken.visibility = 1; }
+        return;
+      }
       plush.position.y = 0.04 + Math.sin(elapsed * 2.2) * 0.075 + (carePulse ? Math.max(0, 0.16 - elapsed * 0.08) : 0);
       hearts.forEach((heart, index) => { heart.position.y = 3.58 + Math.sin(elapsed * 2.2 + index) * 0.05; });
       if (careToken) {
@@ -234,7 +241,7 @@ export default function BabylonNurseryScene({ type, name, careLevel, carePulse, 
       disposed = true;
       cleanup?.();
     };
-  }, [type, name, careLevel, carePulse, careAction, onPlushClick]);
+  }, [type, name, careLevel, carePulse, careAction, onPlushClick, reduceMotion]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full touch-none" aria-label="Interactive 3D Critter Nursery" />;
 }
