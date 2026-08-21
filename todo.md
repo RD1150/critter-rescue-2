@@ -102,4 +102,4 @@
 - [x] Add interactive feeding and petting actions for rescued plushies at their 3D Critter Homes.
 - [x] Add gentle, optional daily-trail voice and nonverbal sound feedback for preschool players.
 - [x] Build and verify a simple camp mini-game for color, shape, and pattern recognition for ages 3–5.
-- [ ] Verify all three experiences, save a deployable checkpoint, and push the completed update to GitHub.
+- [x] Verify all three experiences, save a deployable checkpoint, and push the completed update to GitHub.
