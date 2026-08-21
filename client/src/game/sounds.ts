@@ -48,4 +48,7 @@ export function playChime() {
   const f = freqs[Math.floor(Math.random() * freqs.length)];
   tone(f, 0.5, 0.06, 'sine');
 }
-
+export function playNibble() { tone(523, 0.10, 0.08, 'sine'); tone(659, 0.16, 0.07, 'sine', 0.09); }
+export function playPet() { tone(392, 0.12, 0.07, 'sine'); tone(523, 0.22, 0.06, 'sine', 0.11); }
+export function playTrailStart() { tone(659, 0.13, 0.07, 'sine'); tone(784, 0.18, 0.07, 'sine', 0.10); }
+export function playTrailTreasure() { [784, 988, 1175].forEach((f, i) => tone(f, 0.22, 0.08, 'sine', i * 0.10)); }

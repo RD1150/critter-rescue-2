@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
-import { playButton, playComplete, playWelcome } from '../game/sounds';
+import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
+import { playDailyTrailVoice } from '../game/characterAudio';
 import { DailyTrailState, NurseryGraduate } from '../game/store';
 
 interface Props {
@@ -19,10 +20,13 @@ interface Props {
   lastDailyReward: string | null;
   onStartDailyTrail: () => void;
   onAcknowledgeDailyReward: () => void;
+  homeCare: Record<string, number>;
+  onCareHome: (critterName: string) => number;
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
   onOpenParentSettings: () => void;
+  onOpenLearning: () => void;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -39,10 +43,13 @@ export default function CampScreen({
   lastDailyReward,
   onStartDailyTrail,
   onAcknowledgeDailyReward,
+  homeCare,
+  onCareHome,
   onOpenJournal,
   onOpenMatch3,
   onOpenNursery,
   onOpenParentSettings,
+  onOpenLearning,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -50,9 +57,12 @@ export default function CampScreen({
   const [showZoneSelect, setShowZoneSelect] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
   const [friendNote, setFriendNote] = useState<CritterData | null>(null);
+  const [selectedHomeFriend, setSelectedHomeFriend] = useState<CritterData | null>(null);
+  const [homeCareMessage, setHomeCareMessage] = useState('');
   const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
   const [showFirstGuide, setShowFirstGuide] = useState(() => rescueCount === 0);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dailyRewardVoicePlayed = useRef<string | null>(null);
 
   const rescuedCritters = useMemo(() => getRescuedCritters(zoneTaskProgress), [zoneTaskProgress]);
   const harmonyPct = Math.min(100, forestHarmony);
@@ -74,6 +84,12 @@ export default function CampScreen({
     return () => { if (dialogueTimer.current) clearTimeout(dialogueTimer.current); };
   }, []);
   useEffect(() => { setCampArrival(lastNurseryGraduate); }, [lastNurseryGraduate]);
+  useEffect(() => {
+    if (!lastDailyReward || dailyRewardVoicePlayed.current === lastDailyReward) return;
+    dailyRewardVoicePlayed.current = lastDailyReward;
+    const timer = setTimeout(() => { playTrailTreasure(); playDailyTrailVoice('reward'); }, 260);
+    return () => clearTimeout(timer);
+  }, [lastDailyReward]);
 
   const revealDialogue = useCallback((text: string) => {
     setDialogue(text);
@@ -91,6 +107,27 @@ export default function CampScreen({
     setFriendNote(critter);
     setTimeout(() => setFriendNote(null), 3500);
   }, []);
+  const handleHomeClick = useCallback((critter: CritterData) => {
+    playButton();
+    setSelectedHomeFriend(critter);
+    setHomeCareMessage(`Tap a kind action for ${critter.name}.`);
+  }, []);
+  useEffect(() => {
+    const previewHomeCare = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'homecare';
+    if (previewHomeCare && rescuedCritters[0] && !selectedHomeFriend) handleHomeClick(rescuedCritters[0]);
+  }, [handleHomeClick, rescuedCritters, selectedHomeFriend]);
+  const doHomeCare = (kind: 'feed' | 'pet') => {
+    if (!selectedHomeFriend) return;
+    const total = onCareHome(selectedHomeFriend.name);
+    if (kind === 'feed') {
+      playNibble();
+      setHomeCareMessage(`${selectedHomeFriend.name} had a tiny snack. Yum!`);
+    } else {
+      playPet();
+      setHomeCareMessage(`${selectedHomeFriend.name} feels soft, safe, and loved.`);
+    }
+    if (total % 3 === 0) playComplete();
+  };
 
   const getWelcome = () => {
     if (rescueCount === 0) return 'A tiny friend needs you.';
@@ -103,6 +140,11 @@ export default function CampScreen({
     setShowFirstGuide(false);
     setTimeout(() => onStartRescue('meadow'), 180);
   };
+  const beginDailyTrail = () => {
+    playTrailStart();
+    playDailyTrailVoice('welcome');
+    onStartDailyTrail();
+  };
 
   return (
     <div className="game-screen overflow-hidden bg-[#103B2A] select-none">
@@ -111,6 +153,7 @@ export default function CampScreen({
         rescuedCritters={rescuedCritters}
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
+        onHomeClick={handleHomeClick}
         reduceMotion={reduceMotion}
       />
 
@@ -139,6 +182,9 @@ export default function CampScreen({
           <button onClick={() => { playButton(); onOpenParentSettings(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings">
             <span className="text-lg">⚙️</span>
           </button>
+          <button onClick={() => { playButton(); onOpenLearning(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open colors shapes and patterns game">
+            <span className="text-lg">🌈</span>
+          </button>
         </div>
       </div>
 
@@ -165,6 +211,17 @@ export default function CampScreen({
         </div>
       )}
 
+      {selectedHomeFriend && (
+        <div className="absolute z-40 left-1/2 top-[94px] -translate-x-1/2 w-[min(330px,88vw)] animate-pop-in">
+          <div className="paper-card relative px-4 py-4 text-center shadow-xl" style={{ borderTop: '3px solid #E66B5B' }}>
+            <button onClick={() => setSelectedHomeFriend(null)} className="absolute right-2 top-1.5 text-[#5C4D3C]/60 text-lg" aria-label="Close home care">×</button>
+            <div className="flex items-center justify-center gap-2"><CritterAvatar type={selectedHomeFriend.type} size={48} expression="happy" animate={!reduceMotion} /><div className="text-left"><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#E66B5B]">Critter Home Care</p><h2 className="font-display text-[#2D2418] font-bold text-lg">{selectedHomeFriend.name}'s cozy home</h2></div></div>
+            <p className="font-body text-xs text-[#5C4D3C] mt-2">{homeCareMessage}</p>
+            <div className="grid grid-cols-2 gap-2 mt-3"><button onClick={() => doHomeCare('feed')} className="rounded-xl bg-[#F7E6B8] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🍓 Give a snack</button><button onClick={() => doHomeCare('pet')} className="rounded-xl bg-[#F6D9DD] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🖐️ Gentle pet</button></div>
+            <p className="font-body text-[10px] text-[#5C4D3C]/70 mt-2">{homeCare[selectedHomeFriend.name] ?? 0} kind care moments at this home</p>
+          </div>
+        </div>
+      )}
       {campArrival && (
         <div className="absolute inset-0 z-50 flex items-center justify-center px-5 bg-[#103B2A]/50">
           <div className="paper-card relative w-full max-w-sm px-6 py-6 text-center overflow-hidden animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
@@ -267,11 +324,12 @@ export default function CampScreen({
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[142px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
             <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
             <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
-            <button onClick={() => { playButton(); onStartDailyTrail(); }} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
+            <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
           </div>
           <div className="flex-1" />
           <div className="pointer-events-auto flex gap-2 items-end">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
+            <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
             {!allComplete ? (
               <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">

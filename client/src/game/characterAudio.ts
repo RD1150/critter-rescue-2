@@ -138,6 +138,11 @@ const RECORDED_LINES: Record<string, Partial<Record<CharacterMoment, string>>> =
 
 let activeAudio: HTMLAudioElement | null = null;
 
+const DAILY_TRAIL_AUDIO = {
+  welcome: '/manus-storage/daily_trail_welcome_2246f298.wav',
+  reward: '/manus-storage/daily_trail_reward_36124b2b.wav',
+} as const;
+
 export function getCharacterAudioKey(name: string, zone?: string): string {
   if (name === 'Everyone') return zone === 'riverside' ? 'River Friends' : 'Mountain Friends';
   return name;
@@ -152,6 +157,14 @@ export function playCharacterAudio(name: string, moment: CharacterMoment, zone?:
   if (!source || typeof Audio === 'undefined') return;
   if (activeAudio) activeAudio.pause();
   activeAudio = new Audio(source);
+  activeAudio.volume = getAudioPreferences().voiceVolume;
+  void activeAudio.play().catch(() => {});
+}
+
+export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): void {
+  if (typeof Audio === 'undefined') return;
+  if (activeAudio) activeAudio.pause();
+  activeAudio = new Audio(DAILY_TRAIL_AUDIO[moment]);
   activeAudio.volume = getAudioPreferences().voiceVolume;
   void activeAudio.play().catch(() => {});
 }

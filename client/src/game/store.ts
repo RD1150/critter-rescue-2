@@ -34,6 +34,7 @@ export interface GameState {
   nurseryCare: Record<string, number>;
   nurseryVisits: number;
   lastNurseryGraduate: NurseryGraduate | null;
+  homeCare: Record<string, number>;
   dailyTrail: DailyTrailState;
   lastDailyReward: string | null;
 }
@@ -59,6 +60,7 @@ export function loadState(): GameState {
         nurseryCare: saved.nurseryCare ?? {},
         nurseryVisits: saved.nurseryVisits ?? 0,
         lastNurseryGraduate: saved.lastNurseryGraduate ?? null,
+        homeCare: saved.homeCare ?? {},
         dailyTrail: saved.dailyTrail ?? fresh.dailyTrail,
         lastDailyReward: saved.lastDailyReward ?? null,
       };
@@ -85,6 +87,7 @@ export function createFreshState(): GameState {
     nurseryCare: {},
     nurseryVisits: 0,
     lastNurseryGraduate: null,
+    homeCare: {},
     dailyTrail: { dayKey: '', missions: [], completedKeys: [], rewardEarned: false },
     lastDailyReward: null,
   };
@@ -257,4 +260,11 @@ export function acknowledgeNurseryGraduate(state: GameState): GameState {
   const newState = { ...state, lastNurseryGraduate: null };
   saveState(newState);
   return newState;
+}
+
+export function careForHome(state: GameState, critterName: string): { newState: GameState; careCount: number } {
+  const careCount = (state.homeCare[critterName] ?? 0) + 1;
+  const newState: GameState = { ...state, homeCare: { ...state.homeCare, [critterName]: careCount } };
+  saveState(newState);
+  return { newState, careCount };
 }

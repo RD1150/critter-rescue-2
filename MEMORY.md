@@ -91,6 +91,11 @@
 ## Reduce Motion Verification
 - Parent Settings now visibly includes a persistent “Reduce motion” switch with clear text describing what changes. It sits alongside character volume, captions, and large-icon settings on mobile.
 - The preference is propagated through React screen transitions, global CSS animation safeguards, and both Babylon 3D environments. In reduced-motion mode, decorative DOM motion, camp firefly/flame/companion movement, and nursery plush/heart/care-token movement remain static while all interaction stays available.
+
+## Interactive Homes and Preschool Learning Verification
+- The 3D Critter Home care card appears clearly in the mobile camp after tapping a rescued plushie or its marked home. It has large Give a snack and Gentle pet actions, gentle sounds, persisted kindness counts, and no failure state.
+- Daily Trail now uses a gentle welcome line when a child starts the first trail rescue and a warm reward line with soft chimes when all three tiny rescues are complete.
+- The Camp Learning Trail was visually verified across all three mobile rounds: Color Hunt asks for a red circle, Shape Hunt asks for a yellow square, and Pattern Trail asks for the next item in a red-circle/blue-square sequence. All choices are large, four-option touch targets with child-friendly calm feedback.
 - Both the 3D camp and Cozy Nursery rendered successfully in the dedicated `reduceMotion=1` development preview. The static preview states retained their essential rescue, care, and navigation controls while decorative scene movement was routed through the reduced-motion path.
 
 ## Critter Homes and Daily Trail Verification
@@ -98,6 +103,7 @@
 - The daily system now builds three deterministic missions from unlocked zones for the current calendar day. The populated camp preview displays a “Today’s Tiny Trail” card with three progress dots and the child-friendly “Start 3 tiny rescues” action.
 - Unit tests confirm that daily missions remain stable on the same day and award the Trail Treasure only after all three rescue keys have been completed.
 - Mobile daily-trail previews verify that after one rescue the camp card shows one filled progress dot and “Help the next friend,” and after all three rescues it presents a clear Trail Treasure overlay with the 3 camp blossoms and 5 Forest Harmony reward.
+- The mobile home-care preview confirms that tapping a rescued plushie or its marked 3D home opens Nutty’s cozy-home card with large Give a snack and Gentle pet actions, a clear close control, and a visible per-home kindness counter.
 - The automated screenshot utility again returned blank parchment captures for the development-only parent-settings and journal query previews; direct browser inspection is required for visual verification because the app content is known to render after the preview query initialization.
 - Direct browser inspection confirmed the Parent Settings screen renders the voice volume slider, captions checkbox, large-icon toggle, reset control, and return-to-camp action. Toggling large-icon mode immediately enlarged the parent-screen plushie, confirming the preference is active.
 - Direct journal inspection confirmed every rescued card presents the new one-tap “Hear story” control plus individual Hi, Help, and Thanks replay buttons. Triggering “Hear story” initiated the complete queued playback flow without a browser error.

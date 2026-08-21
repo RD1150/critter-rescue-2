@@ -16,8 +16,9 @@ import CritterJournalScreen from './screens/CritterJournalScreen';
 import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
 import NurseryScreen from './screens/NurseryScreen';
 import ParentSettingsScreen from './screens/ParentSettingsScreen';
+import CampLearningScreen from './screens/CampLearningScreen';
 
-import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, completeDailyTrailRescue, getNextDailyMission, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
+import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, completeDailyTrailRescue, getNextDailyMission, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
@@ -33,7 +34,8 @@ type Scene =
   | 'exitAffirmation'
   | 'match3'
   | 'nursery'
-  | 'parentSettings';
+  | 'parentSettings'
+  | 'learning';
 
 function LoadingScreen() {
   return (
@@ -75,11 +77,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewParentSettings = previewMode === 'parentsettings';
     const previewDailyProgress = previewMode === 'dailyprogress';
     const previewDailyReward = previewMode === 'dailyreward';
+    const previewHomeCare = previewMode === 'homecare';
+    const previewLearning = previewMode === 'learning';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward;
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -115,6 +119,10 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('parentSettings');
       } else if (previewDailyProgress || previewDailyReward) {
         setScene('camp');
+      } else if (previewHomeCare) {
+        setScene('camp');
+      } else if (previewLearning) {
+        setScene('learning');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -221,11 +229,19 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenParentSettings = useCallback(() => { playButton(); transition('parentSettings', 100); }, [transition]);
   const handleCloseParentSettings = useCallback(() => transition('camp', 100), [transition]);
+  const handleOpenLearning = useCallback(() => { playButton(); transition('learning', 100); }, [transition]);
+  const handleCloseLearning = useCallback(() => transition('camp', 100), [transition]);
   const handleCareCritter = useCallback((careKey: string, graduate: NurseryGraduate) => {
     if (!state) return null;
     const result = careForCritter(state, careKey, graduate);
     setState(result.newState);
     return { careLevel: result.careLevel, graduated: result.graduated };
+  }, [state]);
+  const handleCareHome = useCallback((critterName: string) => {
+    if (!state) return 0;
+    const result = careForHome(state, critterName);
+    setState(result.newState);
+    return result.careCount;
   }, [state]);
   const handleAcknowledgeGraduate = useCallback(() => {
     if (!state) return;
@@ -263,10 +279,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               lastDailyReward={state.lastDailyReward}
               onStartDailyTrail={handleStartDailyTrail}
               onAcknowledgeDailyReward={handleAcknowledgeDailyReward}
+              homeCare={state.homeCare}
+              onCareHome={handleCareHome}
               onOpenJournal={handleOpenJournal}
               onOpenMatch3={handleOpenMatch3}
               onOpenNursery={handleOpenNursery}
               onOpenParentSettings={handleOpenParentSettings}
+              onOpenLearning={handleOpenLearning}
               lastNurseryGraduate={state.lastNurseryGraduate}
               onAcknowledgeGraduate={handleAcknowledgeGraduate}
               reduceMotion={audioPreferences.reduceMotion}
@@ -326,6 +345,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
             />
           )}
           {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} />}
+          {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} />}
         </div>
       </TooltipProvider>
     </ErrorBoundary>

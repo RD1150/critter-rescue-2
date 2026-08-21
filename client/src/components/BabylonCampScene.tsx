@@ -41,6 +41,7 @@ type Props = {
   rescuedCritters: CritterData[];
   onCompanionClick: () => void;
   onCritterClick: (critter: CritterData) => void;
+  onHomeClick: (critter: CritterData) => void;
   reduceMotion?: boolean;
   className?: string;
 };
@@ -135,7 +136,7 @@ const HOME_DETAILS: Partial<Record<CritterType, { style: HomeStyle; title: strin
   bunny: { style: 'garden-hideout', title: 'Clover Burrow' },
 };
 
-function createCritterHome(scene: Scene, critter: CritterData, position: Vector3, shadow: ShadowGenerator) {
+function createCritterHome(scene: Scene, critter: CritterData, position: Vector3, shadow: ShadowGenerator, onCare: () => void) {
   const detail = HOME_DETAILS[critter.type] ?? { style: 'garden-hideout' as HomeStyle, title: 'Cozy Corner' };
   const root = new TransformNode(`home-${critter.name}`, scene);
   root.position = position;
@@ -188,6 +189,13 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
       flower.parent = root; flower.position = new Vector3(-0.4 + i * 0.8, 0.31, -0.16); flower.material = petal; addShadow(flower);
     }
   }
+  const careRing = MeshBuilder.CreateTorus(`home-care-ring-${critter.name}`, { diameter: 1.45, thickness: 0.055, tessellation: 28 }, scene);
+  careRing.parent = root;
+  careRing.rotation.x = Math.PI / 2;
+  careRing.position.y = 0.06;
+  careRing.material = petal;
+  careRing.actionManager = new ActionManager(scene);
+  careRing.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, onCare));
   label(scene, root, `${critter.name}'s ${detail.title}`, detail.style === 'nest-perch' ? 1.62 : 1.24, '#FBE8CA');
   return root;
 }
@@ -258,7 +266,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -364,8 +372,8 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     rescuedCritters.slice(0, friendSlots.length).forEach((critter, index) => {
       const slot = friendSlots[index];
       const homeOffset = new Vector3(slot.x < 0 ? -0.75 : 0.75, 0, slot.z > 0 ? 0.75 : -0.8);
-      createCritterHome(scene, critter, slot.add(homeOffset), shadow);
-      makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onCritterClick(critter), shadow);
+      createCritterHome(scene, critter, slot.add(homeOffset), shadow, () => onHomeClick(critter));
+      makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onHomeClick(critter), shadow);
     });
 
     const fireflies: Mesh[] = [];
@@ -413,7 +421,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

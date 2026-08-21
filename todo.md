@@ -95,3 +95,11 @@
 - [x] Verify access to RD1150/critter-rescue-2 and inspect the local Git state.
 - [x] Commit the current Critter Rescue source with a descriptive message.
 - [x] Push the commit to the specified GitHub repository.
+
+## Interactive Homes and Preschool Play
+
+- [x] Map the existing home meshes, daily trail cues, and camp navigation needed for the three requested experiences.
+- [x] Add interactive feeding and petting actions for rescued plushies at their 3D Critter Homes.
+- [x] Add gentle, optional daily-trail voice and nonverbal sound feedback for preschool players.
+- [x] Build and verify a simple camp mini-game for color, shape, and pattern recognition for ages 3–5.
+- [ ] Verify all three experiences, save a deployable checkpoint, and push the completed update to GitHub.
