@@ -103,3 +103,12 @@
 - [x] Add gentle, optional daily-trail voice and nonverbal sound feedback for preschool players.
 - [x] Build and verify a simple camp mini-game for color, shape, and pattern recognition for ages 3–5.
 - [x] Verify all three experiences, save a deployable checkpoint, and push the completed update to GitHub.
+
+## Pre-Reader Spoken Directions
+
+- [x] Verify the complete pre-reader direction inventory, including the learning pattern round.
+- [x] Generate gentle, optional instruction audio assets using Nutty’s approved squirrel-guide voice.
+- [x] Add large tap-to-hear instruction controls with readable captions across core pre-reader play flows.
+- [x] Verify the spoken-direction journey across core pre-reader play flows.
+- [ ] Save a deployable checkpoint for the completed pre-reader spoken-direction milestone.
+- [ ] Commit and push the completed pre-reader spoken-direction update to GitHub.

@@ -12,8 +12,9 @@ describe('daily three-rescue trail', () => {
   });
 
   it('awards the trail treasure only after all three daily rescues', () => {
-    let state = ensureDailyTrail(createFreshState(), '2026-08-20');
-    for (const mission of state.dailyTrail.missions) state = completeDailyTrailRescue(state, mission.key).newState;
+    const dayKey = '2026-08-20';
+    let state = ensureDailyTrail(createFreshState(), dayKey);
+    for (const mission of state.dailyTrail.missions) state = completeDailyTrailRescue(state, mission.key, dayKey).newState;
     expect(state.dailyTrail.rewardEarned).toBe(true);
     expect(state.dailyTrail.completedKeys).toHaveLength(3);
     expect(state.lastDailyReward).toContain('Trail Treasure');

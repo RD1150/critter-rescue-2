@@ -7,6 +7,7 @@ import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONE
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
 import { playDailyTrailVoice } from '../game/characterAudio';
 import { DailyTrailState, NurseryGraduate } from '../game/store';
+import PreReaderDirection from '../components/PreReaderDirection';
 
 interface Props {
   forestHarmony: number;
@@ -254,6 +255,7 @@ export default function CampScreen({
           <div className="paper-card relative w-full max-w-md p-5 text-center animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
             <div className="flex items-center justify-center gap-2"><CritterAvatar type={companionType as CritterType} size={52} expression="excited" animate /><div className="text-left"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#E66B5B] font-bold">Your Rescue Buddy</p><h2 className="font-display font-bold text-[#2D2418] text-xl">Let’s help a friend!</h2></div></div>
             <p className="font-display italic text-[#5C4D3C] text-sm mt-3">“You do not need to know everything. We will do this together.”</p>
+            <PreReaderDirection directionKey="onboarding" className="mt-3" />
             <div className="mt-4 grid grid-cols-3 gap-2 text-left">
               <div className="rounded-xl bg-[#F8E8D8] p-2"><span className="block text-lg">1. 🧭</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Go to Sunny Meadow</p></div>
               <div className="rounded-xl bg-[#E2EEDB] p-2"><span className="block text-lg">2. 🧩</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Do the little rescue game</p></div>
@@ -321,9 +323,10 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] text-xs leading-tight">Critter Homes</p>
             <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{rescuedCritters.length} cozy corners found</p>
           </div>}
-          <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[142px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
+          <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[210px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
             <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
             <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
+            <PreReaderDirection directionKey="dailyTrail" className="mt-2" />
             <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
           </div>
           <div className="flex-1" />

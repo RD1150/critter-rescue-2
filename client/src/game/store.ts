@@ -136,8 +136,8 @@ export interface DailyTrailResult {
   rewardMessage?: string;
 }
 
-export function completeDailyTrailRescue(state: GameState, missionKey: string): DailyTrailResult {
-  const ready = ensureDailyTrail(state);
+export function completeDailyTrailRescue(state: GameState, missionKey: string, dayKey = getDailyTrailKey()): DailyTrailResult {
+  const ready = ensureDailyTrail(state, dayKey);
   if (!ready.dailyTrail.missions.some((mission) => mission.key === missionKey) || ready.dailyTrail.completedKeys.includes(missionKey)) {
     return { newState: ready, completed: ready.dailyTrail.completedKeys.length, finished: ready.dailyTrail.rewardEarned };
   }

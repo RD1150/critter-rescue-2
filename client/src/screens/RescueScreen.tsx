@@ -9,6 +9,7 @@ import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/
 import { useAudioPreferences } from '../game/audioPreferences';
 import { getRescueDialogue } from '../game/characterDialogue';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
+import PreReaderDirection from '../components/PreReaderDirection';
 
 interface Props {
   mission: MissionData;
@@ -58,6 +59,7 @@ function IntroOverlay({ mission, companionType, isFirstMission, isEarlyMission, 
             {preferences.captionsEnabled && <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>}
             <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="help" label="help call" />
           </div>
+          <PreReaderDirection directionKey={mission.type} className="mt-3" />
           {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
           {coach && <div className="mt-3 rounded-xl bg-[#F8E8D8] px-3 py-2.5 text-left" style={{ border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Three easy steps · {coach.title}</p><ol className="mt-1.5 space-y-1">{coach.steps.map((step, index) => <li key={step} className="flex gap-1.5 font-body text-xs text-[#49392C]"><span className="font-display text-[#E66B5B]">{index + 1}.</span><span>{step}</span></li>)}</ol></div>}
         </div>
@@ -776,6 +778,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       <div className="relative z-10 px-4 pb-2">
         <p className="font-display italic text-white text-center text-sm drop-shadow">{mission.scenarioText}</p>
         <p className="text-white/60 text-xs text-center font-body mt-0.5">{mission.hintText}</p>
+        <PreReaderDirection directionKey={mission.type} className="mx-auto mt-2 max-w-sm" />
         <button onClick={useCompanionTip} disabled={tipUsed} className="mx-auto mt-2 flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-body text-[#2D2418] active:scale-95 transition-transform disabled:opacity-65" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }}>
           <span>{companion.rescueIcon}</span><span>{tipUsed ? `${companion.name}'s tip used` : `Ask ${companion.name}`}</span>
         </button>

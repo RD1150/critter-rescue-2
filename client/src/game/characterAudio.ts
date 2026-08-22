@@ -1,6 +1,7 @@
 // Recorded character dialogue is deliberately sparse and player-initiated.
 // Text always remains visible; a missing recording simply means the line stays quiet.
 import { getAudioPreferences } from './audioPreferences';
+import type { PreReaderDirectionKey } from './preReaderDirections';
 export type CharacterMoment = 'intro' | 'help' | 'thanks';
 
 const RECORDED_LINES: Record<string, Partial<Record<CharacterMoment, string>>> = {
@@ -143,6 +144,10 @@ const DAILY_TRAIL_AUDIO = {
   reward: '/manus-storage/daily_trail_reward_36124b2b.wav',
 } as const;
 
+export const PRE_READER_AUDIO: Record<PreReaderDirectionKey, string> = {
+  onboarding: '/manus-storage/direction-onboarding_7452c86b.mp3', dailyTrail: '/manus-storage/direction-dailyTrail_e7b346b4.mp3', bridge: '/manus-storage/direction-bridge_8752d1f4.mp3', clearPath: '/manus-storage/direction-clearPath_bc9b19a4.mp3', shelter: '/manus-storage/direction-shelter_e978ae52.mp3', guidePath: '/manus-storage/direction-guidePath_5327e078.mp3', memory: '/manus-storage/direction-memory_f0a02ce4.mp3', pattern: '/manus-storage/direction-pattern_2087adfb.mp3', maze: '/manus-storage/direction-maze_aa9ea42d.mp3', gather: '/manus-storage/direction-gather_b26605d7.mp3', tracing: '/manus-storage/direction-tracing_31cca4f7.mp3', sorting: '/manus-storage/direction-sorting_a3c6dc2c.mp3', counting: '/manus-storage/direction-counting_9f4489f3.mp3', shapeFit: '/manus-storage/direction-shapeFit_6e14cfed.mp3', spotDifference: '/manus-storage/direction-spotDifference_86455872.mp3', sequence: '/manus-storage/direction-sequence_e2286292.mp3', findTools: '/manus-storage/direction-findTools_5d82b066.mp3', colorMatch: '/manus-storage/direction-colorMatch_8648e8ec.mp3', sizeOrdering: '/manus-storage/direction-sizeOrdering_ededd62b.mp3', critterPath: '/manus-storage/direction-critterPath_6b680f14.mp3', learningColor: '/manus-storage/direction-learningColor_805c4e3c.mp3', learningShape: '/manus-storage/direction-learningShape_8480ea8c.mp3', learningPattern: '/manus-storage/direction-learningPattern_073cd974.mp3',
+};
+
 export function getCharacterAudioKey(name: string, zone?: string): string {
   if (name === 'Everyone') return zone === 'riverside' ? 'River Friends' : 'Mountain Friends';
   return name;
@@ -165,6 +170,14 @@ export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): voi
   if (typeof Audio === 'undefined') return;
   if (activeAudio) activeAudio.pause();
   activeAudio = new Audio(DAILY_TRAIL_AUDIO[moment]);
+  activeAudio.volume = getAudioPreferences().voiceVolume;
+  void activeAudio.play().catch(() => {});
+}
+
+export function playPreReaderDirection(key: PreReaderDirectionKey): void {
+  if (typeof Audio === 'undefined') return;
+  if (activeAudio) activeAudio.pause();
+  activeAudio = new Audio(PRE_READER_AUDIO[key]);
   activeAudio.volume = getAudioPreferences().voiceVolume;
   void activeAudio.play().catch(() => {});
 }

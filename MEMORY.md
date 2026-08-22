@@ -107,3 +107,10 @@
 - The automated screenshot utility again returned blank parchment captures for the development-only parent-settings and journal query previews; direct browser inspection is required for visual verification because the app content is known to render after the preview query initialization.
 - Direct browser inspection confirmed the Parent Settings screen renders the voice volume slider, captions checkbox, large-icon toggle, reset control, and return-to-camp action. Toggling large-icon mode immediately enlarged the parent-screen plushie, confirming the preference is active.
 - Direct journal inspection confirmed every rescued card presents the new one-tap “Hear story” control plus individual Hi, Help, and Thanks replay buttons. Triggering “Hear story” initiated the complete queued playback flow without a browser error.
+
+## Pre-Reader Spoken Directions Verification
+- The 23 concise direction prompts are generated with the user-approved Nutty squirrel voice (`Nggzl2QAXh3OijoXD116`), uploaded as project-storage MP3 files, and mapped in `client/src/game/characterAudio.ts`. They are player-initiated only and respect the existing voice-volume preference.
+- `PreReaderDirection.tsx` supplies a preschool-sized “Hear directions” target. Captions are visible only when the persistent Parent Settings captions preference is enabled; the control itself remains visible even when captions are off.
+- The full direction treatment appears in first-play camp onboarding, Today’s Tiny Trail, every rescue introduction and active rescue header, and each Camp Learning Trail round. Direct mobile browser verification confirmed the spoken-direction card and readable caption in the counting rescue, the first color-learning round, and the Daily Trail card.
+- The obsolete `speechSynthesis` narration module and unused narration control were removed. A source scan confirms no browser SpeechSynthesis fallback remains in player code.
+- Final verification: 5 Vitest files / 9 tests pass, `pnpm check` passes, and `pnpm build` completes in approximately four seconds. The only remaining build output is the existing non-blocking large-chunk warning.
