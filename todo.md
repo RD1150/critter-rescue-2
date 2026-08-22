@@ -157,4 +157,4 @@
 - [x] Test and visually verify the research-driven care play, gallery privacy, and family export flows.
 - [x] Visually verify the Family Keepsake Gallery export layout with a reproducible print-preview inspection.
 - [x] Visually exercise the Brush Bloom care variant through completion and confirm its local keepsake result.
-- [ ] Save a deployable checkpoint and push the verified research, care-play, and keepsake-gallery expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified research, care-play, and keepsake-gallery expansion to GitHub.
