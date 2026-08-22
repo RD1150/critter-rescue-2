@@ -147,3 +147,14 @@
 - [x] Add deterministic renderer-branch verification for starglow mobile, mossy reading nook, and tiny tea picnic.
 - [x] Add an inspectable active-decoration renderer-status hook for deterministic per-home branch verification.
 - [x] Save a deployable checkpoint and push the verified printable-card, soundscape, and décor expansion to GitHub.
+
+## Competitive Feature Study, Care Play, and Family Keepsakes
+
+- [x] Research comparable preschool animal-care and cozy collectible games, then document the feature-opportunity findings.
+- [x] Design and add distinct, low-pressure care mini-games tied to rescued critter personalities and homes.
+- [x] Add persistent mini-game accomplishments to the parent progress summary without scores, timers, or failure states.
+- [x] Build a parent-safe local keepsake gallery of in-game moments, with clear export controls and no child photo, social sharing, or external upload.
+- [x] Test and visually verify the research-driven care play, gallery privacy, and family export flows.
+- [x] Visually verify the Family Keepsake Gallery export layout with a reproducible print-preview inspection.
+- [x] Visually exercise the Brush Bloom care variant through completion and confirm its local keepsake result.
+- [ ] Save a deployable checkpoint and push the verified research, care-play, and keepsake-gallery expansion to GitHub.

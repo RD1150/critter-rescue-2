@@ -29,6 +29,7 @@ interface Props {
   onOpenParentSettings: () => void;
   onOpenLearning: () => void;
   onOpenStorybook: () => void;
+  onOpenCarePlay: () => void;
   homeDecor: Record<string, HomeDecoration>;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
@@ -54,6 +55,7 @@ export default function CampScreen({
   onOpenParentSettings,
   onOpenLearning,
   onOpenStorybook,
+  onOpenCarePlay,
   homeDecor,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
@@ -235,6 +237,7 @@ export default function CampScreen({
             <div className="flex items-center justify-center gap-2"><CritterAvatar type={selectedHomeFriend.type} size={48} expression="happy" animate={!reduceMotion} /><div className="text-left"><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#E66B5B]">Critter Home Care</p><h2 className="font-display text-[#2D2418] font-bold text-lg">{selectedHomeFriend.name}'s cozy home</h2></div></div>
             <p className="font-body text-xs text-[#5C4D3C] mt-2">{homeCareMessage}</p>
             <div className="grid grid-cols-2 gap-2 mt-3"><button onClick={() => doHomeCare('feed')} className="rounded-xl bg-[#F7E6B8] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🍓 Give a snack</button><button onClick={() => doHomeCare('pet')} className="rounded-xl bg-[#F6D9DD] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🖐️ Gentle pet</button></div>
+            <button onClick={() => { playButton(); setSelectedHomeFriend(null); onOpenCarePlay(); }} className="mt-3 w-full rounded-xl bg-[#6EB9CE] px-3 py-3 font-body text-sm font-bold text-white active:scale-95">✨ Play a cozy care game</button>
             <p className="font-body text-[10px] text-[#5C4D3C]/70 mt-2">{homeCare[selectedHomeFriend.name] ?? 0} kind care moments at this home</p>
           </div>
         </div>

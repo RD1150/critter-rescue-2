@@ -290,6 +290,15 @@
     body.print-preview-mode .print-card-grid b { display: block; font: 700 10px sans-serif; text-transform: uppercase; letter-spacing: .08em; }
     body.print-preview-mode .print-card-grid p { margin: 8px 0 0; font: 13px sans-serif; }
     body.print-preview-mode .print-card-frame footer { margin: 32px auto 0; max-width: 520px; font: 16px Georgia, serif; line-height: 1.5; }
+    body.gallery-print-preview #root > * { visibility: hidden !important; }
+    body.gallery-print-preview #keepsake-gallery-print, body.gallery-print-preview #keepsake-gallery-print * { visibility: visible !important; }
+    body.gallery-print-preview #keepsake-gallery-print { display: block !important; position: fixed; inset: 0; padding: 26px; color: #2D2418; background: #fff; overflow: auto; }
+    body.gallery-print-preview .keepsake-print-frame { max-width: 760px; min-height: calc(100vh - 52px); margin: 0 auto; border: 3px solid #6EB9CE; border-radius: 26px; padding: 30px; background: #FFF9EF; }
+    body.gallery-print-preview .keepsake-print-frame header { text-align: center; margin-bottom: 22px; }
+    body.gallery-print-preview .keepsake-print-frame header p { font: 700 10px sans-serif; color: #3D7A58; text-transform: uppercase; letter-spacing: .12em; }
+    body.gallery-print-preview .keepsake-print-frame header h1 { font: 700 30px Georgia, serif; margin: 10px 0 4px; }
+    body.gallery-print-preview .keepsake-print-frame header span, body.gallery-print-preview .keepsake-print-frame footer { font: 13px sans-serif; color: #5C4D3C; }
+    body.gallery-print-preview .keepsake-print-frame footer { margin-top: 24px; text-align: center; line-height: 1.5; }
   }
   @media print {
     body { background: #fff !important; }
@@ -308,5 +317,16 @@
     .print-card-grid b { display: block; font: 700 10pt sans-serif; text-transform: uppercase; letter-spacing: .08em; }
     .print-card-grid p { margin: .08in 0 0; font: 12pt sans-serif; }
     .print-card-frame footer { margin: .42in auto 0; max-width: 5.8in; font: 14pt Georgia, serif; line-height: 1.5; }
+  }
+
+  @media print {
+    body:has(#keepsake-gallery-print) #root > * { display: none !important; }
+    #keepsake-gallery-print { display: block !important; color: #2D2418; background: #fff; padding: 24px; }
+    .keepsake-print-frame { max-width: 760px; margin: 0 auto; border: 3px solid #6EB9CE; border-radius: 26px; padding: 30px; background: #FFF9EF; }
+    .keepsake-print-frame header { text-align: center; margin-bottom: 22px; }
+    .keepsake-print-frame header p { font: 700 10px sans-serif; color: #3D7A58; text-transform: uppercase; letter-spacing: .12em; }
+    .keepsake-print-frame header h1 { font: 700 30px Georgia, serif; margin: 10px 0 4px; }
+    .keepsake-print-frame header span, .keepsake-print-frame footer { font: 13px sans-serif; color: #5C4D3C; }
+    .keepsake-print-frame footer { margin-top: 24px; text-align: center; line-height: 1.5; }
   }
 }

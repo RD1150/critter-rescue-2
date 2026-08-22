@@ -5,9 +5,9 @@ import { syncSeasonalSoundscape } from '../game/seasonalSoundscape';
 import { getSanctuarySeason } from '../game/store';
 import { playButton } from '../game/sounds';
 
-interface Props { onBack: () => void; onOpenProgress: () => void; }
+interface Props { onBack: () => void; onOpenProgress: () => void; onOpenGallery: () => void; }
 
-export default function ParentSettingsScreen({ onBack, onOpenProgress }: Props) {
+export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGallery }: Props) {
   const [preferences, savePreferences] = useAudioPreferences();
   const volume = Math.round(preferences.voiceVolume * 100);
   const soundscapeVolume = Math.round(preferences.soundscapeVolume * 100);
@@ -22,6 +22,7 @@ export default function ParentSettingsScreen({ onBack, onOpenProgress }: Props) 
       <section className="paper-card p-4"><h2 className="font-display text-[#2D2418] font-bold text-lg">Large-icon mode</h2><p className="font-body text-xs text-[#5C4D3C] mt-1">Makes plushie pictures bigger across the game, so they are easier to spot.</p><label className="mt-3 flex items-center justify-between gap-3 cursor-pointer"><span className="font-body text-sm font-bold text-[#49392C]">Use bigger plushies</span><input aria-label="Use large-icon mode" type="checkbox" checked={preferences.largeIconMode} onChange={(event) => savePreferences({ ...preferences, largeIconMode: event.target.checked })} className="h-5 w-5 accent-[#E66B5B]" /></label></section>
       <section className="paper-card p-4"><h2 className="font-display text-[#2D2418] font-bold text-lg">Reduce motion</h2><p className="font-body text-xs text-[#5C4D3C] mt-1">Stops bouncy plushies, floating fireflies, flickering lights, page fades, and other nonessential motion. The game stays fully playable.</p><label className="mt-3 flex items-center justify-between gap-3 cursor-pointer"><span className="font-body text-sm font-bold text-[#49392C]">Use less movement</span><input aria-label="Reduce nonessential game motion" type="checkbox" checked={preferences.reduceMotion} onChange={(event) => savePreferences({ ...preferences, reduceMotion: event.target.checked })} className="h-5 w-5 accent-[#E66B5B]" /></label></section>
       <button onClick={() => { playButton(); onOpenProgress(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#F8E8D8', border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open learning & activity summary →</p></button>
+      <button onClick={() => { playButton(); onOpenGallery(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#EAF4EF', border: '1px solid #B9D9C2' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#3D7A58] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open family keepsake gallery →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">Illustrated in-game memories only — no child photos, voice, sharing, or uploads.</p></button>
       <button onClick={() => savePreferences(DEFAULT_PREFERENCES)} className="w-full rounded-xl py-2 font-body text-sm text-white/85 active:scale-95" style={{ background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.22)' }}>Reset to game defaults</button>
       <p className="font-body text-center text-[10px] text-white/55 px-5">These settings are saved on this device. They change how the game looks and sounds, not the rescue progress.</p>
     </main>

@@ -25,12 +25,24 @@ export interface DailyTrailState {
 export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
 export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
+export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom';
+
+export interface Keepsake {
+  id: string;
+  source: 'care-play' | 'rescue' | 'seasonal';
+  critterName: string;
+  critterType: CritterType;
+  title: string;
+  message: string;
+  createdAt: number;
+}
 
 export interface DailyActivity {
   rescueCount: number;
   learningRounds: number;
   homeCareMoments: number;
   nurseryCareMoments: number;
+  carePlayMoments: number;
   dailyTrailCompleted: boolean;
 }
 
@@ -60,6 +72,8 @@ export interface GameState {
   activityLog: Record<string, DailyActivity>;
   homeDecor: Record<string, HomeDecoration>;
   seasonalKeepsakes: SanctuarySeason[];
+  carePlayWins: Record<string, number>;
+  keepsakes: Keepsake[];
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -90,6 +104,8 @@ export function loadState(): GameState {
         activityLog: saved.activityLog ?? {},
         homeDecor: saved.homeDecor ?? {},
         seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
+        carePlayWins: saved.carePlayWins ?? {},
+        keepsakes: saved.keepsakes ?? [],
       };
       return ensureDailyTrail(hydrated);
     }
@@ -121,6 +137,8 @@ export function createFreshState(): GameState {
     activityLog: {},
     homeDecor: {},
     seasonalKeepsakes: [],
+    carePlayWins: {},
+    keepsakes: [],
   };
 }
 
@@ -136,7 +154,7 @@ export function getSanctuarySeason(date = new Date()): SanctuarySeason {
   return 'winter';
 }
 
-const EMPTY_ACTIVITY: DailyActivity = { rescueCount: 0, learningRounds: 0, homeCareMoments: 0, nurseryCareMoments: 0, dailyTrailCompleted: false };
+const EMPTY_ACTIVITY: DailyActivity = { rescueCount: 0, learningRounds: 0, homeCareMoments: 0, nurseryCareMoments: 0, carePlayMoments: 0, dailyTrailCompleted: false };
 
 function addActivity(state: GameState, contribution: Partial<DailyActivity>, dayKey = getDailyTrailKey()): GameState {
   const previous = state.activityLog[dayKey] ?? EMPTY_ACTIVITY;
@@ -145,6 +163,7 @@ function addActivity(state: GameState, contribution: Partial<DailyActivity>, day
     learningRounds: previous.learningRounds + (contribution.learningRounds ?? 0),
     homeCareMoments: previous.homeCareMoments + (contribution.homeCareMoments ?? 0),
     nurseryCareMoments: previous.nurseryCareMoments + (contribution.nurseryCareMoments ?? 0),
+    carePlayMoments: previous.carePlayMoments + (contribution.carePlayMoments ?? 0),
     dailyTrailCompleted: previous.dailyTrailCompleted || Boolean(contribution.dailyTrailCompleted),
   };
   const withToday = { ...state.activityLog, [dayKey]: next };
@@ -160,7 +179,7 @@ export function buildParentProgressSummary(state: GameState, date = new Date()):
     const dayKey = getDailyTrailKey(value);
     return { dayKey, activity: state.activityLog[dayKey] ?? EMPTY_ACTIVITY };
   });
-  const activeDaysInWeek = recentDays.filter(({ activity }) => activity.rescueCount + activity.learningRounds + activity.homeCareMoments + activity.nurseryCareMoments > 0).length;
+  const activeDaysInWeek = recentDays.filter(({ activity }) => activity.rescueCount + activity.learningRounds + activity.homeCareMoments + activity.nurseryCareMoments + activity.carePlayMoments > 0).length;
   return {
     today: state.activityLog[todayKey] ?? EMPTY_ACTIVITY,
     recentDays,
@@ -359,4 +378,30 @@ export function rememberSeasonalMoment(state: GameState, season: SanctuarySeason
   const newState = { ...state, seasonalKeepsakes: [...state.seasonalKeepsakes, season] };
   saveState(newState);
   return newState;
+}
+
+const CARE_PLAY_COPY: Record<CarePlayKind, { title: string; message: string }> = {
+  'acorn-tidy': { title: 'Acorns tucked away', message: 'You helped make a cozy little stash.' },
+  'nest-fluff': { title: 'Nest fluffed with care', message: 'You helped make a soft, safe resting place.' },
+  'brush-bloom': { title: 'A gentle brush and bloom', message: 'You helped your friend feel calm and cared for.' },
+};
+
+export function completeCarePlay(state: GameState, critterName: string, critterType: CritterType, carePlay: CarePlayKind): { newState: GameState; keepsake: Keepsake } {
+  const copy = CARE_PLAY_COPY[carePlay];
+  const keepsake: Keepsake = {
+    id: `care-${Date.now()}-${critterName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+    source: 'care-play',
+    critterName,
+    critterType,
+    title: `${critterName}: ${copy.title}`,
+    message: copy.message,
+    createdAt: Date.now(),
+  };
+  const newState = addActivity({
+    ...state,
+    carePlayWins: { ...state.carePlayWins, [critterName]: (state.carePlayWins[critterName] ?? 0) + 1 },
+    keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
+  }, { carePlayMoments: 1 });
+  saveState(newState);
+  return { newState, keepsake };
 }
