@@ -146,4 +146,4 @@
 - [x] Verify starglow mobile, mossy reading nook, and tiny tea picnic from Storybook selection through their corresponding 3D home render branches.
 - [x] Add deterministic renderer-branch verification for starglow mobile, mossy reading nook, and tiny tea picnic.
 - [x] Add an inspectable active-decoration renderer-status hook for deterministic per-home branch verification.
-- [ ] Save a deployable checkpoint and push the verified printable-card, soundscape, and décor expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified printable-card, soundscape, and décor expansion to GitHub.
