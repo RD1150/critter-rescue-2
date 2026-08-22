@@ -17,8 +17,9 @@ import ExitAffirmationScreen from './screens/ExitAffirmationScreen';
 import NurseryScreen from './screens/NurseryScreen';
 import ParentSettingsScreen from './screens/ParentSettingsScreen';
 import CampLearningScreen from './screens/CampLearningScreen';
+import ParentProgressScreen from './screens/ParentProgressScreen';
 
-import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, completeDailyTrailRescue, getNextDailyMission, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate } from './game/store';
+import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, completeDailyTrailRescue, getNextDailyMission, loadState, saveState, completeRescue, careForCritter, GameState, NurseryGraduate, recordLearningRound, LearningMilestoneKey } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
@@ -35,24 +36,34 @@ type Scene =
   | 'match3'
   | 'nursery'
   | 'parentSettings'
+  | 'parentProgress'
   | 'learning';
 
-function LoadingScreen() {
+function LoadingScreen({ online }: { online: boolean }) {
   return (
-    <div className="game-screen forest-bg flex flex-col items-center justify-center gap-4">
+    <div className="game-screen forest-bg relative flex flex-col items-center justify-center gap-4 overflow-hidden px-6 text-center">
+      <div className="absolute -left-12 top-20 h-40 w-40 rounded-full bg-[#F5C842]/10 blur-2xl" />
+      <div className="absolute -right-12 bottom-16 h-44 w-44 rounded-full bg-[#E66B5B]/15 blur-2xl" />
       <img
         src="/manus-storage/game-logo_a4abbdba.png"
         alt="Critter Rescue"
-        className="w-20 h-20 animate-float drop-shadow-xl"
+        className="relative w-20 h-20 animate-float drop-shadow-xl"
       />
-      <h1 className="font-display text-3xl font-bold text-white drop-shadow-lg">Critter Rescue</h1>
-      <p className="text-white/60 font-body text-sm animate-pulse">Loading the forest…</p>
+      <h1 className="relative font-display text-3xl font-bold text-white drop-shadow-lg">Critter Rescue</h1>
+      <div className="relative rounded-2xl px-5 py-4" style={{ background: 'rgba(250,245,232,.12)', border: '1px solid rgba(255,255,255,.18)' }}><p className="font-display text-white text-base">{online ? 'Waking up a cozy forest…' : 'Your saved camp is ready offline.'}</p><p className="font-body text-white/70 text-xs mt-1">{online ? 'We are keeping your little place in the woods safe.' : 'Reconnect whenever you like for the newest updates.'}</p><div className="mt-3 flex justify-center gap-2"><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" /><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" style={{ animationDelay: '120ms' }} /><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" style={{ animationDelay: '240ms' }} /></div></div>
     </div>
   );
 }
 
+function useOnlineStatus(): boolean {
+  const [online, setOnline] = useState(() => typeof navigator === 'undefined' ? true : navigator.onLine);
+  useEffect(() => { const goOnline = () => setOnline(true); const goOffline = () => setOnline(false); window.addEventListener('online', goOnline); window.addEventListener('offline', goOffline); return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); }; }, []);
+  return online;
+}
+
 export default function App() {
   const [audioPreferences] = useAudioPreferences();
+  const online = useOnlineStatus();
   const [state, setState] = useState<GameState | null>(null);
   const [scene, setScene] = useState<Scene>('loading');
 const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
@@ -79,11 +90,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewDailyReward = previewMode === 'dailyreward';
     const previewHomeCare = previewMode === 'homecare';
     const previewLearning = previewMode === 'learning';
+    const previewParentProgress = previewMode === 'parentprogress';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning;
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -91,7 +103,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewState = (previewDailyProgress || previewDailyReward)
       ? { ...basePreviewState, dailyTrail: { ...previewTrail, completedKeys: previewDailyReward ? previewTrail.missions.map((mission) => mission.key) : [previewTrail.missions[0].key], rewardEarned: previewDailyReward }, lastDailyReward: previewDailyReward ? 'Trail Treasure earned: 3 camp blossoms and 5 Forest Harmony!' : null }
       : basePreviewState;
-    setState(previewState);
+    const datedPreviewState = previewParentProgress ? { ...previewState, rescueCompletedCount: Math.max(previewState.rescueCompletedCount, 8), learningMilestones: { color: 4, shape: 3, pattern: 2 }, nurseryVisits: Math.max(previewState.nurseryVisits, 5), homeCare: { Nutty: 3, Pip: 2 }, activityLog: { ...previewState.activityLog, [new Date().toISOString().slice(0, 10)]: { rescueCount: 2, learningRounds: 3, homeCareMoments: 1, nurseryCareMoments: 1, dailyTrailCompleted: false } } } : previewState;
+    setState(datedPreviewState);
     setTimeout(() => {
       if (preview3d) {
         setScene('camp');
@@ -123,6 +136,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('camp');
       } else if (previewLearning) {
         setScene('learning');
+      } else if (previewParentProgress) {
+        setScene('parentProgress');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -229,8 +244,11 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenParentSettings = useCallback(() => { playButton(); transition('parentSettings', 100); }, [transition]);
   const handleCloseParentSettings = useCallback(() => transition('camp', 100), [transition]);
+  const handleOpenParentProgress = useCallback(() => { playButton(); transition('parentProgress', 100); }, [transition]);
+  const handleCloseParentProgress = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenLearning = useCallback(() => { playButton(); transition('learning', 100); }, [transition]);
   const handleCloseLearning = useCallback(() => transition('camp', 100), [transition]);
+  const handleLearningRound = useCallback((milestone: LearningMilestoneKey) => { if (state) setState(recordLearningRound(state, milestone)); }, [state]);
   const handleCareCritter = useCallback((careKey: string, graduate: NurseryGraduate) => {
     if (!state) return null;
     const result = careForCritter(state, careKey, graduate);
@@ -252,7 +270,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setState(acknowledgeDailyReward(state));
   }, [state]);
 
-  if (scene === 'loading' || !state) return <LoadingScreen />;
+  if (scene === 'loading' || !state) return <LoadingScreen online={online} />;
 
   return (
     <ErrorBoundary>
@@ -263,6 +281,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           className={`w-full h-full transition-opacity duration-200 ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''} ${audioPreferences.reduceMotion ? 'reduce-motion-mode' : ''}`}
           style={{ opacity: transitioning ? 0 : 1 }}
         >
+          {!online && <div role="status" className="fixed z-[80] bottom-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-2 text-center shadow-lg" style={{ background: '#F7E6B8', border: '1px solid #D8B867' }}><p className="font-body text-xs font-bold text-[#4A3022]">Offline · your saved camp can still play.</p></div>}
           {scene === 'starterSelection' && (
             <StarterSelectionScreen onSelect={handleSelectCompanion} />
           )}
@@ -344,8 +363,9 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               reduceMotion={audioPreferences.reduceMotion}
             />
           )}
-          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} />}
-          {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} />}
+          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onOpenProgress={handleOpenParentProgress} />}
+          {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
+          {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} onRoundComplete={handleLearningRound} />}
         </div>
       </TooltipProvider>
     </ErrorBoundary>

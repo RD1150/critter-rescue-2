@@ -176,6 +176,7 @@ export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): voi
 
 export function playPreReaderDirection(key: PreReaderDirectionKey): void {
   if (typeof Audio === 'undefined') return;
+  if (!getAudioPreferences().spokenDirectionsEnabled) return;
   if (activeAudio) activeAudio.pause();
   activeAudio = new Audio(PRE_READER_AUDIO[key]);
   activeAudio.volume = getAudioPreferences().voiceVolume;

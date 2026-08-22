@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
-export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean; largeIconMode: boolean; reduceMotion: boolean };
+export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean; spokenDirectionsEnabled: boolean; largeIconMode: boolean; reduceMotion: boolean };
 
 const STORAGE_KEY = 'critter-rescue-audio-preferences';
 const EVENT_NAME = 'critter-rescue-audio-preferences-changed';
-export const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true, largeIconMode: false, reduceMotion: false };
+export const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true, spokenDirectionsEnabled: true, largeIconMode: false, reduceMotion: false };
 
 export function getAudioPreferences(): AudioPreferences {
   if (typeof window === 'undefined') return DEFAULT_PREFERENCES;
@@ -13,6 +13,7 @@ export function getAudioPreferences(): AudioPreferences {
     return {
       voiceVolume: typeof stored.voiceVolume === 'number' ? Math.max(0, Math.min(1, stored.voiceVolume)) : DEFAULT_PREFERENCES.voiceVolume,
       captionsEnabled: typeof stored.captionsEnabled === 'boolean' ? stored.captionsEnabled : DEFAULT_PREFERENCES.captionsEnabled,
+      spokenDirectionsEnabled: typeof stored.spokenDirectionsEnabled === 'boolean' ? stored.spokenDirectionsEnabled : DEFAULT_PREFERENCES.spokenDirectionsEnabled,
       largeIconMode: typeof stored.largeIconMode === 'boolean' ? stored.largeIconMode : DEFAULT_PREFERENCES.largeIconMode,
       reduceMotion: typeof stored.reduceMotion === 'boolean' ? stored.reduceMotion : DEFAULT_PREFERENCES.reduceMotion,
     };

@@ -114,3 +114,8 @@
 - The full direction treatment appears in first-play camp onboarding, Today’s Tiny Trail, every rescue introduction and active rescue header, and each Camp Learning Trail round. Direct mobile browser verification confirmed the spoken-direction card and readable caption in the counting rescue, the first color-learning round, and the Daily Trail card.
 - The obsolete `speechSynthesis` narration module and unused narration control were removed. A source scan confirms no browser SpeechSynthesis fallback remains in player code.
 - Final verification: 5 Vitest files / 9 tests pass, `pnpm check` passes, and `pnpm build` completes in approximately four seconds. The only remaining build output is the existing non-blocking large-chunk warning.
+
+## Parent Progress and Resilient Play Verification
+- Direct mobile browser inspection confirmed that the new local-only Little Trail Summary presents calm daily rescue, learning, and kindness totals; growth bars; color/shape/pattern discoveries; a seven-day activity strip without streak pressure; and sanctuary milestones.
+- Direct mobile browser inspection confirmed Parent Settings exposes an enabled-by-default “Offer spoken directions” checkbox, explains that visual prompts and captions remain available when it is off, and provides a clear entry point to the activity summary.
+- Direct interaction testing confirmed that turning off the new setting removes the pre-reader “Hear directions” controls from the active rescue and intro card while retaining the concise captioned “Try this” prompt. The existing sparse critter introduction/help controls remain separate and unchanged.

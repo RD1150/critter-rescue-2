@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import CritterAvatar from '../components/CritterAvatar';
 import { playComplete, playError, playMatch } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
+import type { LearningMilestoneKey } from '../game/store';
 
 type Shape = 'circle' | 'square' | 'triangle';
 type Tile = { color: string; colorName: string; shape: Shape };
@@ -31,9 +32,9 @@ function ShapeTile({ tile, small = false }: { tile: Tile; small?: boolean }) {
   return <span aria-label={`${tile.colorName} ${tile.shape}`} className="inline-block shadow-sm" style={{ width: tile.shape === 'triangle' ? 0 : size, height: tile.shape === 'triangle' ? 0 : size, background: tile.shape === 'triangle' ? 'transparent' : tile.color, ...shapeStyle }} />;
 }
 
-interface Props { onBack: () => void; }
+interface Props { onBack: () => void; onRoundComplete: (milestone: LearningMilestoneKey) => void; }
 
-export default function CampLearningScreen({ onBack }: Props) {
+export default function CampLearningScreen({ onBack, onRoundComplete }: Props) {
   const previewRound = import.meta.env.DEV ? Number(new URLSearchParams(window.location.search).get('learningRound') || '0') : 0;
   const [round, setRound] = useState(Math.max(0, Math.min(LEARNING_ROUNDS.length - 1, previewRound)));
   const [message, setMessage] = useState('Take your time. There is no rush!');
@@ -45,6 +46,7 @@ export default function CampLearningScreen({ onBack }: Props) {
   const choose = (tile: Tile) => {
     if (tilesMatch(tile, current.answer)) {
       playMatch();
+      onRoundComplete((['color', 'shape', 'pattern'] as const)[round]);
       if (round === LEARNING_ROUNDS.length - 1) {
         setFinished(true);
         setMessage('You did three wonderful learning games!');

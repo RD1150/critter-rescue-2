@@ -1,0 +1,9 @@
+{
+  "name": "Critter Rescue",
+  "short_name": "Critter Rescue",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#103B2A",
+  "theme_color": "#103B2A",
+  "icons": [{ "src": "/manus-storage/game-logo_a4abbdba.png", "sizes": "any", "type": "image/png" }]
+}

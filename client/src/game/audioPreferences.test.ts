@@ -24,8 +24,8 @@ describe('audio preferences', () => {
     expect(getAudioPreferences()).toEqual(DEFAULT_PREFERENCES);
   });
 
-  it('persists a Reduce motion preference with the other audio settings', () => {
-    const next = { voiceVolume: 0.4, captionsEnabled: false, largeIconMode: true, reduceMotion: true };
+  it('persists a spoken-directions preference with the other audio settings', () => {
+    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, largeIconMode: true, reduceMotion: true };
     saveAudioPreferences(next);
     expect(getAudioPreferences()).toEqual(next);
   });

@@ -14,10 +14,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" href="/manus-storage/game-logo_a4abbdba.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#103B2A" />
+    <style>body{margin:0;background:#103B2A}#root:empty{min-height:100vh;display:grid;place-items:center;color:#fff;font-family:"Nunito Sans",sans-serif}.boot-screen{display:grid;justify-items:center;gap:12px;text-align:center;padding:24px}.boot-screen img{width:68px;height:68px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.3))}.boot-screen p{margin:0;font-family:Fraunces,serif;font-size:18px}</style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot-screen"><img src="/manus-storage/game-logo_a4abbdba.png" alt="" /><p>Waking up a cozy forest…</p></div></div>
     <script type="module" src="/src/main.tsx"></script>
     <script
       defer

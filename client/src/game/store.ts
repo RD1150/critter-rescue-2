@@ -22,6 +22,23 @@ export interface DailyTrailState {
   rewardEarned: boolean;
 }
 
+export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
+
+export interface DailyActivity {
+  rescueCount: number;
+  learningRounds: number;
+  homeCareMoments: number;
+  nurseryCareMoments: number;
+  dailyTrailCompleted: boolean;
+}
+
+export interface ParentProgressSummary {
+  today: DailyActivity;
+  recentDays: Array<{ dayKey: string; activity: DailyActivity }>;
+  activeDaysInWeek: number;
+  totalKindCare: number;
+}
+
 export interface GameState {
   deviceId: string;
   selectedCompanion: string | null;
@@ -37,6 +54,8 @@ export interface GameState {
   homeCare: Record<string, number>;
   dailyTrail: DailyTrailState;
   lastDailyReward: string | null;
+  learningMilestones: Record<LearningMilestoneKey, number>;
+  activityLog: Record<string, DailyActivity>;
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -63,6 +82,8 @@ export function loadState(): GameState {
         homeCare: saved.homeCare ?? {},
         dailyTrail: saved.dailyTrail ?? fresh.dailyTrail,
         lastDailyReward: saved.lastDailyReward ?? null,
+        learningMilestones: { ...fresh.learningMilestones, ...(saved.learningMilestones ?? {}) },
+        activityLog: saved.activityLog ?? {},
       };
       return ensureDailyTrail(hydrated);
     }
@@ -90,11 +111,46 @@ export function createFreshState(): GameState {
     homeCare: {},
     dailyTrail: { dayKey: '', missions: [], completedKeys: [], rewardEarned: false },
     lastDailyReward: null,
+    learningMilestones: { color: 0, shape: 0, pattern: 0 },
+    activityLog: {},
   };
 }
 
 export function getDailyTrailKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+const EMPTY_ACTIVITY: DailyActivity = { rescueCount: 0, learningRounds: 0, homeCareMoments: 0, nurseryCareMoments: 0, dailyTrailCompleted: false };
+
+function addActivity(state: GameState, contribution: Partial<DailyActivity>, dayKey = getDailyTrailKey()): GameState {
+  const previous = state.activityLog[dayKey] ?? EMPTY_ACTIVITY;
+  const next: DailyActivity = {
+    rescueCount: previous.rescueCount + (contribution.rescueCount ?? 0),
+    learningRounds: previous.learningRounds + (contribution.learningRounds ?? 0),
+    homeCareMoments: previous.homeCareMoments + (contribution.homeCareMoments ?? 0),
+    nurseryCareMoments: previous.nurseryCareMoments + (contribution.nurseryCareMoments ?? 0),
+    dailyTrailCompleted: previous.dailyTrailCompleted || Boolean(contribution.dailyTrailCompleted),
+  };
+  const withToday = { ...state.activityLog, [dayKey]: next };
+  const keep = Object.keys(withToday).sort().slice(-14);
+  return { ...state, activityLog: Object.fromEntries(keep.map((key) => [key, withToday[key]])) };
+}
+
+export function buildParentProgressSummary(state: GameState, date = new Date()): ParentProgressSummary {
+  const todayKey = getDailyTrailKey(date);
+  const recentDays = Array.from({ length: 7 }, (_, index) => {
+    const value = new Date(date);
+    value.setDate(value.getDate() - (6 - index));
+    const dayKey = getDailyTrailKey(value);
+    return { dayKey, activity: state.activityLog[dayKey] ?? EMPTY_ACTIVITY };
+  });
+  const activeDaysInWeek = recentDays.filter(({ activity }) => activity.rescueCount + activity.learningRounds + activity.homeCareMoments + activity.nurseryCareMoments > 0).length;
+  return {
+    today: state.activityLog[todayKey] ?? EMPTY_ACTIVITY,
+    recentDays,
+    activeDaysInWeek,
+    totalKindCare: Object.values(state.homeCare).reduce((total, count) => total + count, 0) + state.nurseryVisits,
+  };
 }
 
 function dailySeed(dayKey: string): number {
@@ -144,13 +200,13 @@ export function completeDailyTrailRescue(state: GameState, missionKey: string, d
   const completedKeys = [...ready.dailyTrail.completedKeys, missionKey];
   const finished = completedKeys.length === ready.dailyTrail.missions.length;
   const rewardMessage = finished ? 'Trail Treasure earned: 3 camp blossoms and 5 Forest Harmony!' : undefined;
-  const newState: GameState = {
+  const newState = addActivity({
     ...ready,
     forestHarmony: ready.forestHarmony + 2 + (finished ? 5 : 0),
     campFlowersCount: ready.campFlowersCount + 1 + (finished ? 3 : 0),
     dailyTrail: { ...ready.dailyTrail, completedKeys, rewardEarned: finished },
     lastDailyReward: finished ? rewardMessage! : ready.lastDailyReward,
-  };
+  }, { dailyTrailCompleted: finished }, dayKey);
   saveState(newState);
   return { newState, completed: completedKeys.length, finished, rewardMessage };
 }
@@ -213,14 +269,14 @@ export function completeRescue(
     }
   }
 
-  const newState: GameState = {
+  const newState = addActivity({
     ...state,
     forestHarmony: newHarmony,
     campFlowersCount: newFlowers,
     rescueCompletedCount: newRescues,
     unlockedZones: currentUnlocked,
     zoneTaskProgress: newProgress,
-  };
+  }, { rescueCount: 1 });
 
   saveState(newState);
   return {
@@ -246,12 +302,12 @@ export interface CareResult {
 export function careForCritter(state: GameState, critterKey: string, graduate?: NurseryGraduate): CareResult {
   const current = state.nurseryCare[critterKey] ?? 0;
   const careLevel = Math.min(3, current + 1);
-  const newState: GameState = {
+  const newState = addActivity({
     ...state,
     nurseryCare: { ...state.nurseryCare, [critterKey]: careLevel },
     nurseryVisits: state.nurseryVisits + 1,
     lastNurseryGraduate: careLevel >= 3 ? graduate ?? state.lastNurseryGraduate : state.lastNurseryGraduate,
-  };
+  }, { nurseryCareMoments: 1 });
   saveState(newState);
   return { newState, careLevel, graduated: careLevel >= 3 };
 }
@@ -264,7 +320,14 @@ export function acknowledgeNurseryGraduate(state: GameState): GameState {
 
 export function careForHome(state: GameState, critterName: string): { newState: GameState; careCount: number } {
   const careCount = (state.homeCare[critterName] ?? 0) + 1;
-  const newState: GameState = { ...state, homeCare: { ...state.homeCare, [critterName]: careCount } };
+  const newState = addActivity({ ...state, homeCare: { ...state.homeCare, [critterName]: careCount } }, { homeCareMoments: 1 });
   saveState(newState);
   return { newState, careCount };
+}
+
+export function recordLearningRound(state: GameState, milestone: LearningMilestoneKey): GameState {
+  const updated = { ...state, learningMilestones: { ...state.learningMilestones, [milestone]: (state.learningMilestones[milestone] ?? 0) + 1 } };
+  const newState = addActivity(updated, { learningRounds: 1 });
+  saveState(newState);
+  return newState;
 }

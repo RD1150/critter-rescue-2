@@ -112,3 +112,22 @@
 - [x] Verify the spoken-direction journey across core pre-reader play flows.
 - [x] Save a deployable checkpoint for the completed pre-reader spoken-direction milestone.
 - [x] Commit and push the completed pre-reader spoken-direction update to GitHub.
+
+## Parent Progress and Resilient Play
+
+- [x] Add a parent-facing dashboard for learning milestones, rescue activity, and daily trail progress.
+- [x] Add persistent learning and daily-activity summaries to the game state.
+- [x] Add a Parent Settings toggle that enables or disables optional spoken directions while preserving captions.
+- [x] Build a gentle animated loading screen and offline-ready app shell for slow or interrupted connections.
+- [x] Test parent controls, offline fallback, loading behavior, and new dashboard data.
+- [ ] Save a deployable checkpoint and push the verified parent-progress update to GitHub.
+
+## Sanctuary Story and Collectible Play Expansion
+
+- [ ] Build a visual Critter Storybook that unlocks a compact memory page for each rescued plushie.
+- [ ] Add child-safe Critter Home decorating choices that persist per rescued friend.
+- [ ] Add calm seasonal sanctuary moments with a clear seasonal field note and optional celebration prompt.
+- [ ] Add short grown-up-and-child cooperative play prompts that take about two minutes and require no score.
+- [ ] Add future-ready plush adoption cards with each critter’s personality, care idea, and collectible details; do not add purchasing or external links.
+- [ ] Test and visually verify the complete story, decorating, seasonal, grown-up, and adoption-card experience.
+- [ ] Save a deployable checkpoint and push the verified sanctuary-story expansion to GitHub.
