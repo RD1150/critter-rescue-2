@@ -132,4 +132,4 @@
 - [x] Test and visually verify the complete story, decorating, seasonal, grown-up, and adoption-card experience.
 - [x] Verify that a selected Storybook home decoration persists and is visible on the matching 3D Critter Home after returning to camp.
 - [x] Add and run a deterministic Storybook decoration-to-Babylon render-plan test for the persisted home variant.
-- [ ] Save a deployable checkpoint and push the verified sanctuary-story expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified sanctuary-story expansion to GitHub.
