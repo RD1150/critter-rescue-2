@@ -119,3 +119,12 @@
 - Direct mobile browser inspection confirmed that the new local-only Little Trail Summary presents calm daily rescue, learning, and kindness totals; growth bars; color/shape/pattern discoveries; a seven-day activity strip without streak pressure; and sanctuary milestones.
 - Direct mobile browser inspection confirmed Parent Settings exposes an enabled-by-default “Offer spoken directions” checkbox, explains that visual prompts and captions remain available when it is off, and provides a clear entry point to the activity summary.
 - Direct interaction testing confirmed that turning off the new setting removes the pre-reader “Hear directions” controls from the active rescue and intro card while retaining the concise captioned “Try this” prompt. The existing sparse critter introduction/help controls remain separate and unchanged.
+
+## Sanctuary Story Expansion Verification
+- Direct mobile browser inspection confirmed the Critter Storybook shows one calm visual rescue-memory page per unlocked plushie, a seasonal field note, and a compact friend selector.
+- Direct mobile browser inspection confirmed the Home Decorating tab offers three large, child-safe choices (petal garland, cloud pillow, acorn lantern), visibly marks the current choice, and explains that it appears in the 3D sanctuary.
+- Direct mobile browser inspection confirmed the seasonal field note offers one optional, persistent keepsake action and the Storybook now includes short grown-up-and-child activity prompts and a future-plush adoption card. The adoption card is an in-app collectible design note only, with no shop, payment, or external link.
+- Direct interaction testing confirmed the grown-up prompt explicitly remains score-free and that saving a seasonal keepsake changes the action to a completed “tucked into the book” state.
+- Direct browser inspection confirmed the lazy-loaded Babylon 3D camp continues to render its plushie sanctuary, Critter Homes, seasonal accent dots, and the new Critter Storybook entry without a runtime failure.
+- The Storybook decoration panel was reopened for a dedicated round-trip test; Nutty’s currently saved decoration is shown as the selected acorn lantern before changing the choice and returning to the 3D camp.
+- Direct round-trip testing selected Nutty’s cloud pillow in the Storybook, showed the new checkmark state, and returned to the fully rendered 3D camp where the pale cushion accent is visible beside Nutty’s Critter Home. This confirms the persistent decoration choice reaches the Babylon sanctuary renderer.

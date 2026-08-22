@@ -23,6 +23,8 @@ export interface DailyTrailState {
 }
 
 export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
+export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern';
+export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export interface DailyActivity {
   rescueCount: number;
@@ -56,6 +58,8 @@ export interface GameState {
   lastDailyReward: string | null;
   learningMilestones: Record<LearningMilestoneKey, number>;
   activityLog: Record<string, DailyActivity>;
+  homeDecor: Record<string, HomeDecoration>;
+  seasonalKeepsakes: SanctuarySeason[];
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -84,6 +88,8 @@ export function loadState(): GameState {
         lastDailyReward: saved.lastDailyReward ?? null,
         learningMilestones: { ...fresh.learningMilestones, ...(saved.learningMilestones ?? {}) },
         activityLog: saved.activityLog ?? {},
+        homeDecor: saved.homeDecor ?? {},
+        seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
       };
       return ensureDailyTrail(hydrated);
     }
@@ -113,11 +119,21 @@ export function createFreshState(): GameState {
     lastDailyReward: null,
     learningMilestones: { color: 0, shape: 0, pattern: 0 },
     activityLog: {},
+    homeDecor: {},
+    seasonalKeepsakes: [],
   };
 }
 
 export function getDailyTrailKey(date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+export function getSanctuarySeason(date = new Date()): SanctuarySeason {
+  const month = date.getMonth();
+  if (month >= 2 && month <= 4) return 'spring';
+  if (month >= 5 && month <= 7) return 'summer';
+  if (month >= 8 && month <= 10) return 'autumn';
+  return 'winter';
 }
 
 const EMPTY_ACTIVITY: DailyActivity = { rescueCount: 0, learningRounds: 0, homeCareMoments: 0, nurseryCareMoments: 0, dailyTrailCompleted: false };
@@ -328,6 +344,19 @@ export function careForHome(state: GameState, critterName: string): { newState: 
 export function recordLearningRound(state: GameState, milestone: LearningMilestoneKey): GameState {
   const updated = { ...state, learningMilestones: { ...state.learningMilestones, [milestone]: (state.learningMilestones[milestone] ?? 0) + 1 } };
   const newState = addActivity(updated, { learningRounds: 1 });
+  saveState(newState);
+  return newState;
+}
+
+export function chooseHomeDecoration(state: GameState, critterName: string, decoration: HomeDecoration): GameState {
+  const newState = { ...state, homeDecor: { ...state.homeDecor, [critterName]: decoration } };
+  saveState(newState);
+  return newState;
+}
+
+export function rememberSeasonalMoment(state: GameState, season: SanctuarySeason): GameState {
+  if (state.seasonalKeepsakes.includes(season)) return state;
+  const newState = { ...state, seasonalKeepsakes: [...state.seasonalKeepsakes, season] };
   saveState(newState);
   return newState;
 }

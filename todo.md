@@ -120,14 +120,16 @@
 - [x] Add a Parent Settings toggle that enables or disables optional spoken directions while preserving captions.
 - [x] Build a gentle animated loading screen and offline-ready app shell for slow or interrupted connections.
 - [x] Test parent controls, offline fallback, loading behavior, and new dashboard data.
-- [ ] Save a deployable checkpoint and push the verified parent-progress update to GitHub.
+- [x] Save a deployable checkpoint and push the verified parent-progress update to GitHub.
 
 ## Sanctuary Story and Collectible Play Expansion
 
-- [ ] Build a visual Critter Storybook that unlocks a compact memory page for each rescued plushie.
-- [ ] Add child-safe Critter Home decorating choices that persist per rescued friend.
-- [ ] Add calm seasonal sanctuary moments with a clear seasonal field note and optional celebration prompt.
-- [ ] Add short grown-up-and-child cooperative play prompts that take about two minutes and require no score.
-- [ ] Add future-ready plush adoption cards with each critter’s personality, care idea, and collectible details; do not add purchasing or external links.
-- [ ] Test and visually verify the complete story, decorating, seasonal, grown-up, and adoption-card experience.
+- [x] Build a visual Critter Storybook that unlocks a compact memory page for each rescued plushie.
+- [x] Add child-safe Critter Home decorating choices that persist per rescued friend.
+- [x] Add calm seasonal sanctuary moments with a clear seasonal field note and optional celebration prompt.
+- [x] Add short grown-up-and-child cooperative play prompts that take about two minutes and require no score.
+- [x] Add future-ready plush adoption cards with each critter’s personality, care idea, and collectible details; do not add purchasing or external links.
+- [x] Test and visually verify the complete story, decorating, seasonal, grown-up, and adoption-card experience.
+- [x] Verify that a selected Storybook home decoration persists and is visible on the matching 3D Critter Home after returning to camp.
+- [x] Add and run a deterministic Storybook decoration-to-Babylon render-plan test for the persisted home variant.
 - [ ] Save a deployable checkpoint and push the verified sanctuary-story expansion to GitHub.

@@ -6,7 +6,7 @@ import CritterAvatar from '../components/CritterAvatar';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
 import { playDailyTrailVoice } from '../game/characterAudio';
-import { DailyTrailState, NurseryGraduate } from '../game/store';
+import { DailyTrailState, HomeDecoration, NurseryGraduate, getSanctuarySeason } from '../game/store';
 import PreReaderDirection from '../components/PreReaderDirection';
 
 interface Props {
@@ -28,6 +28,8 @@ interface Props {
   onOpenNursery: () => void;
   onOpenParentSettings: () => void;
   onOpenLearning: () => void;
+  onOpenStorybook: () => void;
+  homeDecor: Record<string, HomeDecoration>;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -51,6 +53,8 @@ export default function CampScreen({
   onOpenNursery,
   onOpenParentSettings,
   onOpenLearning,
+  onOpenStorybook,
+  homeDecor,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -155,6 +159,8 @@ export default function CampScreen({
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
         onHomeClick={handleHomeClick}
+        homeDecor={homeDecor}
+        season={getSanctuarySeason()}
         reduceMotion={reduceMotion}
       />
 
@@ -185,6 +191,9 @@ export default function CampScreen({
           </button>
           <button onClick={() => { playButton(); onOpenLearning(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open colors shapes and patterns game">
             <span className="text-lg">🌈</span>
+          </button>
+          <button onClick={() => { playButton(); onOpenStorybook(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open Critter Storybook">
+            <span className="text-lg">✨</span>
           </button>
         </div>
       </div>
@@ -333,6 +342,7 @@ export default function CampScreen({
           <div className="pointer-events-auto flex gap-2 items-end">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
+            <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
             {!allComplete ? (
               <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
