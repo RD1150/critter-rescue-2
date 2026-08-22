@@ -110,5 +110,5 @@
 - [x] Generate gentle, optional instruction audio assets using Nutty’s approved squirrel-guide voice.
 - [x] Add large tap-to-hear instruction controls with readable captions across core pre-reader play flows.
 - [x] Verify the spoken-direction journey across core pre-reader play flows.
-- [ ] Save a deployable checkpoint for the completed pre-reader spoken-direction milestone.
+- [x] Save a deployable checkpoint for the completed pre-reader spoken-direction milestone.
 - [ ] Commit and push the completed pre-reader spoken-direction update to GitHub.
