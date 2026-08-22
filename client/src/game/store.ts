@@ -23,7 +23,7 @@ export interface DailyTrailState {
 }
 
 export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
-export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern';
+export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export interface DailyActivity {

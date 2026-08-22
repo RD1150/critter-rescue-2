@@ -128,3 +128,22 @@
 - Direct browser inspection confirmed the lazy-loaded Babylon 3D camp continues to render its plushie sanctuary, Critter Homes, seasonal accent dots, and the new Critter Storybook entry without a runtime failure.
 - The Storybook decoration panel was reopened for a dedicated round-trip test; Nutty’s currently saved decoration is shown as the selected acorn lantern before changing the choice and returning to the 3D camp.
 - Direct round-trip testing selected Nutty’s cloud pillow in the Storybook, showed the new checkmark state, and returned to the fully rendered 3D camp where the pale cushion accent is visible beside Nutty’s Critter Home. This confirms the persistent decoration choice reaches the Babylon sanctuary renderer.
+
+## Printable Cards and Seasonal Soundscape
+- Generated four original, instrumental-only 120-second sanctuary loops for spring, summer, autumn, and winter. They were uploaded as private web assets and are intentionally off by default.
+- Direct mobile browser inspection confirmed Parent Settings exposes a clearly labelled “Play gentle background sound” control and a capped 0–45% background-level slider. Direct interaction confirmed the slider becomes available only when the grown-up enables the optional soundscape.
+- Direct mobile browser inspection confirmed each adoption card now includes a prominent “Print or Save as PDF” action with a concise explanation of the browser print sheet and no commerce or external-link flow.
+- Direct mobile browser inspection confirmed the Home Decorating panel now lists six large choices: petal garland, cloud pillow, acorn lantern, starglow mobile, mossy reading nook, and tiny tea picnic. Selecting the new starglow mobile visibly updates its selected state.
+- Direct browser inspection confirmed the 3D plush sanctuary remains stable after returning from the new starglow mobile selection, with the updated decoration plan preserved into the Babylon camp render path.
+- The printable adoption-card source card was opened again for the dedicated on-screen print-preview inspection; it includes Nutty’s personality, pocket detail, care idea, and the family keepsake action.
+- Direct print-preview inspection confirmed the printable card renders as a clean single-page family keepsake with a title, seasonal label, plush portrait, personality, two care-detail panels, and a closing family promise. The preview uses the same DOM and print CSS as the Print or Save as PDF action.
+- The decorator was reopened for focused end-to-end checks of the remaining new decoration sets; Nutty’s Home is ready for the mossy reading nook selection followed by a 3D camp return.
+- Direct round-trip interaction selected the mossy reading nook and returned to the fully rendered 3D camp. The saved selection reaches the named Babylon render-plan branch for the green mat and tiny storybook accent.
+- Direct Storybook interaction selected the tiny tea picnic and showed its saved checkmark state, ready for the matching 3D home render return check.
+- Direct round-trip interaction selected the tiny tea picnic and returned to the fully rendered 3D camp. The saved selection reaches the named Babylon render-plan branch for its miniature picnic blanket and cup accent.
+- The Storybook decorator was reopened with the active renderer-status hook available for a direct starglow mobile branch inspection.
+- Direct 3D camp inspection now exposes `Nutty=starglow-mobile` together with all four corresponding created mesh identifiers (`home-starglow-string` plus three `home-starglow` meshes), providing inspectable confirmation of that live Babylon branch.
+- The mossy reading nook selection was reopened with the active renderer-status hook ready to expose its exact two Babylon mesh identifiers in the next camp render.
+- Direct 3D camp inspection now exposes `Nutty=mossy-reading-nook` with both created mesh identifiers (`home-reading-nook-mat-Nutty` and `home-reading-nook-book-Nutty`), providing inspectable confirmation of that live Babylon branch.
+- The tiny tea picnic selection was reopened with the active renderer-status hook ready to expose its exact blanket and cup mesh identifiers in the next camp render.
+- Direct 3D camp inspection now exposes `Nutty=tea-time-picnic` with both created mesh identifiers (`home-tea-picnic-blanket-Nutty` and `home-tea-picnic-cup-Nutty`), completing inspectable live-branch checks for all three new decoration sets.

@@ -24,6 +24,7 @@ import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, ca
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
+import { useSeasonalSoundscape } from './game/seasonalSoundscape';
 
 type Scene =
   | 'loading'
@@ -65,6 +66,7 @@ function useOnlineStatus(): boolean {
 
 export default function App() {
   const [audioPreferences] = useAudioPreferences();
+  useSeasonalSoundscape(audioPreferences, getSanctuarySeason());
   const online = useOnlineStatus();
   const [state, setState] = useState<GameState | null>(null);
   const [scene, setScene] = useState<Scene>('loading');

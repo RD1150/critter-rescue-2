@@ -66,6 +66,7 @@ export default function CampScreen({
   const [homeCareMessage, setHomeCareMessage] = useState('');
   const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
   const [showFirstGuide, setShowFirstGuide] = useState(() => rescueCount === 0);
+  const [renderedDecorations, setRenderedDecorations] = useState<Record<string, { decoration: HomeDecoration; meshIds: string[] }>>({});
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dailyRewardVoicePlayed = useRef<string | null>(null);
 
@@ -76,6 +77,9 @@ export default function CampScreen({
   const allComplete = completedTasks >= totalTasks;
   const dailyCompleted = dailyTrail.completedKeys.length;
   const dailyDone = dailyTrail.rewardEarned;
+  const handleDecorationRendered = useCallback((critterName: string, decoration: HomeDecoration, meshIds: string[]) => {
+    setRenderedDecorations((previous) => previous[critterName]?.decoration === decoration && previous[critterName]?.meshIds.join('|') === meshIds.join('|') ? previous : { ...previous, [critterName]: { decoration, meshIds } });
+  }, []);
 
   const companionLines = useMemo(() => {
     if (rescueCount === 0) return ['Hi, friend! We help little animals. Tap the big red Follow Trail button, and I will show you where to go!', 'This is our cozy camp. You can move it by dragging, but you do not need to. Let’s help a friend first!', 'A little friend is waiting in Sunny Meadow. Let’s go together!'];
@@ -159,6 +163,7 @@ export default function CampScreen({
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
         onHomeClick={handleHomeClick}
+        onDecorationRendered={handleDecorationRendered}
         homeDecor={homeDecor}
         season={getSanctuarySeason()}
         reduceMotion={reduceMotion}
@@ -166,6 +171,8 @@ export default function CampScreen({
 
       {/* Gentle visual vignette lets the journal controls remain legible without hiding the 3D world. */}
       <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(12,47,34,.34) 0%, transparent 28%, transparent 66%, rgba(12,47,34,.5) 100%)' }} />
+
+      {import.meta.env.DEV && Object.keys(renderedDecorations).length > 0 && <output data-testid="rendered-home-decoration-status" className="absolute z-20 left-3 bottom-[94px] max-w-[68vw] rounded-lg bg-[#FFF9EF]/90 px-2 py-1 font-body text-[9px] text-[#49392C] shadow-sm">3D home accents: {Object.entries(renderedDecorations).map(([name, status]) => `${name}=${status.decoration} (${status.meshIds.join(', ')})`).join(' · ')}</output>}
 
       {/* Top field-journal HUD */}
       <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">

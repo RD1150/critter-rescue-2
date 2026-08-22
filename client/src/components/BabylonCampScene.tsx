@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import type * as Babylon from '@babylonjs/core';
 import { loadBabylon } from '../lib/babylonRuntime';
 import { CritterData, CritterType } from '../game/data';
-import { getHomeDecorationRenderPlan } from '../game/homeDecorations';
+import { getHomeDecorationMeshIds, getHomeDecorationRenderPlan } from '../game/homeDecorations';
 import type { HomeDecoration, SanctuarySeason } from '../game/store';
 import { PLUSH_IMAGES } from './CritterAvatar';
 
@@ -44,6 +44,7 @@ type Props = {
   onCompanionClick: () => void;
   onCritterClick: (critter: CritterData) => void;
   onHomeClick: (critter: CritterData) => void;
+  onDecorationRendered?: (critterName: string, decoration: HomeDecoration, meshIds: string[]) => void;
   homeDecor?: Record<string, HomeDecoration>;
   season?: SanctuarySeason;
   reduceMotion?: boolean;
@@ -194,15 +195,30 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
     }
   }
   const decorationPlan = getHomeDecorationRenderPlan(decoration);
+  const decorationMeshIds = getHomeDecorationMeshIds(decoration, critter.name);
   if (decorationPlan.key === 'cloud-pillow') {
-    const pillow = MeshBuilder.CreateSphere(`home-pillow-${critter.name}`, { diameter: 0.46, segments: 10 }, scene);
+    const pillow = MeshBuilder.CreateSphere(decorationMeshIds[0], { diameter: 0.46, segments: 10 }, scene);
     pillow.parent = root; pillow.position = new Vector3(0.45, 0.24, -0.24); pillow.scaling = new Vector3(1.28, 0.55, 0.88); pillow.material = makeMaterial(scene, `home-pillow-mat-${critter.name}`, '#F1DFC3'); addShadow(pillow);
   } else if (decorationPlan.key === 'acorn-lantern') {
-    const lantern = MeshBuilder.CreateSphere(`home-lantern-${critter.name}`, { diameter: 0.24, segments: 8 }, scene);
+    const lantern = MeshBuilder.CreateSphere(decorationMeshIds[0], { diameter: 0.24, segments: 8 }, scene);
     lantern.parent = root; lantern.position = new Vector3(-0.55, 0.52, -0.15); lantern.material = makeMaterial(scene, `home-lantern-mat-${critter.name}`, '#F5C842', 0.72); addShadow(lantern);
+  } else if (decorationPlan.key === 'starglow-mobile') {
+    const string = MeshBuilder.CreateCylinder(decorationMeshIds[0], { height: 0.68, diameter: 0.025, tessellation: 6 }, scene);
+    string.parent = root; string.position = new Vector3(0, 0.82, -0.16); string.material = makeMaterial(scene, `home-starglow-string-mat-${critter.name}`, '#C9B8E8'); addShadow(string);
+    [-0.25, 0, 0.25].forEach((x, index) => { const star = MeshBuilder.CreateSphere(decorationMeshIds[index + 1], { diameter: 0.16, segments: 8 }, scene); star.parent = root; star.position = new Vector3(x, 0.52 + (index % 2) * 0.14, -0.18); star.material = makeMaterial(scene, `home-starglow-mat-${critter.name}-${index}`, index === 1 ? '#F5C842' : '#B69DE8', 0.62); addShadow(star); });
+  } else if (decorationPlan.key === 'mossy-reading-nook') {
+    const mat = MeshBuilder.CreateDisc(decorationMeshIds[0], { radius: 0.5, tessellation: 16 }, scene);
+    mat.parent = root; mat.rotation.x = Math.PI / 2; mat.position = new Vector3(0.42, 0.065, -0.24); mat.material = makeMaterial(scene, `home-reading-nook-mat-mat-${critter.name}`, '#7FA66B'); addShadow(mat);
+    const book = MeshBuilder.CreateBox(decorationMeshIds[1], { width: 0.3, height: 0.07, depth: 0.23 }, scene);
+    book.parent = root; book.position = new Vector3(0.42, 0.13, -0.24); book.rotation.y = 0.32; book.material = makeMaterial(scene, `home-reading-nook-book-mat-${critter.name}`, '#E66B5B'); addShadow(book);
+  } else if (decorationPlan.key === 'tea-time-picnic') {
+    const blanket = MeshBuilder.CreateDisc(decorationMeshIds[0], { radius: 0.46, tessellation: 16 }, scene);
+    blanket.parent = root; blanket.rotation.x = Math.PI / 2; blanket.position = new Vector3(-0.38, 0.065, -0.24); blanket.material = makeMaterial(scene, `home-tea-picnic-blanket-mat-${critter.name}`, '#F1B4C0'); addShadow(blanket);
+    const cup = MeshBuilder.CreateCylinder(decorationMeshIds[1], { height: 0.16, diameter: 0.16, tessellation: 10 }, scene);
+    cup.parent = root; cup.position = new Vector3(-0.38, 0.15, -0.24); cup.material = makeMaterial(scene, `home-tea-picnic-cup-mat-${critter.name}`, '#F1DFC3'); addShadow(cup);
   } else {
     [-0.48, 0, 0.48].forEach((x, index) => {
-      const petalDot = MeshBuilder.CreateSphere(`home-garland-${critter.name}-${index}`, { diameter: 0.13, segments: 8 }, scene);
+      const petalDot = MeshBuilder.CreateSphere(decorationMeshIds[index], { diameter: 0.13, segments: 8 }, scene);
       petalDot.parent = root; petalDot.position = new Vector3(x, 0.62 + (index % 2) * 0.12, -0.55); petalDot.material = petal; addShadow(petalDot);
     });
   }
@@ -283,7 +299,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, homeDecor = {}, season = 'summer', reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, season = 'summer', reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -395,7 +411,9 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     rescuedCritters.slice(0, friendSlots.length).forEach((critter, index) => {
       const slot = friendSlots[index];
       const homeOffset = new Vector3(slot.x < 0 ? -0.75 : 0.75, 0, slot.z > 0 ? 0.75 : -0.8);
-      createCritterHome(scene, critter, slot.add(homeOffset), shadow, () => onHomeClick(critter), homeDecor[critter.name]);
+      const activeDecoration = homeDecor[critter.name] ?? 'petal-garland';
+      createCritterHome(scene, critter, slot.add(homeOffset), shadow, () => onHomeClick(critter), activeDecoration);
+      onDecorationRendered?.(critter.name, activeDecoration, getHomeDecorationMeshIds(activeDecoration, critter.name));
       makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onHomeClick(critter), shadow);
     });
 
@@ -444,7 +462,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, homeDecor, season, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, season, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

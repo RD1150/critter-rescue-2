@@ -133,3 +133,17 @@
 - [x] Verify that a selected Storybook home decoration persists and is visible on the matching 3D Critter Home after returning to camp.
 - [x] Add and run a deterministic Storybook decoration-to-Babylon render-plan test for the persisted home variant.
 - [x] Save a deployable checkpoint and push the verified sanctuary-story expansion to GitHub.
+
+## Printable Cards, Seasonal Sound, and Home Décor Expansion
+
+- [x] Add a printable adoption-card download that opens a clean family-print version without external commerce links.
+- [x] Add a persistent Parent Settings toggle and volume control for optional seasonal soundscapes.
+- [x] Create and integrate gentle seasonal background soundscape audio that remains fully optional.
+- [x] Add three new unique decoration sets so every Critter Home has six total choices.
+- [x] Render every new decoration set in the 3D sanctuary and cover its render plan with tests.
+- [x] Test and visually verify printable cards, soundscape controls, and all decoration choices.
+- [x] Visually verify the print-only adoption-card layout with a reproducible print-preview inspection.
+- [x] Verify starglow mobile, mossy reading nook, and tiny tea picnic from Storybook selection through their corresponding 3D home render branches.
+- [x] Add deterministic renderer-branch verification for starglow mobile, mossy reading nook, and tiny tea picnic.
+- [x] Add an inspectable active-decoration renderer-status hook for deterministic per-home branch verification.
+- [ ] Save a deployable checkpoint and push the verified printable-card, soundscape, and décor expansion to GitHub.

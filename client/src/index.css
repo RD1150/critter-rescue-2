@@ -272,4 +272,41 @@
       scroll-behavior: auto !important;
     }
   }
+
+  .print-only { display: none; }
+  @media screen {
+    body.print-preview-mode #root > * { visibility: hidden !important; }
+    body.print-preview-mode #printable-adoption-card, body.print-preview-mode #printable-adoption-card * { visibility: visible !important; }
+    body.print-preview-mode #printable-adoption-card { display: block !important; position: fixed; inset: 0; padding: 28px; color: #2D2418; background: #fff; overflow: auto; }
+    body.print-preview-mode .print-card-frame { min-height: calc(100vh - 56px); max-width: 720px; margin: 0 auto; border: 3px solid #E66B5B; border-radius: 28px; padding: 38px; text-align: center; background: #FFF9EF; }
+    body.print-preview-mode .print-card-frame header p { color: #A85C41; font: 700 10px sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+    body.print-preview-mode .print-card-frame header h1 { font: 700 32px Georgia, serif; margin: 14px 0 6px; }
+    body.print-preview-mode .print-card-frame header span { font: 13px sans-serif; color: #5C4D3C; }
+    body.print-preview-mode .print-card-avatar { margin: 30px auto 12px; }
+    body.print-preview-mode .print-card-personality { margin: 0 auto 28px; font: italic 18px Georgia, serif; color: #5C4D3C; }
+    body.print-preview-mode .print-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: left; max-width: 580px; margin: auto; }
+    body.print-preview-mode .print-card-grid div { padding: 16px; background: #EAF4EF; border-radius: 16px; }
+    body.print-preview-mode .print-card-grid div:nth-child(2) { background: #F8E8D8; }
+    body.print-preview-mode .print-card-grid b { display: block; font: 700 10px sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+    body.print-preview-mode .print-card-grid p { margin: 8px 0 0; font: 13px sans-serif; }
+    body.print-preview-mode .print-card-frame footer { margin: 32px auto 0; max-width: 520px; font: 16px Georgia, serif; line-height: 1.5; }
+  }
+  @media print {
+    body { background: #fff !important; }
+    body * { visibility: hidden !important; }
+    #printable-adoption-card, #printable-adoption-card * { visibility: visible !important; }
+    #printable-adoption-card { display: block !important; position: fixed; inset: 0; padding: 0.45in; color: #2D2418; background: #fff; }
+    .print-card-frame { min-height: 9.4in; border: 3px solid #E66B5B; border-radius: 28px; padding: 0.45in; text-align: center; background: #FFF9EF; }
+    .print-card-frame header p { color: #A85C41; font: 700 10pt sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+    .print-card-frame header h1 { font: 700 30pt Georgia, serif; margin: .16in 0 .06in; }
+    .print-card-frame header span { font: 12pt sans-serif; color: #5C4D3C; }
+    .print-card-avatar { margin: .38in auto .12in; }
+    .print-card-personality { margin: 0 auto .34in; font: italic 16pt Georgia, serif; color: #5C4D3C; }
+    .print-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .18in; text-align: left; max-width: 6.5in; margin: auto; }
+    .print-card-grid div { padding: .2in; background: #EAF4EF; border-radius: 16px; }
+    .print-card-grid div:nth-child(2) { background: #F8E8D8; }
+    .print-card-grid b { display: block; font: 700 10pt sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+    .print-card-grid p { margin: .08in 0 0; font: 12pt sans-serif; }
+    .print-card-frame footer { margin: .42in auto 0; max-width: 5.8in; font: 14pt Georgia, serif; line-height: 1.5; }
+  }
 }
