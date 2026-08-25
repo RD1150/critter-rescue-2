@@ -158,3 +158,12 @@
 - [x] Visually verify the Family Keepsake Gallery export layout with a reproducible print-preview inspection.
 - [x] Visually exercise the Brush Bloom care variant through completion and confirm its local keepsake result.
 - [x] Save a deployable checkpoint and push the verified research, care-play, and keepsake-gallery expansion to GitHub.
+
+## Sanctuary Growth, New Care Play, and Gallery Retention
+
+- [x] Add gentle Sanctuary Growth rewards that turn completed care moments into visible, non-competitive camp improvements.
+- [x] Add two new critter-specific, no-pressure care activities for water and garden homes.
+- [x] Surface kindness growth and new care accomplishments in the parent progress summary without scores or timers.
+- [x] Add parent-controlled local gallery-retention controls with clear, reversible removal actions and no external upload.
+- [x] Test and visually verify sanctuary growth, both new care variants, parent progress, and gallery retention flows.
+- [ ] Save a deployable checkpoint and push the verified Sanctuary Growth, care-play, and gallery-controls expansion to GitHub.

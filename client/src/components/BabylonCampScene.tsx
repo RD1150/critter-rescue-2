@@ -6,6 +6,7 @@ import { loadBabylon } from '../lib/babylonRuntime';
 import { CritterData, CritterType } from '../game/data';
 import { getHomeDecorationMeshIds, getHomeDecorationRenderPlan } from '../game/homeDecorations';
 import type { HomeDecoration, SanctuarySeason } from '../game/store';
+import { getSanctuaryGrowth } from '../game/sanctuaryGrowth';
 import { PLUSH_IMAGES } from './CritterAvatar';
 
 type Color3 = Babylon.Color3;
@@ -46,6 +47,7 @@ type Props = {
   onHomeClick: (critter: CritterData) => void;
   onDecorationRendered?: (critterName: string, decoration: HomeDecoration, meshIds: string[]) => void;
   homeDecor?: Record<string, HomeDecoration>;
+  kindnessMoments?: number;
   season?: SanctuarySeason;
   reduceMotion?: boolean;
   className?: string;
@@ -233,6 +235,32 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
   return root;
 }
 
+function createSanctuaryGrowth(scene: Scene, kindnessMoments: number, shadow: ShadowGenerator) {
+  const growth = getSanctuaryGrowth(kindnessMoments);
+  if (!growth.propKey) return;
+  const wood = makeMaterial(scene, 'kindness-growth-wood', '#8A5737');
+  const leaf = makeMaterial(scene, 'kindness-growth-leaf', '#6EAA62');
+  const water = makeMaterial(scene, 'kindness-growth-water', '#6EB9CE', 0.12);
+  const bloom = makeMaterial(scene, 'kindness-growth-bloom', '#F1B4C0', 0.1);
+  const addShadow = (mesh: Mesh) => shadow.addShadowCaster(mesh);
+  if (kindnessMoments >= 3) {
+    [-0.62, 0.62].forEach((x, index) => { const post = MeshBuilder.CreateCylinder(`kindness-arbor-post-${index}`, { height: 1.25, diameter: 0.13, tessellation: 8 }, scene); post.position = new Vector3(0.2 + x, 0.63, -4.15); post.material = wood; addShadow(post); });
+    const arch = MeshBuilder.CreateTorus('kindness-arbor-arch', { diameter: 1.22, thickness: 0.11, tessellation: 20 }, scene);
+    arch.position = new Vector3(0.2, 1.28, -4.15); arch.rotation.x = Math.PI / 2; arch.scaling.y = 1.18; arch.material = leaf; addShadow(arch);
+  }
+  if (kindnessMoments >= 8) {
+    const bowl = MeshBuilder.CreateCylinder('kindness-ripple-bowl', { height: 0.22, diameterTop: 0.95, diameterBottom: 0.72, tessellation: 18 }, scene);
+    bowl.position = new Vector3(2.15, 0.12, -3.65); bowl.material = water; addShadow(bowl);
+    const ripple = MeshBuilder.CreateTorus('kindness-ripple-ring', { diameter: 0.56, thickness: 0.035, tessellation: 18 }, scene);
+    ripple.position = new Vector3(2.15, 0.245, -3.65); ripple.rotation.x = Math.PI / 2; ripple.material = makeMaterial(scene, 'kindness-ripple-ring-mat', '#EAF8FF', 0.4);
+  }
+  if (kindnessMoments >= 15) {
+    [-0.45, -0.15, 0.15, 0.45].forEach((offset, index) => { const flower = MeshBuilder.CreateSphere(`kindness-bloom-flower-${index}`, { diameter: 0.27, segments: 8 }, scene); flower.position = new Vector3(-2.25 + offset, 0.32 + (index % 2) * 0.08, -3.75 + (index % 2) * 0.18); flower.material = bloom; addShadow(flower); });
+    const stem = MeshBuilder.CreateCylinder('kindness-bloom-stem', { height: 0.52, diameter: 0.07, tessellation: 6 }, scene);
+    stem.position = new Vector3(-2.25, 0.26, -3.7); stem.material = leaf; addShadow(stem);
+  }
+}
+
 function makePlushie(
   scene: Scene,
   type: CritterType,
@@ -299,7 +327,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, season = 'summer', reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -363,6 +391,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       const seasonalDot = MeshBuilder.CreateSphere(`seasonal-keepsake-${season}-${index}`, { diameter: 0.22, segments: 8 }, scene);
       seasonalDot.position = new Vector3(x, 0.16, z); seasonalDot.material = makeMaterial(scene, `seasonal-keepsake-mat-${season}-${index}`, seasonal.accent, 0.2); shadow.addShadowCaster(seasonalDot);
     });
+    createSanctuaryGrowth(scene, kindnessMoments, shadow);
 
     // Campfire with stone ring and animated warm flame.
     const stoneMat = makeMaterial(scene, 'fire-stones', '#9A836A');
@@ -462,7 +491,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, season, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, kindnessMoments, season, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

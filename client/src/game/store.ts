@@ -2,6 +2,7 @@
 // Critter Rescue — Game State (localStorage)
 // ─────────────────────────────────────────────
 import { CritterType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
+import { getKindnessMoments } from './sanctuaryGrowth';
 
 export interface NurseryGraduate {
   careKey: string;
@@ -25,7 +26,7 @@ export interface DailyTrailState {
 export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
 export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
-export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom';
+export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom' | 'ripple-refill' | 'garden-sprinkle';
 
 export interface Keepsake {
   id: string;
@@ -184,7 +185,7 @@ export function buildParentProgressSummary(state: GameState, date = new Date()):
     today: state.activityLog[todayKey] ?? EMPTY_ACTIVITY,
     recentDays,
     activeDaysInWeek,
-    totalKindCare: Object.values(state.homeCare).reduce((total, count) => total + count, 0) + state.nurseryVisits,
+    totalKindCare: getKindnessMoments(state.homeCare, state.nurseryVisits, state.carePlayWins),
   };
 }
 
@@ -384,6 +385,8 @@ const CARE_PLAY_COPY: Record<CarePlayKind, { title: string; message: string }> =
   'acorn-tidy': { title: 'Acorns tucked away', message: 'You helped make a cozy little stash.' },
   'nest-fluff': { title: 'Nest fluffed with care', message: 'You helped make a soft, safe resting place.' },
   'brush-bloom': { title: 'A gentle brush and bloom', message: 'You helped your friend feel calm and cared for.' },
+  'ripple-refill': { title: 'A quiet ripple refill', message: 'You helped make a fresh, sparkling water spot.' },
+  'garden-sprinkle': { title: 'A little garden sprinkle', message: 'You helped the soft garden flowers drink.' },
 };
 
 export function completeCarePlay(state: GameState, critterName: string, critterType: CritterType, carePlay: CarePlayKind): { newState: GameState; keepsake: Keepsake } {
@@ -404,4 +407,29 @@ export function completeCarePlay(state: GameState, critterName: string, critterT
   }, { carePlayMoments: 1 });
   saveState(newState);
   return { newState, keepsake };
+}
+
+export function removeKeepsake(state: GameState, id: string): { newState: GameState; removed: Keepsake | null } {
+  const removed = state.keepsakes.find((keepsake) => keepsake.id === id) ?? null;
+  if (!removed) return { newState: state, removed: null };
+  const newState = { ...state, keepsakes: state.keepsakes.filter((keepsake) => keepsake.id !== id) };
+  saveState(newState);
+  return { newState, removed };
+}
+
+export function restoreKeepsakes(state: GameState, keepsakes: Keepsake[]): GameState {
+  const present = new Set(state.keepsakes.map((keepsake) => keepsake.id));
+  const restored = keepsakes.filter((keepsake) => !present.has(keepsake.id));
+  if (!restored.length) return state;
+  const newState = { ...state, keepsakes: [...restored, ...state.keepsakes].sort((a, b) => b.createdAt - a.createdAt).slice(0, 36) };
+  saveState(newState);
+  return newState;
+}
+
+export function clearKeepsakes(state: GameState): { newState: GameState; cleared: Keepsake[] } {
+  if (!state.keepsakes.length) return { newState: state, cleared: [] };
+  const cleared = state.keepsakes;
+  const newState = { ...state, keepsakes: [] };
+  saveState(newState);
+  return { newState, cleared };
 }

@@ -22,11 +22,12 @@ import CritterStorybookScreen from './screens/CritterStorybookScreen';
 import CritterCarePlayScreen from './screens/CritterCarePlayScreen';
 import MemoryGalleryScreen from './screens/MemoryGalleryScreen';
 
-import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, completeCarePlay, completeDailyTrailRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind } from './game/store';
+import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeCarePlay, completeDailyTrailRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
 import { useSeasonalSoundscape } from './game/seasonalSoundscape';
+import { getKindnessMoments } from './game/sanctuaryGrowth';
 
 type Scene =
   | 'loading'
@@ -101,12 +102,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewParentProgress = previewMode === 'parentprogress';
     const previewStorybook = previewMode === 'storybook';
     const previewCarePlay = previewMode === 'careplay';
+    const previewCampGrowth = previewMode === 'campgrowth';
     const previewGallery = previewMode === 'gallery' || previewMode === 'galleryprint';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery;
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -116,8 +118,9 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       : basePreviewState;
     const datedPreviewState = previewParentProgress ? { ...previewState, rescueCompletedCount: Math.max(previewState.rescueCompletedCount, 8), learningMilestones: { color: 4, shape: 3, pattern: 2 }, nurseryVisits: Math.max(previewState.nurseryVisits, 5), homeCare: { Nutty: 3, Pip: 2 }, activityLog: { ...previewState.activityLog, [new Date().toISOString().slice(0, 10)]: { rescueCount: 2, learningRounds: 3, homeCareMoments: 1, nurseryCareMoments: 1, carePlayMoments: 2, dailyTrailCompleted: false } } } : previewState;
     const storyPreviewState = previewStorybook ? { ...datedPreviewState, rescueCompletedCount: Math.max(datedPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...datedPreviewState.zoneTaskProgress, meadow: Math.max(datedPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, homeDecor: { Nutty: 'acorn-lantern' as HomeDecoration, Pip: 'cloud-pillow' as HomeDecoration } } : datedPreviewState;
-    const carePreviewState = previewCarePlay ? { ...storyPreviewState, rescueCompletedCount: Math.max(storyPreviewState.rescueCompletedCount, 5), unlockedZones: ['meadow', 'riverside', 'deepwoods'], zoneTaskProgress: { ...storyPreviewState.zoneTaskProgress, meadow: Math.max(storyPreviewState.zoneTaskProgress.meadow ?? 0, 4), deepwoods: Math.max(storyPreviewState.zoneTaskProgress.deepwoods ?? 0, 1) } } : storyPreviewState;
-    const familyPreviewState = previewGallery ? { ...carePreviewState, rescueCompletedCount: Math.max(carePreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...carePreviewState.zoneTaskProgress, meadow: Math.max(carePreviewState.zoneTaskProgress.meadow ?? 0, 4) }, keepsakes: [{ id: 'preview-nutty', source: 'care-play' as const, critterName: 'Nutty', critterType: 'squirrel' as CritterType, title: 'Nutty: Acorns tucked away', message: 'You helped make a cozy little stash.', createdAt: Date.now() }, { id: 'preview-pip', source: 'care-play' as const, critterName: 'Pip', critterType: 'bird' as CritterType, title: 'Pip: Nest fluffed with care', message: 'You helped make a soft, safe resting place.', createdAt: Date.now() }] } : carePreviewState;
+    const carePreviewState = previewCarePlay ? { ...storyPreviewState, rescueCompletedCount: Math.max(storyPreviewState.rescueCompletedCount, 13), unlockedZones: ['meadow', 'riverside', 'deepwoods'], zoneTaskProgress: { ...storyPreviewState.zoneTaskProgress, meadow: Math.max(storyPreviewState.zoneTaskProgress.meadow ?? 0, 4), riverside: Math.max(storyPreviewState.zoneTaskProgress.riverside ?? 0, 3), deepwoods: Math.max(storyPreviewState.zoneTaskProgress.deepwoods ?? 0, 7) } } : storyPreviewState;
+    const growthPreviewState = previewCampGrowth ? { ...carePreviewState, homeCare: { ...carePreviewState.homeCare, Nutty: 5, Splash: 3 }, nurseryVisits: Math.max(carePreviewState.nurseryVisits, 4), carePlayWins: { ...carePreviewState.carePlayWins, Nutty: 3, Splash: 2 } } : carePreviewState;
+    const familyPreviewState = previewGallery ? { ...growthPreviewState, rescueCompletedCount: Math.max(growthPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...growthPreviewState.zoneTaskProgress, meadow: Math.max(growthPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, keepsakes: [{ id: 'preview-nutty', source: 'care-play' as const, critterName: 'Nutty', critterType: 'squirrel' as CritterType, title: 'Nutty: Acorns tucked away', message: 'You helped make a cozy little stash.', createdAt: Date.now() }, { id: 'preview-pip', source: 'care-play' as const, critterName: 'Pip', critterType: 'bird' as CritterType, title: 'Pip: Nest fluffed with care', message: 'You helped make a soft, safe resting place.', createdAt: Date.now() }] } : growthPreviewState;
     setState(familyPreviewState);
     setTimeout(() => {
       if (preview3d) {
@@ -156,6 +159,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('storybook');
       } else if (previewCarePlay) {
         setScene('carePlay');
+      } else if (previewCampGrowth) {
+        setScene('camp');
       } else if (previewGallery) {
         setScene('gallery');
       } else if (!s.selectedCompanion) {
@@ -278,6 +283,19 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleChooseDecor = useCallback((name: string, decoration: HomeDecoration) => { if (state) setState(chooseHomeDecoration(state, name, decoration)); }, [state]);
   const handleCelebrateSeason = useCallback(() => { if (state) setState(rememberSeasonalMoment(state, getSanctuarySeason())); }, [state]);
   const handleCompleteCarePlay = useCallback((name: string, type: CritterType, kind: CarePlayKind) => { if (state) setState(completeCarePlay(state, name, type, kind).newState); }, [state]);
+  const handleRemoveKeepsake = useCallback((id: string): Keepsake | null => {
+    if (!state) return null;
+    const result = removeKeepsake(state, id);
+    setState(result.newState);
+    return result.removed;
+  }, [state]);
+  const handleRestoreKeepsakes = useCallback((keepsakes: Keepsake[]) => { if (state) setState(restoreKeepsakes(state, keepsakes)); }, [state]);
+  const handleClearKeepsakes = useCallback((): Keepsake[] => {
+    if (!state) return [];
+    const result = clearKeepsakes(state);
+    setState(result.newState);
+    return result.cleared;
+  }, [state]);
   const handleCareCritter = useCallback((careKey: string, graduate: NurseryGraduate) => {
     if (!state) return null;
     const result = careForCritter(state, careKey, graduate);
@@ -337,6 +355,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               onOpenStorybook={handleOpenStorybook}
               onOpenCarePlay={handleOpenCarePlay}
               homeDecor={state.homeDecor}
+              kindnessMoments={getKindnessMoments(state.homeCare, state.nurseryVisits, state.carePlayWins)}
               lastNurseryGraduate={state.lastNurseryGraduate}
               onAcknowledgeGraduate={handleAcknowledgeGraduate}
               reduceMotion={audioPreferences.reduceMotion}
@@ -399,7 +418,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
           {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={getSanctuarySeason()} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onBack={handleCloseCarePlay} />}
-          {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} />}
+          {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} onRemove={handleRemoveKeepsake} onRestore={handleRestoreKeepsakes} onClear={handleClearKeepsakes} />}
           {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} onRoundComplete={handleLearningRound} />}
         </div>
       </TooltipProvider>

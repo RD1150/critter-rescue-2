@@ -302,6 +302,7 @@
   }
   @media print {
     body { background: #fff !important; }
+    .screen-only { display: none !important; }
     body * { visibility: hidden !important; }
     #printable-adoption-card, #printable-adoption-card * { visibility: visible !important; }
     #printable-adoption-card { display: block !important; position: fixed; inset: 0; padding: 0.45in; color: #2D2418; background: #fff; }

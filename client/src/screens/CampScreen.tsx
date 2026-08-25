@@ -7,6 +7,7 @@ import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONE
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
 import { playDailyTrailVoice } from '../game/characterAudio';
 import { DailyTrailState, HomeDecoration, NurseryGraduate, getSanctuarySeason } from '../game/store';
+import { getNextSanctuaryGrowth, getSanctuaryGrowth } from '../game/sanctuaryGrowth';
 import PreReaderDirection from '../components/PreReaderDirection';
 
 interface Props {
@@ -31,6 +32,7 @@ interface Props {
   onOpenStorybook: () => void;
   onOpenCarePlay: () => void;
   homeDecor: Record<string, HomeDecoration>;
+  kindnessMoments: number;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -57,6 +59,7 @@ export default function CampScreen({
   onOpenStorybook,
   onOpenCarePlay,
   homeDecor,
+  kindnessMoments,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -79,6 +82,8 @@ export default function CampScreen({
   const allComplete = completedTasks >= totalTasks;
   const dailyCompleted = dailyTrail.completedKeys.length;
   const dailyDone = dailyTrail.rewardEarned;
+  const sanctuaryGrowth = getSanctuaryGrowth(kindnessMoments);
+  const nextSanctuaryGrowth = getNextSanctuaryGrowth(kindnessMoments);
   const handleDecorationRendered = useCallback((critterName: string, decoration: HomeDecoration, meshIds: string[]) => {
     setRenderedDecorations((previous) => previous[critterName]?.decoration === decoration && previous[critterName]?.meshIds.join('|') === meshIds.join('|') ? previous : { ...previous, [critterName]: { decoration, meshIds } });
   }, []);
@@ -167,6 +172,7 @@ export default function CampScreen({
         onHomeClick={handleHomeClick}
         onDecorationRendered={handleDecorationRendered}
         homeDecor={homeDecor}
+        kindnessMoments={kindnessMoments}
         season={getSanctuarySeason()}
         reduceMotion={reduceMotion}
       />
@@ -342,6 +348,10 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] text-xs leading-tight">Critter Homes</p>
             <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{rescuedCritters.length} cozy corners found</p>
           </div>}
+          <div className="pointer-events-auto hidden lg:block rounded-xl px-3 py-2 max-w-[175px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
+            <p className="font-display text-[#2D2418] text-xs leading-tight">{sanctuaryGrowth.icon} {sanctuaryGrowth.title}</p>
+            <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{nextSanctuaryGrowth ? `${nextSanctuaryGrowth.icon} More gentle care helps the camp grow.` : 'Every gentle care moment helps this place shine.'}</p>
+          </div>
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[210px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
             <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
             <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
