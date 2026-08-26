@@ -179,4 +179,4 @@
 - [x] Visually verify the Spring, Summer, Autumn, and Winter camp-message paths in the 3D sanctuary.
 - [x] Test and visually verify critter celebrations, bedtime wind-down, theme selection, and Reduce Motion behavior.
 - [x] Remove the duplicate Seasonal soundscape section introduced while adding the sanctuary theme selector.
-- [ ] Save a deployable checkpoint and push the verified living-critter, bedtime, and theme-selector expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified living-critter, bedtime, and theme-selector expansion to GitHub.
