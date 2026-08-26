@@ -166,4 +166,4 @@
 - [x] Surface kindness growth and new care accomplishments in the parent progress summary without scores or timers.
 - [x] Add parent-controlled local gallery-retention controls with clear, reversible removal actions and no external upload.
 - [x] Test and visually verify sanctuary growth, both new care variants, parent progress, and gallery retention flows.
-- [ ] Save a deployable checkpoint and push the verified Sanctuary Growth, care-play, and gallery-controls expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified Sanctuary Growth, care-play, and gallery-controls expansion to GitHub.
