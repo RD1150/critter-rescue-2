@@ -30,7 +30,7 @@ export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom' | 'ripple
 
 export interface Keepsake {
   id: string;
-  source: 'care-play' | 'rescue' | 'seasonal';
+  source: 'care-play' | 'rescue' | 'seasonal' | 'bedtime';
   critterName: string;
   critterType: CritterType;
   title: string;
@@ -75,6 +75,7 @@ export interface GameState {
   seasonalKeepsakes: SanctuarySeason[];
   carePlayWins: Record<string, number>;
   keepsakes: Keepsake[];
+  bedtimeSessions: number;
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
@@ -107,6 +108,7 @@ export function loadState(): GameState {
         seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
         carePlayWins: saved.carePlayWins ?? {},
         keepsakes: saved.keepsakes ?? [],
+        bedtimeSessions: saved.bedtimeSessions ?? 0,
       };
       return ensureDailyTrail(hydrated);
     }
@@ -140,6 +142,7 @@ export function createFreshState(): GameState {
     seasonalKeepsakes: [],
     carePlayWins: {},
     keepsakes: [],
+    bedtimeSessions: 0,
   };
 }
 
@@ -379,6 +382,21 @@ export function rememberSeasonalMoment(state: GameState, season: SanctuarySeason
   const newState = { ...state, seasonalKeepsakes: [...state.seasonalKeepsakes, season] };
   saveState(newState);
   return newState;
+}
+
+export function completeBedtimeWindDown(state: GameState, companionName: string, companionType: CritterType): { newState: GameState; keepsake: Keepsake } {
+  const keepsake: Keepsake = {
+    id: `bedtime-${Date.now()}-${companionName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+    source: 'bedtime',
+    critterName: companionName,
+    critterType: companionType,
+    title: `${companionName}: Moonlight rest`,
+    message: 'You shared a quiet goodnight in the plushie sanctuary.',
+    createdAt: Date.now(),
+  };
+  const newState = { ...state, bedtimeSessions: state.bedtimeSessions + 1, keepsakes: [keepsake, ...state.keepsakes].slice(0, 36) };
+  saveState(newState);
+  return { newState, keepsake };
 }
 
 const CARE_PLAY_COPY: Record<CarePlayKind, { title: string; message: string }> = {

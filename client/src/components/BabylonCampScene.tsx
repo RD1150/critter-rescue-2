@@ -7,6 +7,7 @@ import { CritterData, CritterType } from '../game/data';
 import { getHomeDecorationMeshIds, getHomeDecorationRenderPlan } from '../game/homeDecorations';
 import type { HomeDecoration, SanctuarySeason } from '../game/store';
 import { getSanctuaryGrowth } from '../game/sanctuaryGrowth';
+import { getCelebrationMotion, type CareCelebration } from '../game/critterCelebrations';
 import { PLUSH_IMAGES } from './CritterAvatar';
 
 type Color3 = Babylon.Color3;
@@ -49,6 +50,7 @@ type Props = {
   homeDecor?: Record<string, HomeDecoration>;
   kindnessMoments?: number;
   season?: SanctuarySeason;
+  celebration?: CareCelebration | null;
   reduceMotion?: boolean;
   className?: string;
 };
@@ -327,7 +329,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', celebration = null, reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -437,14 +439,20 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       new Vector3(-3.3, 0.02, 2.2), new Vector3(3.3, 0.02, 2.2), new Vector3(-4.8, 0.02, 0.2),
       new Vector3(4.7, 0.02, 0.1), new Vector3(-2.8, 0.02, -2.2), new Vector3(2.8, 0.02, -2.2),
     ];
-    rescuedCritters.slice(0, friendSlots.length).forEach((critter, index) => {
+    const friendPlushies = rescuedCritters.slice(0, friendSlots.length).map((critter, index) => {
       const slot = friendSlots[index];
       const homeOffset = new Vector3(slot.x < 0 ? -0.75 : 0.75, 0, slot.z > 0 ? 0.75 : -0.8);
       const activeDecoration = homeDecor[critter.name] ?? 'petal-garland';
       createCritterHome(scene, critter, slot.add(homeOffset), shadow, () => onHomeClick(critter), activeDecoration);
       onDecorationRendered?.(critter.name, activeDecoration, getHomeDecorationMeshIds(activeDecoration, critter.name));
-      makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onHomeClick(critter), shadow);
+      return { critter, plush: makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onHomeClick(critter), shadow) };
     });
+    const celebrationPlush = celebration?.name === 'Your Companion'
+      ? { type: companionType, root: companion.root }
+      : friendPlushies.find((entry) => entry.critter.name === celebration?.name && entry.critter.type === celebration?.type)
+        ? { type: celebration!.type, root: friendPlushies.find((entry) => entry.critter.name === celebration!.name)!.plush.root }
+        : null;
+    const celebrationMotion = celebration ? getCelebrationMotion(celebration.type) : null;
 
     const fireflies: Mesh[] = [];
     const fireflyMat = makeMaterial(scene, 'firefly-mat', '#FFE79A', 1);
@@ -464,12 +472,18 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
         firelight.intensity = 2.2;
         companion.root.position.y = 0.02;
         fireflies.forEach((fly) => { fly.visibility = 0.75; });
+        if (celebrationPlush) celebrationPlush.root.position.y = 0.02;
         return;
       }
       flame.scaling.y = 1.36 + Math.sin(elapsed * 7) * 0.2;
       flame.scaling.x = 0.7 + Math.sin(elapsed * 5.5) * 0.07;
       firelight.intensity = 2.2 + Math.sin(elapsed * 8) * 0.35;
       companion.root.position.y = 0.02 + Math.sin(elapsed * 2.6) * 0.07;
+      if (celebrationPlush && celebrationMotion) {
+        const bounce = Math.abs(Math.sin(elapsed * celebrationMotion.speed)) * celebrationMotion.hop;
+        celebrationPlush.root.position.y = 0.02 + bounce;
+        celebrationPlush.root.rotation.z = Math.sin(elapsed * celebrationMotion.speed * 0.65) * celebrationMotion.sway;
+      }
       fireflies.forEach((fly, index) => {
         fly.position.y += Math.sin(elapsed * 1.9 + index) * 0.004;
         fly.visibility = 0.55 + Math.sin(elapsed * 3 + index * 1.7) * 0.4;
@@ -491,7 +505,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, kindnessMoments, season, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, kindnessMoments, season, celebration, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

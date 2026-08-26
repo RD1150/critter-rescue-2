@@ -167,3 +167,16 @@
 - [x] Add parent-controlled local gallery-retention controls with clear, reversible removal actions and no external upload.
 - [x] Test and visually verify sanctuary growth, both new care variants, parent progress, and gallery retention flows.
 - [x] Save a deployable checkpoint and push the verified Sanctuary Growth, care-play, and gallery-controls expansion to GitHub.
+
+## Living Critters, Bedtime Wind-Down, and Seasonal Themes
+
+- [x] Add critter-specific care celebration animations with a complete Reduce Motion alternative.
+- [x] Add an optional, timer-free bedtime wind-down activity with a gentle end-of-play transition.
+- [x] Add persistent parent-controlled seasonal camp theme selection, including an automatic seasonal option.
+- [x] Apply selected themes safely to 3D sanctuary accents and soundscape behavior.
+- [x] Apply the selected camp theme to season-specific camp messaging and verify every theme path.
+- [x] Add deterministic coverage for Spring, Summer, Autumn, Winter, and automatic camp-message mapping.
+- [x] Visually verify the Spring, Summer, Autumn, and Winter camp-message paths in the 3D sanctuary.
+- [x] Test and visually verify critter celebrations, bedtime wind-down, theme selection, and Reduce Motion behavior.
+- [x] Remove the duplicate Seasonal soundscape section introduced while adding the sanctuary theme selector.
+- [ ] Save a deployable checkpoint and push the verified living-critter, bedtime, and theme-selector expansion to GitHub.

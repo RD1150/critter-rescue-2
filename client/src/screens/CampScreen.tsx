@@ -6,9 +6,11 @@ import CritterAvatar from '../components/CritterAvatar';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
 import { playDailyTrailVoice } from '../game/characterAudio';
-import { DailyTrailState, HomeDecoration, NurseryGraduate, getSanctuarySeason } from '../game/store';
+import { DailyTrailState, HomeDecoration, NurseryGraduate, SanctuarySeason } from '../game/store';
 import { getNextSanctuaryGrowth, getSanctuaryGrowth } from '../game/sanctuaryGrowth';
+import type { CareCelebration } from '../game/critterCelebrations';
 import PreReaderDirection from '../components/PreReaderDirection';
+import { getCampThemeFieldNote } from '../game/campThemeMessaging';
 
 interface Props {
   forestHarmony: number;
@@ -23,7 +25,7 @@ interface Props {
   onStartDailyTrail: () => void;
   onAcknowledgeDailyReward: () => void;
   homeCare: Record<string, number>;
-  onCareHome: (critterName: string) => number;
+  onCareHome: (critterName: string, type: CritterType) => number;
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
@@ -31,8 +33,13 @@ interface Props {
   onOpenLearning: () => void;
   onOpenStorybook: () => void;
   onOpenCarePlay: () => void;
+  onOpenBedtime: () => void;
   homeDecor: Record<string, HomeDecoration>;
   kindnessMoments: number;
+  season: SanctuarySeason;
+  celebration: CareCelebration | null;
+  onClearCelebration: () => void;
+  keepCelebrationVisible?: boolean;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -58,8 +65,13 @@ export default function CampScreen({
   onOpenLearning,
   onOpenStorybook,
   onOpenCarePlay,
+  onOpenBedtime,
   homeDecor,
   kindnessMoments,
+  season,
+  celebration,
+  onClearCelebration,
+  keepCelebrationVisible = false,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -84,6 +96,7 @@ export default function CampScreen({
   const dailyDone = dailyTrail.rewardEarned;
   const sanctuaryGrowth = getSanctuaryGrowth(kindnessMoments);
   const nextSanctuaryGrowth = getNextSanctuaryGrowth(kindnessMoments);
+  const themeNote = getCampThemeFieldNote(season);
   const handleDecorationRendered = useCallback((critterName: string, decoration: HomeDecoration, meshIds: string[]) => {
     setRenderedDecorations((previous) => previous[critterName]?.decoration === decoration && previous[critterName]?.meshIds.join('|') === meshIds.join('|') ? previous : { ...previous, [critterName]: { decoration, meshIds } });
   }, []);
@@ -106,6 +119,11 @@ export default function CampScreen({
     const timer = setTimeout(() => { playTrailTreasure(); playDailyTrailVoice('reward'); }, 260);
     return () => clearTimeout(timer);
   }, [lastDailyReward]);
+  useEffect(() => {
+    if (!celebration || keepCelebrationVisible) return;
+    const timer = setTimeout(onClearCelebration, reduceMotion ? 2600 : 2100);
+    return () => clearTimeout(timer);
+  }, [celebration, keepCelebrationVisible, onClearCelebration, reduceMotion]);
 
   const revealDialogue = useCallback((text: string) => {
     setDialogue(text);
@@ -134,7 +152,7 @@ export default function CampScreen({
   }, [handleHomeClick, rescuedCritters, selectedHomeFriend]);
   const doHomeCare = (kind: 'feed' | 'pet') => {
     if (!selectedHomeFriend) return;
-    const total = onCareHome(selectedHomeFriend.name);
+    const total = onCareHome(selectedHomeFriend.name, selectedHomeFriend.type);
     if (kind === 'feed') {
       playNibble();
       setHomeCareMessage(`${selectedHomeFriend.name} had a tiny snack. Yum!`);
@@ -173,7 +191,8 @@ export default function CampScreen({
         onDecorationRendered={handleDecorationRendered}
         homeDecor={homeDecor}
         kindnessMoments={kindnessMoments}
-        season={getSanctuarySeason()}
+        season={season}
+        celebration={celebration}
         reduceMotion={reduceMotion}
       />
 
@@ -189,7 +208,7 @@ export default function CampScreen({
           <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5">Your cozy camp · help a friend first</p>
+            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5">{themeNote.icon} {themeNote.campLine}</p>
           </div>
           <div className="flex flex-col items-center px-1">
             <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
@@ -232,6 +251,16 @@ export default function CampScreen({
               <p className="font-display text-[#2D2418] font-bold text-sm">{friendNote.name}</p>
               <p className="font-body text-[#5C4D3C] text-[10px] leading-snug">{friendNote.thanksLine}</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {celebration && (
+        <div className={`absolute z-30 top-[98px] left-1/2 w-[min(300px,84vw)] -translate-x-1/2 ${reduceMotion ? '' : 'animate-pop-in'}`}>
+          <div className="paper-card px-4 py-3 text-center shadow-xl" style={{ borderTop: '3px solid #F5C842' }}>
+            <p className="text-2xl">{celebration.icon}</p>
+            <p className="font-display text-[#2D2418] font-bold text-base">{celebration.name} feels cared for!</p>
+            <p className="font-body text-xs text-[#5C4D3C] mt-1">{celebration.line}</p>
           </div>
         </div>
       )}
@@ -304,9 +333,10 @@ export default function CampScreen({
         <div className="relative rounded-2xl px-4 py-3 rotate-[-2deg]"
           style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.84 0.03 75)', boxShadow: '0 8px 18px oklch(0 0 0 / .18)', borderTop: '3px solid #E66B5B' }}>
           <div className="absolute -top-2 left-7 h-4 w-12 bg-[#E66B5B]/60 rotate-[-5deg]" />
-          <p className="font-body text-[9px] uppercase tracking-[0.14em] text-[#E66B5B] font-bold">Field Note 01</p>
+          <p className="font-body text-[9px] uppercase tracking-[0.14em] text-[#E66B5B] font-bold">{themeNote.icon} {themeNote.label}</p>
           <p className="font-display text-[#2D2418] font-bold text-base leading-tight mt-1">{getWelcome()}</p>
           <p className="font-body text-[#5C4D3C] text-[11px] leading-snug mt-1.5"><strong>{companionCard.rescueIcon} {companionCard.rescueAbility}:</strong> {companionCard.rescueHint}</p>
+          <p className="font-body text-[#5C4D3C]/80 text-[10px] italic leading-snug mt-1.5">{themeNote.note}</p>
           <div className="mt-2 flex items-center gap-1.5 text-[#5C4D3C]/60 text-xs">
             <span>🐾</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🪶</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🌼</span>
           </div>
@@ -363,6 +393,7 @@ export default function CampScreen({
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
             <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
+            <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
             {!allComplete ? (
               <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
