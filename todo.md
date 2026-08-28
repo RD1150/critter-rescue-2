@@ -249,4 +249,4 @@
 - [x] Refine the mobile camp control grouping so high-value child actions remain clear and reachable on small screens.
 - [x] Test and visually verify expanded syllables, seasonal care, optional directions, reduced motion, and mobile navigation.
 - [x] Document practical parent-value recommendations that preserve child privacy and the game’s no-pressure design.
-- [ ] Save a deployable checkpoint and push the verified expanded update to GitHub.
+- [x] Save a deployable checkpoint and push the verified expanded update to GitHub.
