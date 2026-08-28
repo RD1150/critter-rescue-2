@@ -55,3 +55,12 @@ This reference maintains the existing tactile plushie style while keeping letter
 | Syllable and weather visual reference | Art direction for picture-led clap patterns, gentle drizzle, autumn leaves, and safe weather interactions | Plush squirrel, duck, and bunny with picture cards and colored clap dots; spring drizzle, autumn leaves, and a sunbreak around the 3D woodland camp. Soft toy-diorama materials, warm light, no text, numbers, people, timers, or storms. | `/manus-storage/syllable-weather-sanctuary-reference_4383e2b2.png` |
 
 This reference guides the new learning and weather moments toward safe, child-led observation and tactile visual clarity rather than speed or weather hazard.
+
+## Calm Ritual and Seasonal Celebration Paths visual direction
+
+| Asset | Purpose | Prompt summary | Project storage URL |
+|---|---|---|---|
+| Calm ritual soundscape | Optional parent-enabled background loop for quiet shared sanctuary play | Slow 56 BPM instrumental woodland lullaby with felt-piano, sparse guitar harmonics, soft air, no percussion, abrupt changes, vocals, or sharp tones. | `/manus-storage/critter-rescue-calm-ritual_084abd92.wav` |
+| Seasonal celebration-path visual reference | Art direction for four independently selected, respectful seasonal paths | Friendly pumpkin and lantern, harvest-and-kindness, winter sparkle, and distinct blue-and-gold Hanukkah-inspired lights motifs in the existing soft plush diorama style; no text, people, stereotypes, or commercial imagery. | `/manus-storage/seasonal-celebration-path-reference_0ffd38be.png` |
+
+The ritual soundscape is designed for low-volume, adult-enabled listening only. The visual reference informs child-facing motifs, while holiday names and selection remain in the parent setting.

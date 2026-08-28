@@ -250,3 +250,22 @@
 - [x] Test and visually verify expanded syllables, seasonal care, optional directions, reduced motion, and mobile navigation.
 - [x] Document practical parent-value recommendations that preserve child privacy and the game’s no-pressure design.
 - [x] Save a deployable checkpoint and push the verified expanded update to GitHub.
+
+## Calm Ritual Soundscape and Transitions
+
+- [x] Create a soft, instrumental sanctuary soundscape that is optional, low-volume, and free of abrupt or stimulating elements.
+- [x] Add parent-controlled playback and volume support for the new soundscape without autoplaying audio.
+- [x] Add subtle scene and card transitions that preserve clarity and are fully suppressed by Reduce Motion.
+- [x] Test and visually verify the soundscape settings, no-autoplay behavior, transitions, and reduced-motion presentation.
+- [ ] Save a deployable checkpoint and push the verified calm-ritual update to GitHub.
+
+## App Store Launch and Physical Plush Companion Assessment
+
+- [x] Prepare a transparent, assumption-led App Store purchase forecast with low, base, and upside scenarios.
+- [x] Assess an adult-directed physical plush companion purchase approach, including a small validation plan before inventory investment.
+
+## Parent-Selectable Seasonal Celebration Paths
+
+- [x] Research and define respectful, non-labeled visual motifs for pumpkin-and-lantern, harvest-and-gratitude, winter-lights, and Hanukkah-inspired lights-and-kindness paths.
+- [x] Create parent-selectable, timer-free celebration paths that keep holiday naming and controls parent-facing while giving children calm visual cues.
+- [x] Test each seasonal path for clarity, accessibility, and Reduce Motion compatibility.

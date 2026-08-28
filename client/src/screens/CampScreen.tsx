@@ -14,6 +14,7 @@ import { getCampThemeFieldNote } from '../game/campThemeMessaging';
 import type { LearningTheme } from '../game/learningThemes';
 import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
 import { getLearningFocusLaunch } from '../game/learningFocus';
+import type { CelebrationPath } from '../game/celebrationPaths';
 
 interface Props {
   forestHarmony: number;
@@ -36,6 +37,8 @@ interface Props {
   onOpenLearning: () => void;
   onOpenNatureJournal: () => void;
   onOpenWeatherWonder: () => void;
+  celebrationPath: CelebrationPath | null;
+  onOpenCelebrationPath: () => void;
   onOpenTeamRescue: () => void;
   learningTheme: LearningTheme;
   onStartLearningFocus: () => void;
@@ -76,6 +79,8 @@ export default function CampScreen({
   onOpenLearning,
   onOpenNatureJournal,
   onOpenWeatherWonder,
+  celebrationPath,
+  onOpenCelebrationPath,
   onOpenTeamRescue,
   learningTheme,
   onStartLearningFocus,
@@ -420,6 +425,7 @@ export default function CampScreen({
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
             <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌦️ Nature</button>
             <button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">☁️ Weather</button>
+            {celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Open ${celebrationPath.childTitle}`}>{celebrationPath.icon} Trail</button>}
             <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🤝 Team up</button>
             <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
             <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
@@ -436,6 +442,7 @@ export default function CampScreen({
             {showMobilePlayMenu && <div id="mobile-camp-play" role="group" aria-label="More camp play" className="flex max-w-full flex-wrap justify-end gap-2 rounded-2xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-2 shadow-lg">
               <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5">🌦️ Nature</button>
               <button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5">☁️ Weather</button>
+              {celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5" aria-label={`Open ${celebrationPath.childTitle}`}>{celebrationPath.icon} Trail</button>}
               <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button>
               <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5">🌙 Rest</button>
               <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🎮 Match-3</button>

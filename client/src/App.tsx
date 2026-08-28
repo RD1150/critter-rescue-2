@@ -25,6 +25,7 @@ import BedtimeWindDownScreen from './screens/BedtimeWindDownScreen';
 import NatureDiscoveryJournalScreen from './screens/NatureDiscoveryJournalScreen';
 import TeamRescueScreen from './screens/TeamRescueScreen';
 import WeatherWonderScreen from './screens/WeatherWonderScreen';
+import CelebrationPathScreen from './screens/CelebrationPathScreen';
 
 import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
@@ -39,6 +40,7 @@ import { useGentlePlaytimeSuggestion } from './game/playtimePreference';
 import type { NatureDiscoveryKey } from './game/natureDiscoveries';
 import { getLearningFocusLaunch } from './game/learningFocus';
 import type { TeamRescue } from './game/teamRescue';
+import { getCelebrationPath } from './game/celebrationPaths';
 
 type Scene =
   | 'loading'
@@ -59,6 +61,7 @@ type Scene =
   | 'bedtime'
   | 'nature'
   | 'weather'
+  | 'celebrationPath'
   | 'teamRescue'
   | 'learning';
 
@@ -91,6 +94,8 @@ export default function App() {
   const naturePrintPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'natureprint';
   const activeCampTheme = ['spring', 'summer', 'autumn', 'winter'].includes(previewTheme ?? '') ? previewTheme as SanctuarySeason : resolveCampTheme(audioPreferences.campTheme);
   const activeLearningTheme = ['all', 'phonics', 'numbers', 'rhymes', 'nature'].includes(previewLearningTheme ?? '') ? previewLearningTheme as typeof audioPreferences.learningTheme : audioPreferences.learningTheme;
+  const previewCelebrationPath = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('celebrationPath') : null;
+  const activeCelebrationPath = getCelebrationPath(['pumpkinLantern', 'harvestKindness', 'winterSparkle', 'lightsKindness'].includes(previewCelebrationPath ?? '') ? previewCelebrationPath as typeof audioPreferences.celebrationPath : audioPreferences.celebrationPath);
   useSeasonalSoundscape(audioPreferences, activeCampTheme);
   const online = useOnlineStatus();
   const previewPlaytimeSuggestion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('playtimeSuggestion') === '1';
@@ -139,11 +144,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewTeamRescue = previewMode === 'teamrescue';
     const previewSyllableClap = previewMode === 'syllableclap';
     const previewWeather = previewMode === 'weather';
+    const previewCelebrationPath = previewMode === 'celebrationpath';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewWeather || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -236,6 +242,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('nature');
       } else if (previewWeather) {
         setScene('weather');
+      } else if (previewCelebrationPath) {
+        setScene('celebrationPath');
       } else if (previewTeamRescue) {
         setScene('teamRescue');
       } else if (!s.selectedCompanion) {
@@ -359,6 +367,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseLearning = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenNatureJournal = useCallback(() => { playButton(); transition('nature', 100); }, [transition]);
   const handleOpenWeatherWonder = useCallback(() => { playButton(); transition('weather', 100); }, [transition]);
+  const handleOpenCelebrationPath = useCallback(() => { if (activeCelebrationPath) { playButton(); transition('celebrationPath', 100); } }, [activeCelebrationPath, transition]);
   const handleOpenTeamRescue = useCallback(() => { playButton(); transition('teamRescue', 100); }, [transition]);
   const handleCloseTeamRescue = useCallback(() => transition('camp', 100), [transition]);
   const handleCloseNatureJournal = useCallback(() => transition('camp', 100), [transition]);
@@ -431,8 +440,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         <Toaster />
         <div
           ref={fadeRef}
-          className={`w-full h-full transition-opacity duration-200 ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''} ${audioPreferences.reduceMotion ? 'reduce-motion-mode' : ''}`}
-          style={{ opacity: transitioning ? 0 : 1 }}
+          className={`w-full h-full transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${audioPreferences.largeIconMode ? 'large-icon-mode' : ''} ${audioPreferences.reduceMotion ? 'reduce-motion-mode' : ''}`}
+          style={{ opacity: transitioning ? 0 : 1, transform: transitioning && !audioPreferences.reduceMotion ? 'translateY(4px) scale(.998)' : 'none' }}
         >
           {!online && <div role="status" className="fixed z-[80] bottom-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-2 text-center shadow-lg" style={{ background: '#F7E6B8', border: '1px solid #D8B867' }}><p className="font-body text-xs font-bold text-[#4A3022]">Offline · your saved camp can still play.</p></div>}
           {scene === 'starterSelection' && (
@@ -460,6 +469,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               onOpenLearning={handleOpenLearning}
               onOpenNatureJournal={handleOpenNatureJournal}
               onOpenWeatherWonder={handleOpenWeatherWonder}
+              celebrationPath={activeCelebrationPath}
+              onOpenCelebrationPath={handleOpenCelebrationPath}
               onOpenTeamRescue={handleOpenTeamRescue}
               learningTheme={activeLearningTheme}
               onStartLearningFocus={handleStartLearningFocus}
@@ -541,6 +552,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'bedtime' && <BedtimeWindDownScreen companionName={STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion)?.name || 'Clover'} companionType={(state.selectedCompanion || 'bunny') as CritterType} reduceMotion={audioPreferences.reduceMotion} onComplete={handleCompleteBedtime} onBack={handleCloseBedtime} />}
           {scene === 'nature' && <NatureDiscoveryJournalScreen season={activeCampTheme} discoveries={state.natureDiscoveries} learningTheme={audioPreferences.learningTheme} onDiscover={handleNatureDiscovery} onBack={handleCloseNatureJournal} printPreview={naturePrintPreview} />}
           {scene === 'weather' && <WeatherWonderScreen season={activeCampTheme} onComplete={handleWeatherWonder} onBack={() => transition('camp', 100)} />}
+          {scene === 'celebrationPath' && activeCelebrationPath && <CelebrationPathScreen path={activeCelebrationPath} reduceMotion={audioPreferences.reduceMotion} onBack={() => transition('camp', 100)} />}
           {scene === 'teamRescue' && <TeamRescueScreen onComplete={handleCompleteTeamRescue} onBack={handleCloseTeamRescue} reduceMotion={audioPreferences.reduceMotion} />}
           {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} onRoundComplete={handleLearningRound} learningTheme={audioPreferences.learningTheme} />}
         </div>
