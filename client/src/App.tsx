@@ -131,7 +131,10 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const growthPreviewState = previewCampGrowth ? { ...carePreviewState, homeCare: { ...carePreviewState.homeCare, Nutty: 5, Splash: 3 }, nurseryVisits: Math.max(carePreviewState.nurseryVisits, 4), carePlayWins: { ...carePreviewState.carePlayWins, Nutty: 3, Splash: 2 } } : carePreviewState;
     const familyPreviewState = previewGallery ? { ...growthPreviewState, rescueCompletedCount: Math.max(growthPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...growthPreviewState.zoneTaskProgress, meadow: Math.max(growthPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, keepsakes: [{ id: 'preview-nutty', source: 'care-play' as const, critterName: 'Nutty', critterType: 'squirrel' as CritterType, title: 'Nutty: Acorns tucked away', message: 'You helped make a cozy little stash.', createdAt: Date.now() }, { id: 'preview-pip', source: 'care-play' as const, critterName: 'Pip', critterType: 'bird' as CritterType, title: 'Pip: Nest fluffed with care', message: 'You helped make a soft, safe resting place.', createdAt: Date.now() }] } : growthPreviewState;
     setState(familyPreviewState);
-    if (previewCelebration) setCareCelebration(getCareCelebration('Nutty', 'squirrel'));
+    if (previewCelebration) {
+      const previewCareMoment = Math.max(1, Math.min(3, Number(new URLSearchParams(window.location.search).get('careMoment') ?? '1')));
+      setCareCelebration(getCareCelebration('Nutty', 'squirrel', previewCareMoment));
+    }
     setTimeout(() => {
       if (preview3d) {
         setScene('camp');
@@ -322,7 +325,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     if (!state) return 0;
     const result = careForHome(state, critterName);
     setState(result.newState);
-    setCareCelebration(getCareCelebration(critterName, critterType));
+    setCareCelebration(getCareCelebration(critterName, critterType, result.careCount));
     return result.careCount;
   }, [state]);
   const handleCompleteBedtime = useCallback(() => {
@@ -384,6 +387,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               celebration={careCelebration}
               onClearCelebration={() => setCareCelebration(null)}
               keepCelebrationVisible={new URLSearchParams(window.location.search).get('preview') === 'celebration'}
+              bedtimeReminderEnabled={audioPreferences.bedtimeReminderEnabled}
               lastNurseryGraduate={state.lastNurseryGraduate}
               onAcknowledgeGraduate={handleAcknowledgeGraduate}
               reduceMotion={audioPreferences.reduceMotion}
@@ -444,7 +448,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           )}
           {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} />}
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
-          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={getSanctuarySeason()} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
+          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onBack={handleCloseCarePlay} />}
           {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} onRemove={handleRemoveKeepsake} onRestore={handleRestoreKeepsakes} onClear={handleClearKeepsakes} />}
           {scene === 'bedtime' && <BedtimeWindDownScreen companionName={STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion)?.name || 'Clover'} companionType={(state.selectedCompanion || 'bunny') as CritterType} reduceMotion={audioPreferences.reduceMotion} onComplete={handleCompleteBedtime} onBack={handleCloseBedtime} />}

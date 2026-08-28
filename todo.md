@@ -180,3 +180,11 @@
 - [x] Test and visually verify critter celebrations, bedtime wind-down, theme selection, and Reduce Motion behavior.
 - [x] Remove the duplicate Seasonal soundscape section introduced while adding the sanctuary theme selector.
 - [x] Save a deployable checkpoint and push the verified living-critter, bedtime, and theme-selector expansion to GitHub.
+
+## Celebration Variations, Bedtime Reminder, and Seasonal Story Pages
+
+- [x] Add two additional accessible care-celebration variations for each critter family, retaining a clear Reduce Motion alternative.
+- [x] Add a persistent parent-controlled bedtime reminder card with an easy on/off setting and no child-facing pressure.
+- [x] Add gentle seasonal Storybook pages that respond to the selected camp theme and can be revisited without time limits.
+- [x] Test and visually verify celebration variations, bedtime-reminder controls, seasonal story content, and Reduce Motion behavior.
+- [ ] Save a deployable checkpoint and push the verified celebrations, bedtime-reminder, and seasonal-Storybook expansion to GitHub.

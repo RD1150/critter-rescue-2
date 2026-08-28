@@ -23,3 +23,11 @@ This reference keeps the new visible growth props rounded, calm, and handmade ra
 | Living sanctuary visual reference | Art direction for individual care celebrations, bedtime wind-down, and seasonal camp accents | Plush squirrel celebration, owl bedtime nest, spring flowers, and autumn felt leaves around a calm 3D sanctuary. Rounded felt diorama forms, warm child-safe lighting, no text or people. | `/manus-storage/living-critter-bedtime-themes-reference_e7674a16.png` |
 
 This reference guides quiet, handmade celebration motion and season changes so they stay cozy rather than overstimulating.
+
+## Celebration Variations, Bedtime Reminder, and Seasonal Story Pages visual direction
+
+| Asset | Purpose | Prompt summary | Project storage URL |
+|---|---|---|---|
+| Enrichment expansion visual reference | Art direction for family-specific care celebrations, parent-only bedtime reminders, and seasonal Storybook pages | Plush squirrel acorn twirl, duck pond ripples, hedgehog under a felt blanket, and spring/summer/autumn/winter Storybook motifs. Warm lantern glow, quilted materials, rounded woodland forms, no text or people. | `/manus-storage/celebration-bedtime-story-pages-reference_3c042a6d.png` |
+
+This reference is for visual consistency only. It preserves the existing calm plushie aesthetic and contains no personal data, text, or commerce prompts.

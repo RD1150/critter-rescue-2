@@ -40,6 +40,7 @@ interface Props {
   celebration: CareCelebration | null;
   onClearCelebration: () => void;
   keepCelebrationVisible?: boolean;
+  bedtimeReminderEnabled: boolean;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -72,6 +73,7 @@ export default function CampScreen({
   celebration,
   onClearCelebration,
   keepCelebrationVisible = false,
+  bedtimeReminderEnabled,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -260,6 +262,7 @@ export default function CampScreen({
           <div className="paper-card px-4 py-3 text-center shadow-xl" style={{ borderTop: '3px solid #F5C842' }}>
             <p className="text-2xl">{celebration.icon}</p>
             <p className="font-display text-[#2D2418] font-bold text-base">{celebration.name} feels cared for!</p>
+            <p className="font-body text-[10px] font-bold uppercase tracking-[.11em] text-[#A56C20] mt-1">{celebration.variationName}</p>
             <p className="font-body text-xs text-[#5C4D3C] mt-1">{celebration.line}</p>
           </div>
         </div>
@@ -363,6 +366,7 @@ export default function CampScreen({
 
       {/* Bottom controls float above the dimensional world, like pinned rescue notes. */}
       <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
+        {bedtimeReminderEnabled && rescueCount > 0 && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
         <div className="flex items-end gap-2">
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[130px]"
             style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>

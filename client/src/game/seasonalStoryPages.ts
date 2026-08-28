@@ -1,0 +1,12 @@
+import type { SanctuarySeason } from './store';
+
+export type SeasonalStoryPage = { icon: string; eyebrow: string; title: string; opening: string; moments: Array<{ icon: string; title: string; line: string }>; closing: string };
+
+export const SEASONAL_STORY_PAGES: Record<SanctuarySeason, SeasonalStoryPage> = {
+  spring: { icon: '🌷', eyebrow: 'A spring story page', title: 'The day the petals woke', opening: 'The sanctuary wakes slowly. Every small bloom has room to open in its own time.', moments: [{ icon: '🌱', title: 'A tiny sprout', line: 'A new green curl appears beside a warm home.' }, { icon: '🐾', title: 'Kind paws', line: 'Friends make space for every soft new thing.' }, { icon: '🌸', title: 'Petal promise', line: 'A kind hello helps the garden feel safe.' }], closing: 'You can visit this spring page whenever you like.' },
+  summer: { icon: '☀️', eyebrow: 'A summer story page', title: 'The firefly picnic', opening: 'The day is warm, and the sanctuary has a cool, shady place for every friend.', moments: [{ icon: '🍓', title: 'A little snack', line: 'Friends share a tiny berry beside the campfire.' }, { icon: '✨', title: 'First firefly', line: 'One small light twinkles gently in the evening.' }, { icon: '🏕️', title: 'Safe together', line: 'The camp glows because it is full of care.' }], closing: 'You can visit this summer page whenever you like.' },
+  autumn: { icon: '🍂', eyebrow: 'An autumn story page', title: 'The leaf blanket', opening: 'Amber leaves drift down slowly and make every little doorway feel extra snug.', moments: [{ icon: '🍁', title: 'Soft rustle', line: 'A leaf lands softly near a friend’s cozy home.' }, { icon: '🧺', title: 'Warm corner', line: 'Friends tuck small treasures into their safe places.' }, { icon: '💛', title: 'Thank-you moment', line: 'A kind care moment makes the whole camp feel warm.' }], closing: 'You can visit this autumn page whenever you like.' },
+  winter: { icon: '🌙', eyebrow: 'A winter story page', title: 'The moonlit nest', opening: 'The night is blue and quiet. The sanctuary rests under a bright friendly moon.', moments: [{ icon: '🏮', title: 'Lantern glow', line: 'A small warm light shows each friend the way home.' }, { icon: '🧸', title: 'Cozy rest', line: 'Plushie friends settle into soft, safe corners.' }, { icon: '❄️', title: 'Moon-snow wish', line: 'Tomorrow can bring another tiny adventure.' }], closing: 'You can visit this winter page whenever you like.' },
+};
+
+export function getSeasonalStoryPage(season: SanctuarySeason): SeasonalStoryPage { return SEASONAL_STORY_PAGES[season]; }

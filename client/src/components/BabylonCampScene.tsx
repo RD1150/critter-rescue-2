@@ -452,7 +452,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       : friendPlushies.find((entry) => entry.critter.name === celebration?.name && entry.critter.type === celebration?.type)
         ? { type: celebration!.type, root: friendPlushies.find((entry) => entry.critter.name === celebration!.name)!.plush.root }
         : null;
-    const celebrationMotion = celebration ? getCelebrationMotion(celebration.type) : null;
+    const celebrationMotion = celebration ? getCelebrationMotion(celebration.type, celebration.variation) : null;
 
     const fireflies: Mesh[] = [];
     const fireflyMat = makeMaterial(scene, 'firefly-mat', '#FFE79A', 1);
@@ -481,8 +481,19 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       companion.root.position.y = 0.02 + Math.sin(elapsed * 2.6) * 0.07;
       if (celebrationPlush && celebrationMotion) {
         const bounce = Math.abs(Math.sin(elapsed * celebrationMotion.speed)) * celebrationMotion.hop;
-        celebrationPlush.root.position.y = 0.02 + bounce;
-        celebrationPlush.root.rotation.z = Math.sin(elapsed * celebrationMotion.speed * 0.65) * celebrationMotion.sway;
+        if (celebration?.motion === 'side-sway') {
+          celebrationPlush.root.position.y = 0.02 + bounce * 0.45;
+          celebrationPlush.root.rotation.z = Math.sin(elapsed * celebrationMotion.speed * 0.65) * celebrationMotion.sway;
+          celebrationPlush.root.rotation.y = 0;
+        } else if (celebration?.motion === 'cozy-twirl') {
+          celebrationPlush.root.position.y = 0.02 + bounce * 0.5;
+          celebrationPlush.root.rotation.z = Math.sin(elapsed * celebrationMotion.speed * 0.5) * celebrationMotion.sway * 0.5;
+          celebrationPlush.root.rotation.y = Math.sin(elapsed * celebrationMotion.speed * 0.36) * celebrationMotion.twist;
+        } else {
+          celebrationPlush.root.position.y = 0.02 + bounce;
+          celebrationPlush.root.rotation.z = Math.sin(elapsed * celebrationMotion.speed * 0.65) * celebrationMotion.sway * 0.55;
+          celebrationPlush.root.rotation.y = 0;
+        }
       }
       fireflies.forEach((fly, index) => {
         fly.position.y += Math.sin(elapsed * 1.9 + index) * 0.004;
