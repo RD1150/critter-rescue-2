@@ -385,6 +385,19 @@ function PictureRhymePuzzle({ onComplete }: { onComplete: () => void }) {
   return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🐝</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Bee</p></div><p className="font-body text-sm text-white/90">Which picture rhymes with bee?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
+// ── Picture Letter-Sound Rescue ──────────────────
+function LetterSoundPuzzle({ onComplete }: { onComplete: () => void }) {
+  const choices = [{ emoji: '⚽', label: 'ball', correct: true }, { emoji: '☀️', label: 'sun', correct: false }, { emoji: '🌙', label: 'moon', correct: false }];
+  const [message, setMessage] = useState('Ball starts with a bouncy /b/ sound. Which picture starts the same way?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (choice: typeof choices[number]) => {
+    if (chosen) return;
+    if (choice.correct) { setChosen(choice.label); setMessage('Ball begins with /b/! Buttercup found the bouncy ball.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That picture starts with a different sound. Let’s listen for ball one more time.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">⚽</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Ball · /b/</p></div><p className="font-body text-sm text-white/90">Which picture starts like ball?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -772,6 +785,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'counting':      return <CountingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'quietCount':    return <QuietCountPuzzle onComplete={handlePuzzleComplete} />;
       case 'pictureRhyme':  return <PictureRhymePuzzle onComplete={handlePuzzleComplete} />;
+      case 'letterSound':   return <LetterSoundPuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

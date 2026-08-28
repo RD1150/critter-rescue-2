@@ -25,6 +25,7 @@ export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   critterPath: 'Trace the safe path to the friend.',
   quietCount: 'Tap the basket with three berries.',
   pictureRhyme: 'Tap the picture that rhymes with bee.',
+  letterSound: 'Tap the picture that starts like ball.',
   friendshipDuo: 'Tap the leaf, then tap the berry.',
   friendshipDuoNuttyPip: 'Tap the leaf, then tap the berry.',
   friendshipDuoSplashThistle: 'Tap the ripple, then tap the flower.',

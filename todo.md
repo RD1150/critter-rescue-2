@@ -203,3 +203,18 @@
 - [x] Verify quiet counting, friendship-duo, and playtime-suggestion experiences with Reduce Motion enabled.
 - [x] Verify picture-rhyme rescue prompts, optional direction, and calm completion with Reduce Motion enabled.
 - [x] Save a deployable checkpoint and push the verified quiet-learning, playtime, and friendship-duo expansion to GitHub.
+
+## Phonics Rescue, Nature Journal, and Learning Themes
+
+- [x] Add a picture-led letter-sound rescue with optional Nutty guidance, large choices, and a calm no-failure path.
+- [x] Add a child-friendly nature-and-weather discovery journal for seasonal sanctuary observations and completed discoveries.
+- [x] Add persistent parent-configurable learning themes that focus new learning activities without locking or scoring child play.
+- [x] Surface phonics and nature discoveries in the parent summary without rankings, streaks, or comparisons.
+- [x] Test and visually verify the phonics rescue, nature journal, parent learning themes, optional directions, and Reduce Motion behavior.
+- [x] Make each parent-selected learning theme materially prioritize its matching child activity while keeping all learning play available.
+- [x] Add deterministic focus-route tests and direct parent-to-child Letter sounds verification beyond descriptive copy.
+- [x] Keep the selected learning-focus launch visible and reachable on mobile camp layouts without crowding essential child controls.
+- [x] Select Counting, Rhymes, and Nature in actual Parent Settings and verify each saved preference surfaces its matching child-facing Focus action.
+- [x] Add a saved-preference helper test for parent learning-focus route resolution.
+- [x] Add a CampScreen component test showing a saved learning theme renders the matching Focus action and invokes its matching launch callback without a preview override.
+- [ ] Save a deployable checkpoint and push the verified phonics, nature-journal, and learning-theme expansion to GitHub.

@@ -29,6 +29,7 @@ const TASK_HELP: Record<MissionType, string> = {
   critterPath: 'Help me find the safe trail!',
   quietCount: 'Help me count three little berries!',
   pictureRhyme: 'Help me find the picture rhyme for bee!',
+  letterSound: 'Help me find the picture that starts like ball!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

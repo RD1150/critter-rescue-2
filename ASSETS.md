@@ -39,3 +39,11 @@ This reference is for visual consistency only. It preserves the existing calm pl
 | Quiet learning and friendship visual reference | Art direction for visual counting, picture-rhyme, cooperative care, and the parent playtime preference | Plush squirrel and bird with oversized acorns, soft picture-rhyme objects, an otter-and-rabbit shared care moment, and a subtle moon card. Felt-and-plush diorama with large clear silhouettes and no text, numbers, people, or pressure cues. | `/manus-storage/quiet-learning-friendship-reference_4df28c47.png` |
 
 This reference guides visual learning prompts and friendship moments toward a quiet, tactile, non-competitive play language.
+
+## Phonics Rescue, Nature Journal, and Learning Themes visual direction
+
+| Asset | Purpose | Prompt summary | Project storage URL |
+|---|---|---|---|
+| Phonics and discovery visual reference | Art direction for picture-led sounds, nature-weather discoveries, and parent learning-focus choices | Plush fox choosing a B-sound picture card, nature stamps for raindrop/cloud/flower/bird, and rounded parent learning-focus cards. Warm stitched scrapbook paper, felt woodland forms, no readable text, people, or branding. | `/manus-storage/phonics-nature-learning-themes-reference_736c1c3c.png` |
+
+This reference maintains the existing tactile plushie style while keeping letter sounds, discoveries, and parent choices large, visual, and free of performance pressure.

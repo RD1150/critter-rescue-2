@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_PREFERENCES, getAudioPreferences, saveAudioPreferences } from './audioPreferences';
+import { getLearningFocusLaunch } from './learningFocus';
 
 describe('audio preferences', () => {
   const values = new Map<string, string>();
@@ -24,9 +25,18 @@ describe('audio preferences', () => {
     expect(getAudioPreferences()).toEqual(DEFAULT_PREFERENCES);
   });
 
-  it('persists spoken-direction, seasonal soundscape, theme, bedtime-reminder, and gentle playtime preferences with the other audio settings', () => {
-    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, soundscapeEnabled: true, soundscapeVolume: 0.18, campTheme: 'winter' as const, bedtimeReminderEnabled: true, playtimeDurationMinutes: 20 as const, largeIconMode: true, reduceMotion: true };
+  it('persists spoken-direction, seasonal soundscape, camp and learning themes, bedtime-reminder, and gentle playtime preferences with the other audio settings', () => {
+    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, soundscapeEnabled: true, soundscapeVolume: 0.18, campTheme: 'winter' as const, learningTheme: 'phonics' as const, bedtimeReminderEnabled: true, playtimeDurationMinutes: 20 as const, largeIconMode: true, reduceMotion: true };
     saveAudioPreferences(next);
     expect(getAudioPreferences()).toEqual(next);
+  });
+
+  it('drives the matching camp focus activity from the saved family learning theme', () => {
+    (['phonics', 'numbers', 'rhymes', 'nature'] as const).forEach((learningTheme) => {
+      saveAudioPreferences({ ...DEFAULT_PREFERENCES, learningTheme });
+      expect(getLearningFocusLaunch(getAudioPreferences().learningTheme)).not.toBeNull();
+    });
+    saveAudioPreferences({ ...DEFAULT_PREFERENCES, learningTheme: 'all' });
+    expect(getLearningFocusLaunch(getAudioPreferences().learningTheme)).toBeNull();
   });
 });

@@ -11,6 +11,9 @@ import { getNextSanctuaryGrowth, getSanctuaryGrowth } from '../game/sanctuaryGro
 import type { CareCelebration } from '../game/critterCelebrations';
 import PreReaderDirection from '../components/PreReaderDirection';
 import { getCampThemeFieldNote } from '../game/campThemeMessaging';
+import type { LearningTheme } from '../game/learningThemes';
+import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
+import { getLearningFocusLaunch } from '../game/learningFocus';
 
 interface Props {
   forestHarmony: number;
@@ -31,6 +34,9 @@ interface Props {
   onOpenNursery: () => void;
   onOpenParentSettings: () => void;
   onOpenLearning: () => void;
+  onOpenNatureJournal: () => void;
+  learningTheme: LearningTheme;
+  onStartLearningFocus: () => void;
   onOpenStorybook: () => void;
   onOpenCarePlay: () => void;
   onOpenBedtime: () => void;
@@ -66,6 +72,9 @@ export default function CampScreen({
   onOpenNursery,
   onOpenParentSettings,
   onOpenLearning,
+  onOpenNatureJournal,
+  learningTheme,
+  onStartLearningFocus,
   onOpenStorybook,
   onOpenCarePlay,
   onOpenBedtime,
@@ -103,6 +112,7 @@ export default function CampScreen({
   const sanctuaryGrowth = getSanctuaryGrowth(kindnessMoments);
   const nextSanctuaryGrowth = getNextSanctuaryGrowth(kindnessMoments);
   const themeNote = getCampThemeFieldNote(season);
+  const learningFocus = getLearningFocusLaunch(learningTheme);
   const handleDecorationRendered = useCallback((critterName: string, decoration: HomeDecoration, meshIds: string[]) => {
     setRenderedDecorations((previous) => previous[critterName]?.decoration === decoration && previous[critterName]?.meshIds.join('|') === meshIds.join('|') ? previous : { ...previous, [critterName]: { decoration, meshIds } });
   }, []);
@@ -391,6 +401,7 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] text-xs leading-tight">{sanctuaryGrowth.icon} {sanctuaryGrowth.title}</p>
             <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{nextSanctuaryGrowth ? `${nextSanctuaryGrowth.icon} More gentle care helps the camp grow.` : 'Every gentle care moment helps this place shine.'}</p>
           </div>
+          {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="pointer-events-auto hidden md:block max-w-[180px] rounded-xl px-3 py-2 text-left active:scale-95 transition-transform" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #D5C3A8', boxShadow: '0 3px 12px rgba(0,0,0,.2)' }}><p className="font-body text-[9px] uppercase tracking-[.12em] text-[#A85C41] font-bold">{LEARNING_THEME_DETAILS[learningTheme].icon} Today’s gentle focus</p><p className="font-display text-xs text-[#2D2418] mt-1">{learningFocus.label}</p><p className="font-body text-[10px] font-bold text-[#3D7A58] mt-1">Try this clue →</p></button>}
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[210px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
             <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
             <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
@@ -398,9 +409,11 @@ export default function CampScreen({
             <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
           </div>
           <div className="flex-1" />
-          <div className="pointer-events-auto flex gap-2 items-end">
+          <div className="pointer-events-auto flex flex-wrap justify-end gap-2 items-end">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
+            {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
+            <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌦️ Nature</button>
             <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
             <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
