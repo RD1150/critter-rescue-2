@@ -257,7 +257,7 @@
 - [x] Add parent-controlled playback and volume support for the new soundscape without autoplaying audio.
 - [x] Add subtle scene and card transitions that preserve clarity and are fully suppressed by Reduce Motion.
 - [x] Test and visually verify the soundscape settings, no-autoplay behavior, transitions, and reduced-motion presentation.
-- [ ] Save a deployable checkpoint and push the verified calm-ritual update to GitHub.
+- [x] Save a deployable checkpoint and push the verified calm-ritual update to GitHub.
 
 ## App Store Launch and Physical Plush Companion Assessment
 
