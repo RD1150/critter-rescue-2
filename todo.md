@@ -233,3 +233,11 @@
 - [x] Verify alliteration, habitat-match, and Team Rescue with Reduce Motion enabled and record the results.
 - [x] Add deterministic local-state completion tests for alliteration and habitat-match progress records and parent-summary counts.
 - [x] Save a deployable checkpoint and push the verified literacy, habitat, team-rescue, and printable-nature expansion to GitHub.
+
+## Syllable Clapping and Weather Sanctuary Play
+
+- [x] Add a picture-led syllable-clapping activity with optional Nutty direction, large visual choices, and no failure state.
+- [x] Add gentle weather-based sanctuary interactions that invite short child-led actions without timers or penalties.
+- [x] Persist syllable and weather discoveries locally and surface them in the parent summary without scores or comparisons.
+- [x] Test and visually verify syllable play, weather interactions, optional directions, and Reduce Motion behavior.
+- [ ] Save a deployable checkpoint and push the verified syllable and weather-sanctuary expansion to GitHub.

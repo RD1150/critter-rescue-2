@@ -32,6 +32,7 @@ const TASK_HELP: Record<MissionType, string> = {
   letterSound: 'Help me find the picture that starts like ball!',
   alliteration: 'Help me find the picture that starts like cricket!',
   habitatMatch: 'Help me find the cozy home by the water!',
+  syllableClap: 'Help me find the picture with two little claps!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

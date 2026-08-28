@@ -4,7 +4,7 @@ import { PRE_READER_AUDIO } from './characterAudio';
 
 describe('pre-reader spoken direction inventory', () => {
   it('covers onboarding, the daily trail, all rescue action types, and three learning rounds', () => {
-    const required = ['onboarding', 'dailyTrail', 'bridge', 'clearPath', 'shelter', 'guidePath', 'memory', 'pattern', 'maze', 'gather', 'tracing', 'sorting', 'counting', 'shapeFit', 'spotDifference', 'sequence', 'findTools', 'colorMatch', 'sizeOrdering', 'critterPath', 'alliteration', 'habitatMatch', 'teamRescue', 'learningColor', 'learningShape', 'learningPattern'] as const;
+    const required = ['onboarding', 'dailyTrail', 'bridge', 'clearPath', 'shelter', 'guidePath', 'memory', 'pattern', 'maze', 'gather', 'tracing', 'sorting', 'counting', 'shapeFit', 'spotDifference', 'sequence', 'findTools', 'colorMatch', 'sizeOrdering', 'critterPath', 'alliteration', 'habitatMatch', 'syllableClap', 'weatherWonder', 'teamRescue', 'learningColor', 'learningShape', 'learningPattern'] as const;
     required.forEach((key) => {
       expect(PRE_READER_DIRECTIONS[key]).toMatch(/\.$/);
       const wordCount = PRE_READER_DIRECTIONS[key].split(/\s+/).length;

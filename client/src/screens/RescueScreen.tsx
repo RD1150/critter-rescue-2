@@ -424,6 +424,19 @@ function HabitatMatchPuzzle({ onComplete }: { onComplete: () => void }) {
   return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#6EB9CE] bg-[#EAF6F8] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦆</span><p className="mt-1 font-display text-lg text-[#397C9C]">Reed the duck</p></div><p className="font-body text-sm text-white/90">Which home is by the water?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#6EB9CE] bg-[#EAF4EF]' : 'border-[#C7DCE3] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
+// ── Picture-led Syllable Clap Rescue ─────────────
+function SyllableClapPuzzle({ onComplete }: { onComplete: () => void }) {
+  const choices = [{ emoji: '🐢', label: 'turtle', claps: 2, correct: true }, { emoji: '🦋', label: 'butterfly', claps: 3, correct: false }, { emoji: '🐝', label: 'bee', claps: 1, correct: false }];
+  const [message, setMessage] = useState('Say the names slowly. Which picture has two little claps?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (choice: typeof choices[number]) => {
+    if (chosen) return;
+    if (choice.correct) { setChosen(choice.label); setMessage('Tur-tle! Two claps. Cricket loves that gentle rhythm.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That name has a different number of claps. Let’s say it slowly together.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">👏👏</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Two little claps</p></div><p className="font-body text-sm text-white/90">Which picture has two claps in its name?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -814,6 +827,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'letterSound':   return <LetterSoundPuzzle onComplete={handlePuzzleComplete} />;
       case 'alliteration':  return <AlliterationPuzzle onComplete={handlePuzzleComplete} />;
       case 'habitatMatch':  return <HabitatMatchPuzzle onComplete={handlePuzzleComplete} />;
+      case 'syllableClap':  return <SyllableClapPuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

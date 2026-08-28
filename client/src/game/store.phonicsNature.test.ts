@@ -16,6 +16,13 @@ describe('phonics and nature local discovery records', () => {
     expect(habitat.newState.quietLearningRescues.habitatMatch).toBe(1);
   });
 
+  it('records a syllable-clapping rescue as calm learning practice', () => {
+    const fresh = createFreshState();
+    const result = completeRescue(fresh, 'meadow', 0, 1, 'syllableClap');
+    expect(result.newState.quietLearningRescues.syllableClap).toBe(1);
+    expect(Object.values(result.newState.activityLog)[0]?.learningRounds).toBe(1);
+  });
+
   it('records each nature field note once rather than creating a score', () => {
     const fresh = createFreshState();
     const first = recordNatureDiscovery(fresh, 'spring-bud');

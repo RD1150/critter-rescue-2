@@ -29,7 +29,7 @@ export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
 export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
 export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom' | 'ripple-refill' | 'garden-sprinkle';
-export type QuietLearningRescueKind = 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch';
+export type QuietLearningRescueKind = 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap';
 
 export interface Keepsake {
   id: string;
@@ -81,6 +81,7 @@ export interface GameState {
   teamRescueWins: Record<string, number>;
   quietLearningRescues: Record<QuietLearningRescueKind, number>;
   natureDiscoveries: Record<NatureDiscoveryKey, number>;
+  weatherWonders: Record<SanctuarySeason, number>;
   keepsakes: Keepsake[];
   bedtimeSessions: number;
 }
@@ -118,6 +119,7 @@ export function loadState(): GameState {
         teamRescueWins: saved.teamRescueWins ?? {},
         quietLearningRescues: { ...fresh.quietLearningRescues, ...(saved.quietLearningRescues ?? {}) },
         natureDiscoveries: { ...fresh.natureDiscoveries, ...(saved.natureDiscoveries ?? {}) },
+        weatherWonders: { ...fresh.weatherWonders, ...(saved.weatherWonders ?? {}) },
         keepsakes: saved.keepsakes ?? [],
         bedtimeSessions: saved.bedtimeSessions ?? 0,
       };
@@ -154,8 +156,9 @@ export function createFreshState(): GameState {
     carePlayWins: {},
     friendshipDuoWins: {},
     teamRescueWins: {},
-    quietLearningRescues: { quietCount: 0, pictureRhyme: 0, letterSound: 0, alliteration: 0, habitatMatch: 0 },
+    quietLearningRescues: { quietCount: 0, pictureRhyme: 0, letterSound: 0, alliteration: 0, habitatMatch: 0, syllableClap: 0 },
     natureDiscoveries: { 'spring-bud': 0, 'summer-cloud': 0, 'autumn-leaf': 0, 'winter-moon': 0 },
+    weatherWonders: { spring: 0, summer: 0, autumn: 0, winter: 0 },
     keepsakes: [],
     bedtimeSessions: 0,
   };
@@ -324,7 +327,7 @@ export function completeRescue(
     }
   }
 
-  const quietLearningKind = missionType === 'quietCount' || missionType === 'pictureRhyme' || missionType === 'letterSound' || missionType === 'alliteration' || missionType === 'habitatMatch' ? missionType : null;
+  const quietLearningKind = missionType === 'quietCount' || missionType === 'pictureRhyme' || missionType === 'letterSound' || missionType === 'alliteration' || missionType === 'habitatMatch' || missionType === 'syllableClap' ? missionType : null;
   const newState = addActivity({
     ...state,
     forestHarmony: newHarmony,
@@ -392,6 +395,15 @@ export function recordLearningRound(state: GameState, milestone: LearningMilesto
 export function recordNatureDiscovery(state: GameState, key: NatureDiscoveryKey): GameState {
   if (state.natureDiscoveries[key]) return state;
   const newState = addActivity({ ...state, natureDiscoveries: { ...state.natureDiscoveries, [key]: 1 } }, { learningRounds: 1 });
+  saveState(newState);
+  return newState;
+}
+
+export function recordWeatherWonder(state: GameState, season: SanctuarySeason): GameState {
+  const newState = addActivity({
+    ...state,
+    weatherWonders: { ...state.weatherWonders, [season]: (state.weatherWonders[season] ?? 0) + 1 },
+  }, { learningRounds: 1 });
   saveState(newState);
   return newState;
 }

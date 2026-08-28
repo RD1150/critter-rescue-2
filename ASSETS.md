@@ -47,3 +47,11 @@ This reference guides visual learning prompts and friendship moments toward a qu
 | Phonics and discovery visual reference | Art direction for picture-led sounds, nature-weather discoveries, and parent learning-focus choices | Plush fox choosing a B-sound picture card, nature stamps for raindrop/cloud/flower/bird, and rounded parent learning-focus cards. Warm stitched scrapbook paper, felt woodland forms, no readable text, people, or branding. | `/manus-storage/phonics-nature-learning-themes-reference_736c1c3c.png` |
 
 This reference maintains the existing tactile plushie style while keeping letter sounds, discoveries, and parent choices large, visual, and free of performance pressure.
+
+## Syllable Clapping and Weather Sanctuary Play visual direction
+
+| Asset | Purpose | Prompt summary | Project storage URL |
+|---|---|---|---|
+| Syllable and weather visual reference | Art direction for picture-led clap patterns, gentle drizzle, autumn leaves, and safe weather interactions | Plush squirrel, duck, and bunny with picture cards and colored clap dots; spring drizzle, autumn leaves, and a sunbreak around the 3D woodland camp. Soft toy-diorama materials, warm light, no text, numbers, people, timers, or storms. | `/manus-storage/syllable-weather-sanctuary-reference_4383e2b2.png` |
+
+This reference guides the new learning and weather moments toward safe, child-led observation and tactile visual clarity rather than speed or weather hazard.
