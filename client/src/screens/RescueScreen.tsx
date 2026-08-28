@@ -398,6 +398,32 @@ function LetterSoundPuzzle({ onComplete }: { onComplete: () => void }) {
   return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">⚽</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Ball · /b/</p></div><p className="font-body text-sm text-white/90">Which picture starts like ball?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
+// ── Picture Alliteration Rescue ──────────────────
+function AlliterationPuzzle({ onComplete }: { onComplete: () => void }) {
+  const choices = [{ emoji: '☁️', label: 'cloud', correct: true }, { emoji: '🌙', label: 'moon', correct: false }, { emoji: '🍓', label: 'berry', correct: false }];
+  const [message, setMessage] = useState('Cricket and cloud both start with a crisp /c/ sound. Which picture starts like cricket?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (choice: typeof choices[number]) => {
+    if (chosen) return;
+    if (choice.correct) { setChosen(choice.label); setMessage('Cricket and cloud! They start with the same sound. Cricket can sing a cozy song.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That picture starts with a different sound. Let’s listen for cricket again.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦗</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Cricket · /c/</p></div><p className="font-body text-sm text-white/90">Which picture starts like cricket?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
+// ── Habitat-Matching Rescue ──────────────────────
+function HabitatMatchPuzzle({ onComplete }: { onComplete: () => void }) {
+  const choices = [{ emoji: '🌊', label: 'Pond home', correct: true }, { emoji: '🪺', label: 'Nest home', correct: false }, { emoji: '🪵', label: 'Den home', correct: false }];
+  const [message, setMessage] = useState('Reed the duck needs a home by the water. Which cozy place fits?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (choice: typeof choices[number]) => {
+    if (chosen) return;
+    if (choice.correct) { setChosen(choice.label); setMessage('A pond! Reed can splash and rest near the water. You found the right habitat.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That home belongs to a different kind of friend. Look for water, slowly.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#6EB9CE] bg-[#EAF6F8] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦆</span><p className="mt-1 font-display text-lg text-[#397C9C]">Reed the duck</p></div><p className="font-body text-sm text-white/90">Which home is by the water?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#6EB9CE] bg-[#EAF4EF]' : 'border-[#C7DCE3] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -786,6 +812,8 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'quietCount':    return <QuietCountPuzzle onComplete={handlePuzzleComplete} />;
       case 'pictureRhyme':  return <PictureRhymePuzzle onComplete={handlePuzzleComplete} />;
       case 'letterSound':   return <LetterSoundPuzzle onComplete={handlePuzzleComplete} />;
+      case 'alliteration':  return <AlliterationPuzzle onComplete={handlePuzzleComplete} />;
+      case 'habitatMatch':  return <HabitatMatchPuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
@@ -820,7 +848,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       <div className="relative z-10 px-4 pb-2">
         <p className="font-display italic text-white text-center text-sm drop-shadow">{mission.scenarioText}</p>
         <p className="text-white/60 text-xs text-center font-body mt-0.5">{mission.hintText}</p>
-        <PreReaderDirection directionKey={mission.type} className="mx-auto mt-2 max-w-sm" />
+        {!showIntro && <PreReaderDirection directionKey={mission.type} className="mx-auto mt-2 max-w-sm" />}
         <button onClick={useCompanionTip} disabled={tipUsed} className="mx-auto mt-2 flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-body text-[#2D2418] active:scale-95 transition-transform disabled:opacity-65" style={{ background: '#F7EBD8', border: '1px solid #D5C3A8' }}>
           <span>{companion.rescueIcon}</span><span>{tipUsed ? `${companion.name}'s tip used` : `Ask ${companion.name}`}</span>
         </button>

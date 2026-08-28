@@ -23,8 +23,9 @@ import CritterCarePlayScreen from './screens/CritterCarePlayScreen';
 import MemoryGalleryScreen from './screens/MemoryGalleryScreen';
 import BedtimeWindDownScreen from './screens/BedtimeWindDownScreen';
 import NatureDiscoveryJournalScreen from './screens/NatureDiscoveryJournalScreen';
+import TeamRescueScreen from './screens/TeamRescueScreen';
 
-import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery } from './game/store';
+import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
@@ -36,6 +37,7 @@ import type { FriendshipDuo } from './game/friendshipDuos';
 import { useGentlePlaytimeSuggestion } from './game/playtimePreference';
 import type { NatureDiscoveryKey } from './game/natureDiscoveries';
 import { getLearningFocusLaunch } from './game/learningFocus';
+import type { TeamRescue } from './game/teamRescue';
 
 type Scene =
   | 'loading'
@@ -55,6 +57,7 @@ type Scene =
   | 'gallery'
   | 'bedtime'
   | 'nature'
+  | 'teamRescue'
   | 'learning';
 
 function LoadingScreen({ online }: { online: boolean }) {
@@ -83,6 +86,7 @@ export default function App() {
   const [audioPreferences] = useAudioPreferences();
   const previewTheme = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('theme') : null;
   const previewLearningTheme = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('learningFocus') : null;
+  const naturePrintPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'natureprint';
   const activeCampTheme = ['spring', 'summer', 'autumn', 'winter'].includes(previewTheme ?? '') ? previewTheme as SanctuarySeason : resolveCampTheme(audioPreferences.campTheme);
   const activeLearningTheme = ['all', 'phonics', 'numbers', 'rhymes', 'nature'].includes(previewLearningTheme ?? '') ? previewLearningTheme as typeof audioPreferences.learningTheme : audioPreferences.learningTheme;
   useSeasonalSoundscape(audioPreferences, activeCampTheme);
@@ -114,6 +118,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewQuietCount = previewMode === 'quietcount';
     const previewPictureRhyme = previewMode === 'picturerhyme';
     const previewLetterSound = previewMode === 'lettersound';
+    const previewAlliteration = previewMode === 'alliteration';
+    const previewHabitatMatch = previewMode === 'habitatmatch';
     const previewParentSettings = previewMode === 'parentsettings';
     const previewDailyProgress = previewMode === 'dailyprogress';
     const previewDailyReward = previewMode === 'dailyreward';
@@ -127,11 +133,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewBedtime = previewMode === 'bedtime';
     const previewCelebration = previewMode === 'celebration';
     const previewNature = previewMode === 'nature';
+    const previewNaturePrint = previewMode === 'natureprint';
+    const previewTeamRescue = previewMode === 'teamrescue';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature;
+    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -184,6 +192,14 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setCurrentMission(getZoneTask('meadow', 8));
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
+      } else if (previewAlliteration) {
+        setCurrentMission(getZoneTask('meadow', 9));
+        setCurrentZoneBg(ZONES[0].bgColors);
+        setScene('rescue');
+      } else if (previewHabitatMatch) {
+        setCurrentMission(getZoneTask('riverside', 7));
+        setCurrentZoneBg(ZONES[1].bgColors);
+        setScene('rescue');
       } else if (previewParentSettings) {
         setScene('parentSettings');
       } else if (previewDailyProgress || previewDailyReward) {
@@ -208,6 +224,10 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('camp');
       } else if (previewNature) {
         setScene('nature');
+      } else if (previewNaturePrint) {
+        setScene('nature');
+      } else if (previewTeamRescue) {
+        setScene('teamRescue');
       } else if (!s.selectedCompanion) {
         setScene('starterSelection');
       } else {
@@ -328,6 +348,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleOpenLearning = useCallback(() => { playButton(); transition('learning', 100); }, [transition]);
   const handleCloseLearning = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenNatureJournal = useCallback(() => { playButton(); transition('nature', 100); }, [transition]);
+  const handleOpenTeamRescue = useCallback(() => { playButton(); transition('teamRescue', 100); }, [transition]);
+  const handleCloseTeamRescue = useCallback(() => transition('camp', 100), [transition]);
   const handleCloseNatureJournal = useCallback(() => transition('camp', 100), [transition]);
   const handleStartLearningFocus = useCallback(() => {
     if (!state) return;
@@ -347,6 +369,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCelebrateSeason = useCallback(() => { if (state) setState(rememberSeasonalMoment(state, getSanctuarySeason())); }, [state]);
   const handleCompleteCarePlay = useCallback((name: string, type: CritterType, kind: CarePlayKind) => { if (state) setState(completeCarePlay(state, name, type, kind).newState); }, [state]);
   const handleCompleteFriendshipDuo = useCallback((duo: FriendshipDuo) => { if (state) setState(completeFriendshipDuo(state, duo).newState); }, [state]);
+  const handleCompleteTeamRescue = useCallback((team: TeamRescue) => { if (state) setState(completeTeamRescue(state, team).newState); }, [state]);
   const handleRemoveKeepsake = useCallback((id: string): Keepsake | null => {
     if (!state) return null;
     const result = removeKeepsake(state, id);
@@ -424,6 +447,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               onOpenParentSettings={handleOpenParentSettings}
               onOpenLearning={handleOpenLearning}
               onOpenNatureJournal={handleOpenNatureJournal}
+              onOpenTeamRescue={handleOpenTeamRescue}
               learningTheme={activeLearningTheme}
               onStartLearningFocus={handleStartLearningFocus}
               onOpenStorybook={handleOpenStorybook}
@@ -502,7 +526,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onCompleteDuo={handleCompleteFriendshipDuo} onBack={handleCloseCarePlay} />}
           {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} onRemove={handleRemoveKeepsake} onRestore={handleRestoreKeepsakes} onClear={handleClearKeepsakes} />}
           {scene === 'bedtime' && <BedtimeWindDownScreen companionName={STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion)?.name || 'Clover'} companionType={(state.selectedCompanion || 'bunny') as CritterType} reduceMotion={audioPreferences.reduceMotion} onComplete={handleCompleteBedtime} onBack={handleCloseBedtime} />}
-          {scene === 'nature' && <NatureDiscoveryJournalScreen season={activeCampTheme} discoveries={state.natureDiscoveries} learningTheme={audioPreferences.learningTheme} onDiscover={handleNatureDiscovery} onBack={handleCloseNatureJournal} />}
+          {scene === 'nature' && <NatureDiscoveryJournalScreen season={activeCampTheme} discoveries={state.natureDiscoveries} learningTheme={audioPreferences.learningTheme} onDiscover={handleNatureDiscovery} onBack={handleCloseNatureJournal} printPreview={naturePrintPreview} />}
+          {scene === 'teamRescue' && <TeamRescueScreen onComplete={handleCompleteTeamRescue} onBack={handleCloseTeamRescue} reduceMotion={audioPreferences.reduceMotion} />}
           {scene === 'learning' && <CampLearningScreen onBack={handleCloseLearning} onRoundComplete={handleLearningRound} learningTheme={audioPreferences.learningTheme} />}
         </div>
       </TooltipProvider>

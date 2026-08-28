@@ -29,7 +29,7 @@ export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
 export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
 export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom' | 'ripple-refill' | 'garden-sprinkle';
-export type QuietLearningRescueKind = 'quietCount' | 'pictureRhyme' | 'letterSound';
+export type QuietLearningRescueKind = 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch';
 
 export interface Keepsake {
   id: string;
@@ -78,6 +78,7 @@ export interface GameState {
   seasonalKeepsakes: SanctuarySeason[];
   carePlayWins: Record<string, number>;
   friendshipDuoWins: Record<string, number>;
+  teamRescueWins: Record<string, number>;
   quietLearningRescues: Record<QuietLearningRescueKind, number>;
   natureDiscoveries: Record<NatureDiscoveryKey, number>;
   keepsakes: Keepsake[];
@@ -114,6 +115,7 @@ export function loadState(): GameState {
         seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
         carePlayWins: saved.carePlayWins ?? {},
         friendshipDuoWins: saved.friendshipDuoWins ?? {},
+        teamRescueWins: saved.teamRescueWins ?? {},
         quietLearningRescues: { ...fresh.quietLearningRescues, ...(saved.quietLearningRescues ?? {}) },
         natureDiscoveries: { ...fresh.natureDiscoveries, ...(saved.natureDiscoveries ?? {}) },
         keepsakes: saved.keepsakes ?? [],
@@ -151,7 +153,8 @@ export function createFreshState(): GameState {
     seasonalKeepsakes: [],
     carePlayWins: {},
     friendshipDuoWins: {},
-    quietLearningRescues: { quietCount: 0, pictureRhyme: 0, letterSound: 0 },
+    teamRescueWins: {},
+    quietLearningRescues: { quietCount: 0, pictureRhyme: 0, letterSound: 0, alliteration: 0, habitatMatch: 0 },
     natureDiscoveries: { 'spring-bud': 0, 'summer-cloud': 0, 'autumn-leaf': 0, 'winter-moon': 0 },
     keepsakes: [],
     bedtimeSessions: 0,
@@ -321,7 +324,7 @@ export function completeRescue(
     }
   }
 
-  const quietLearningKind = missionType === 'quietCount' || missionType === 'pictureRhyme' || missionType === 'letterSound' ? missionType : null;
+  const quietLearningKind = missionType === 'quietCount' || missionType === 'pictureRhyme' || missionType === 'letterSound' || missionType === 'alliteration' || missionType === 'habitatMatch' ? missionType : null;
   const newState = addActivity({
     ...state,
     forestHarmony: newHarmony,
@@ -463,6 +466,25 @@ export function completeFriendshipDuo(state: GameState, duo: FriendshipDuo): { n
     ...state,
     carePlayWins: { ...state.carePlayWins, [duo.names[0]]: (state.carePlayWins[duo.names[0]] ?? 0) + 1, [duo.names[1]]: (state.carePlayWins[duo.names[1]] ?? 0) + 1 },
     friendshipDuoWins: { ...state.friendshipDuoWins, [duo.id]: (state.friendshipDuoWins[duo.id] ?? 0) + 1 },
+    keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
+  }, { carePlayMoments: 1 });
+  saveState(newState);
+  return { newState, keepsake };
+}
+
+export function completeTeamRescue(state: GameState, team: { id: string; helpers: { name: string; type: CritterType }[]; friend: { name: string; type: CritterType }; title: string; celebration: string }): { newState: GameState; keepsake: Keepsake } {
+  const keepsake: Keepsake = {
+    id: `team-${Date.now()}-${team.id}`,
+    source: 'care-play',
+    critterName: `${team.helpers[0].name}, ${team.helpers[1].name} & ${team.friend.name}`,
+    critterType: team.friend.type,
+    title: team.title,
+    message: team.celebration,
+    createdAt: Date.now(),
+  };
+  const newState = addActivity({
+    ...state,
+    teamRescueWins: { ...state.teamRescueWins, [team.id]: (state.teamRescueWins[team.id] ?? 0) + 1 },
     keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
   }, { carePlayMoments: 1 });
   saveState(newState);

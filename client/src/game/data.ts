@@ -8,7 +8,7 @@ export type MissionType =
   | 'memory' | 'pattern' | 'maze' | 'gather'
   | 'tracing' | 'sorting' | 'counting' | 'shapeFit'
   | 'spotDifference' | 'sequence' | 'findTools'
-  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound';
+  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch';
 
 export interface CritterData {
   name: string;
@@ -152,6 +152,7 @@ const MEADOW_TASKS: TaskDef[] = [
   { type:'shapeFit', critter:MEADOW_CRITTERS[3], scenarioText:"Clover's puzzle board is all mixed up!", hintText:'Put each shape in its matching spot', objectCount:3, difficulty:1, requiresOrder:false, introText:'Oh no, all the shapes fell off! Can you put them back?' },
   { type:'maze', critter:MEADOW_CRITTERS[1], scenarioText:'Pip got lost in the tall grass maze!', hintText:'Draw a path through the maze to guide Pip home', objectCount:3, difficulty:2, requiresOrder:false, introText:"The grass has grown so tall it's like a maze! Can you trace a path to help Pip find the way?" },
   { type:'letterSound', critter:MEADOW_CRITTERS[4], scenarioText:'Buttercup needs the picture that starts like ball!', hintText:'Listen for the first sound, then tap the matching picture.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Buttercup heard a bouncy ball. Can you find the picture that starts with the same sound?' },
+  { type:'alliteration', critter:MEADOW_CRITTERS[5], scenarioText:'Cricket is making a silly sound song!', hintText:'Find the picture that starts like cricket.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Cricket says, “cricket, cloud, cozy!” Can you find a picture that starts with the same sound?' },
 ];
 
 const RIVERSIDE_TASKS: TaskDef[] = [
@@ -162,6 +163,7 @@ const RIVERSIDE_TASKS: TaskDef[] = [
   { type:'guidePath', critter:RIVERSIDE_CRITTERS[2], scenarioText:"Finn can't see through the river fog!", hintText:'Place lanterns to light the way', objectCount:3, difficulty:3, requiresOrder:false, introText:'The fog is thick on the water. Finn needs a light to find the way home.' },
   { type:'spotDifference', critter:RIVERSIDE_CRITTERS[3], scenarioText:"Reed's pond changed overnight! What's different?", hintText:'Find the differences between the two pictures', objectCount:3, difficulty:2, requiresOrder:false, introText:"Something changed at Reed's pond! Can you spot what's different?" },
   { type:'pictureRhyme', critter:RIVERSIDE_CRITTERS[2], scenarioText:'Finn needs a picture rhyme to find a tall safe tree!', hintText:'Listen for the word that sounds like bee, then tap its picture rhyme.', objectCount:3, difficulty:2, requiresOrder:false, introText:'Finn heard a tiny bee beside a tall tree. Can you find the picture that rhymes with bee?' },
+  { type:'habitatMatch', critter:RIVERSIDE_CRITTERS[3], scenarioText:'Reed needs help finding the cozy pond home!', hintText:'Tap the home where a duck can rest.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Reed is looking for a cozy home beside the water. Can you choose the right habitat together?' },
   { type:'guidePath', critter:EVERYONE_RIVER, scenarioText:'Light the whole riverside for everyone!', hintText:'Place 5 lanterns in order along the path!', objectCount:5, difficulty:4, requiresOrder:true, introText:"It's getting dark on the river. Every friend needs to find their way home safely." },
 ];
 
@@ -195,8 +197,8 @@ const ZONE_TASKS: Record<string, TaskDef[]> = {
 };
 
 export const ZONES: ZoneInfo[] = [
-  { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','sequence','shapeFit','colorMatch','sizeOrdering','critterPath'], totalTasks:9, emoji:'🌸' },
-  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','sorting','tracing','spotDifference','sizeOrdering','critterPath'], totalTasks:8, emoji:'🌊' },
+  { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','alliteration','sequence','shapeFit','colorMatch','sizeOrdering','critterPath'], totalTasks:10, emoji:'🌸' },
+  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath'], totalTasks:9, emoji:'🌊' },
   { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath'], totalTasks:8, emoji:'🌲' },
   { id:'mountain', name:'Misty Mountain', description:'The highest peak, where the bravest friends wait', unlockHarmony:75, bgColors:['#8B9AAA','#7A8A9A','#6A7A6A','#4A6A4A','#3A5A3A'], missionTypes:['bridge','shelter','guidePath','pattern','gather','counting','shapeFit','spotDifference','findTools','colorMatch','sizeOrdering','critterPath'], totalTasks:8, emoji:'⛰️' },
 ];

@@ -1,6 +1,6 @@
 import type { MissionType } from './data';
 
-export type PreReaderDirectionKey = 'onboarding' | 'dailyTrail' | 'friendshipDuo' | 'friendshipDuoNuttyPip' | 'friendshipDuoSplashThistle' | 'friendshipDuoCloverShadow' | 'learningColor' | 'learningShape' | 'learningPattern' | MissionType;
+export type PreReaderDirectionKey = 'onboarding' | 'dailyTrail' | 'friendshipDuo' | 'friendshipDuoNuttyPip' | 'friendshipDuoSplashThistle' | 'friendshipDuoCloverShadow' | 'teamRescue' | 'learningColor' | 'learningShape' | 'learningPattern' | MissionType;
 
 export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   onboarding: 'Tap Let’s Help a Friend.',
@@ -26,10 +26,13 @@ export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   quietCount: 'Tap the basket with three berries.',
   pictureRhyme: 'Tap the picture that rhymes with bee.',
   letterSound: 'Tap the picture that starts like ball.',
+  alliteration: 'Tap the picture that starts like cricket.',
+  habitatMatch: 'Tap the home where the duck can rest.',
   friendshipDuo: 'Tap the leaf, then tap the berry.',
   friendshipDuoNuttyPip: 'Tap the leaf, then tap the berry.',
   friendshipDuoSplashThistle: 'Tap the ripple, then tap the flower.',
   friendshipDuoCloverShadow: 'Tap the blanket, then tap the moon.',
+  teamRescue: 'Tap one helping picture, then the next one.',
   learningColor: 'Tap the red circle.',
   learningShape: 'Tap the yellow square.',
   learningPattern: 'Tap the picture that comes next.',

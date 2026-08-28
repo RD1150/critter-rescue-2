@@ -330,4 +330,14 @@
     .keepsake-print-frame header span, .keepsake-print-frame footer { font: 13px sans-serif; color: #5C4D3C; }
     .keepsake-print-frame footer { margin-top: 24px; text-align: center; line-height: 1.5; }
   }
+
+  .nature-journal-print { display: none; }
+  .nature-print-preview .nature-print-hide { display: none !important; }
+  .nature-print-preview .nature-journal-print { display: block; background: #fffaf0; border-radius: 18px; padding: 24px; }
+  .nature-print-card { border: 1px solid #d8c9ad; border-radius: 14px; background: #fffdf7; padding: 14px; }
+  @media print {
+    .nature-print-hide { display: none !important; }
+    .nature-journal-print { display: block !important; background: white !important; color: #2d2418 !important; padding: 0 !important; }
+    .nature-print-card { break-inside: avoid; }
+  }
 }

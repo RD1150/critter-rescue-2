@@ -35,6 +35,7 @@ interface Props {
   onOpenParentSettings: () => void;
   onOpenLearning: () => void;
   onOpenNatureJournal: () => void;
+  onOpenTeamRescue: () => void;
   learningTheme: LearningTheme;
   onStartLearningFocus: () => void;
   onOpenStorybook: () => void;
@@ -73,6 +74,7 @@ export default function CampScreen({
   onOpenParentSettings,
   onOpenLearning,
   onOpenNatureJournal,
+  onOpenTeamRescue,
   learningTheme,
   onStartLearningFocus,
   onOpenStorybook,
@@ -414,6 +416,7 @@ export default function CampScreen({
             {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
             <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌦️ Nature</button>
+            <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🤝 Team up</button>
             <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
             <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
             <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>

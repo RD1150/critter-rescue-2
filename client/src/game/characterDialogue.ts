@@ -30,6 +30,8 @@ const TASK_HELP: Record<MissionType, string> = {
   quietCount: 'Help me count three little berries!',
   pictureRhyme: 'Help me find the picture rhyme for bee!',
   letterSound: 'Help me find the picture that starts like ball!',
+  alliteration: 'Help me find the picture that starts like cricket!',
+  habitatMatch: 'Help me find the cozy home by the water!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

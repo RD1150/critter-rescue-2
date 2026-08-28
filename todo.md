@@ -218,3 +218,18 @@
 - [x] Add a saved-preference helper test for parent learning-focus route resolution.
 - [x] Add a CampScreen component test showing a saved learning theme renders the matching Focus action and invokes its matching launch callback without a preview override.
 - [x] Save a deployable checkpoint and push the verified phonics, nature-journal, and learning-theme expansion to GitHub.
+
+## Alliteration, Habitat Rescue, Printable Nature Pages, and Team Rescue
+
+- [x] Add picture-led alliterative word cards that use short, playful sound-and-image pairs.
+- [x] Add a gentle habitat-matching rescue with clear visual choices, optional Nutty direction, and no failure state.
+- [x] Add a child-led team-rescue layer where two known critters join the child to help a new friend through two simple actions.
+- [x] Add parent-printable seasonal Nature Journal pages using local game discoveries only, with no external upload or child-data sharing.
+- [x] Surface alliteration, habitat, and team-rescue discoveries in the parent summary without scores, streaks, or comparison.
+- [x] Test and visually verify literacy cards, habitat rescue, team rescue, printable pages, and optional directions in the standard play path.
+- [x] Show only one optional spoken-direction control while a rescue introduction card is open.
+- [x] Add optional-direction-audio coverage and deterministic Team Rescue completion coverage.
+- [x] Add and inspect a reproducible parent-print preview for seasonal Nature Journal pages.
+- [x] Verify alliteration, habitat-match, and Team Rescue with Reduce Motion enabled and record the results.
+- [x] Add deterministic local-state completion tests for alliteration and habitat-match progress records and parent-summary counts.
+- [ ] Save a deployable checkpoint and push the verified literacy, habitat, team-rescue, and printable-nature expansion to GitHub.
