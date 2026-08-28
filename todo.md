@@ -232,4 +232,4 @@
 - [x] Add and inspect a reproducible parent-print preview for seasonal Nature Journal pages.
 - [x] Verify alliteration, habitat-match, and Team Rescue with Reduce Motion enabled and record the results.
 - [x] Add deterministic local-state completion tests for alliteration and habitat-match progress records and parent-summary counts.
-- [ ] Save a deployable checkpoint and push the verified literacy, habitat, team-rescue, and printable-nature expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified literacy, habitat, team-rescue, and printable-nature expansion to GitHub.
