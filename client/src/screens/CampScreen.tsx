@@ -96,6 +96,7 @@ export default function CampScreen({
   reduceMotion,
 }: Props) {
   const [showZoneSelect, setShowZoneSelect] = useState(false);
+  const [showMobilePlayMenu, setShowMobilePlayMenu] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
   const [friendNote, setFriendNote] = useState<CritterData | null>(null);
   const [selectedHomeFriend, setSelectedHomeFriend] = useState<CritterData | null>(null);
@@ -223,30 +224,30 @@ export default function CampScreen({
 
       {/* Top field-journal HUD */}
       <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2"
+        <div className="pointer-events-auto flex items-center gap-1.5 rounded-2xl px-3 py-2 sm:gap-2"
           style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.2)', borderTop: '2.5px solid #E66B5B' }}>
           <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5">{themeNote.icon} {themeNote.campLine}</p>
+            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5"><span className="sm:hidden">{themeNote.icon} Cozy camp</span><span className="hidden sm:inline">{themeNote.icon} {themeNote.campLine}</span></p>
           </div>
           <div className="flex flex-col items-center px-1">
             <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
             <span className="font-body text-[8px] text-[#5C4D3C] uppercase tracking-wide">saved</span>
           </div>
-          <button onClick={() => { playButton(); onOpenJournal(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal">
+          <button onClick={() => { playButton(); onOpenJournal(); }} className="shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal">
             <span className="text-lg">📖</span>
           </button>
-          <button onClick={() => { playButton(); onOpenNursery(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open the Critter Nursery">
+          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery">
             <span className="text-lg">🧸</span>
           </button>
-          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings">
+          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings">
             <span className="text-lg">⚙️</span>
           </button>
-          <button onClick={() => { playButton(); onOpenLearning(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open colors shapes and patterns game">
+          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game">
             <span className="text-lg">🌈</span>
           </button>
-          <button onClick={() => { playButton(); onOpenStorybook(); }} className="rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open Critter Storybook">
+          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook">
             <span className="text-lg">✨</span>
           </button>
         </div>
@@ -386,7 +387,7 @@ export default function CampScreen({
       <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
         {showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(270px,78vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #E2C9AB', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🍃</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Grown-up time check</p><p className="font-body text-[10px] leading-snug text-[#5C4D3C]">Would a cuddle, stretch, or quiet rest feel good now?</p></div><button onClick={onDismissPlaytimeSuggestion} className="rounded-lg bg-[#EAF4EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#3D7A58] active:scale-95">Not yet</button></div></div>}
         {bedtimeReminderEnabled && rescueCount > 0 && !showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2 md:flex-nowrap">
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[130px]"
             style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
             <p className="font-display text-[#2D2418] text-xs leading-tight">Forest Harmony</p>
@@ -412,8 +413,8 @@ export default function CampScreen({
             <PreReaderDirection directionKey="dailyTrail" className="mt-2" />
             <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
           </div>
-          <div className="flex-1" />
-          <div className="pointer-events-auto flex flex-wrap justify-end gap-2 items-end">
+          <div className="hidden flex-1 md:block" />
+          <div className="pointer-events-auto hidden flex-wrap justify-end gap-2 md:flex">
             <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
             {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
             <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
@@ -430,6 +431,29 @@ export default function CampScreen({
             ) : (
               <div className="pointer-events-auto rounded-xl bg-[#F5C842] px-3 py-2.5 text-[#2D2418] font-display font-bold text-xs shadow-lg">All safe! 🌟</div>
             )}
+          </div>
+          <div className="pointer-events-auto flex w-full flex-col items-end gap-2 md:hidden">
+            {showMobilePlayMenu && <div id="mobile-camp-play" role="group" aria-label="More camp play" className="flex max-w-full flex-wrap justify-end gap-2 rounded-2xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-2 shadow-lg">
+              <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5">🌦️ Nature</button>
+              <button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5">☁️ Weather</button>
+              <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button>
+              <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5">🌙 Rest</button>
+              <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🎮 Match-3</button>
+            </div>}
+            <div className="flex w-full flex-wrap justify-end gap-2">
+              <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
+              {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
+              <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
+              <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
+              <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="mobile-camp-play" className="btn-parchment text-xs px-3 py-2.5 shadow-lg">{showMobilePlayMenu ? '⌃ Fewer' : '⋯ More'}</button>
+              {!allComplete ? (
+                <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
+                  {rescueCount === 0 ? 'Follow Trail' : 'Find a Friend'}
+                </button>
+              ) : (
+                <div className="rounded-xl bg-[#F5C842] px-3 py-2.5 text-[#2D2418] font-display font-bold text-xs shadow-lg">All safe! 🌟</div>
+              )}
+            </div>
           </div>
         </div>
       </div>

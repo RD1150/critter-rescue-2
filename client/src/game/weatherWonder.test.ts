@@ -10,6 +10,8 @@ describe('seasonal weather wonders', () => {
     expect(Object.keys(WEATHER_WONDERS).sort()).toEqual(['autumn', 'spring', 'summer', 'winter']);
     Object.values(WEATHER_WONDERS).forEach((wonder) => {
       expect(wonder.steps).toHaveLength(2);
+      expect(wonder.critter.name.length).toBeGreaterThan(2);
+      expect(wonder.critter.carePrompt.length).toBeGreaterThan(10);
       wonder.steps.forEach((step) => {
         expect(step.label.length).toBeGreaterThan(3);
         expect(step.response.length).toBeGreaterThan(3);

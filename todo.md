@@ -241,3 +241,12 @@
 - [x] Persist syllable and weather discoveries locally and surface them in the parent summary without scores or comparisons.
 - [x] Test and visually verify syllable play, weather interactions, optional directions, and Reduce Motion behavior.
 - [x] Save a deployable checkpoint and push the verified syllable and weather-sanctuary expansion to GitHub.
+
+## Expanded Syllables, Seasonal Critter Care, and Mobile Camp Navigation
+
+- [x] Add two more visual syllable-clap patterns to the Turtle rescue while preserving one calm action at a time.
+- [x] Add season-specific critter-care variations to Weather Wonder that remain timer-free, gentle, and optional.
+- [x] Refine the mobile camp control grouping so high-value child actions remain clear and reachable on small screens.
+- [x] Test and visually verify expanded syllables, seasonal care, optional directions, reduced motion, and mobile navigation.
+- [x] Document practical parent-value recommendations that preserve child privacy and the game’s no-pressure design.
+- [ ] Save a deployable checkpoint and push the verified expanded update to GitHub.

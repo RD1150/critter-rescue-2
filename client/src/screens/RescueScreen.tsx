@@ -8,6 +8,7 @@ import { getStarterCompanion, MissionData, MissionType, CritterType } from '../g
 import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
 import { useAudioPreferences } from '../game/audioPreferences';
 import { getRescueDialogue } from '../game/characterDialogue';
+import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 
@@ -426,15 +427,25 @@ function HabitatMatchPuzzle({ onComplete }: { onComplete: () => void }) {
 
 // ── Picture-led Syllable Clap Rescue ─────────────
 function SyllableClapPuzzle({ onComplete }: { onComplete: () => void }) {
-  const choices = [{ emoji: '🐢', label: 'turtle', claps: 2, correct: true }, { emoji: '🦋', label: 'butterfly', claps: 3, correct: false }, { emoji: '🐝', label: 'bee', claps: 1, correct: false }];
+  const [patternIndex, setPatternIndex] = useState(0);
+  const pattern = SYLLABLE_CLAP_PATTERNS[patternIndex];
   const [message, setMessage] = useState('Say the names slowly. Which picture has two little claps?');
   const [chosen, setChosen] = useState<string | null>(null);
-  const choose = (choice: typeof choices[number]) => {
+  const choose = (choice: typeof SYLLABLE_CLAP_PATTERNS[number]['choices'][number]) => {
     if (chosen) return;
-    if (choice.correct) { setChosen(choice.label); setMessage('Tur-tle! Two claps. Cricket loves that gentle rhythm.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That name has a different number of claps. Let’s say it slowly together.'); playChime(); }
+    if (!choice.correct) { setMessage('That name has a different number of claps. Let’s say it slowly together.'); playChime(); return; }
+    setChosen(choice.label);
+    setMessage(pattern.success);
+    playMatch();
+    if (patternIndex === SYLLABLE_CLAP_PATTERNS.length - 1) { setTimeout(onComplete, 650); return; }
+    setTimeout(() => {
+      const nextPattern = SYLLABLE_CLAP_PATTERNS[patternIndex + 1];
+      setPatternIndex((current) => current + 1);
+      setChosen(null);
+      setMessage(`A new gentle pattern: ${nextPattern.prompt}`);
+    }, 650);
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">👏👏</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Two little claps</p></div><p className="font-body text-sm text-white/90">Which picture has two claps in its name?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">{Array.from({ length: pattern.choices.find((choice) => choice.correct)?.claps ?? 2 }, () => '👏').join('')}</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">{pattern.clue}</p></div><p className="font-body text-sm text-white/90">{pattern.prompt}</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{pattern.choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Sequence Puzzle ────────────────────────────
