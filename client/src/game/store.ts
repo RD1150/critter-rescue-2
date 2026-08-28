@@ -1,8 +1,9 @@
 // ─────────────────────────────────────────────
 // Critter Rescue — Game State (localStorage)
 // ─────────────────────────────────────────────
-import { CritterType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
+import { CritterType, MissionType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
 import { getKindnessMoments } from './sanctuaryGrowth';
+import type { FriendshipDuo } from './friendshipDuos';
 
 export interface NurseryGraduate {
   careKey: string;
@@ -27,6 +28,7 @@ export type LearningMilestoneKey = 'color' | 'shape' | 'pattern';
 export type HomeDecoration = 'petal-garland' | 'cloud-pillow' | 'acorn-lantern' | 'starglow-mobile' | 'mossy-reading-nook' | 'tea-time-picnic';
 export type SanctuarySeason = 'spring' | 'summer' | 'autumn' | 'winter';
 export type CarePlayKind = 'acorn-tidy' | 'nest-fluff' | 'brush-bloom' | 'ripple-refill' | 'garden-sprinkle';
+export type QuietLearningRescueKind = 'quietCount' | 'pictureRhyme';
 
 export interface Keepsake {
   id: string;
@@ -74,6 +76,8 @@ export interface GameState {
   homeDecor: Record<string, HomeDecoration>;
   seasonalKeepsakes: SanctuarySeason[];
   carePlayWins: Record<string, number>;
+  friendshipDuoWins: Record<string, number>;
+  quietLearningRescues: Record<QuietLearningRescueKind, number>;
   keepsakes: Keepsake[];
   bedtimeSessions: number;
 }
@@ -107,6 +111,8 @@ export function loadState(): GameState {
         homeDecor: saved.homeDecor ?? {},
         seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
         carePlayWins: saved.carePlayWins ?? {},
+        friendshipDuoWins: saved.friendshipDuoWins ?? {},
+        quietLearningRescues: { ...fresh.quietLearningRescues, ...(saved.quietLearningRescues ?? {}) },
         keepsakes: saved.keepsakes ?? [],
         bedtimeSessions: saved.bedtimeSessions ?? 0,
       };
@@ -141,6 +147,8 @@ export function createFreshState(): GameState {
     homeDecor: {},
     seasonalKeepsakes: [],
     carePlayWins: {},
+    friendshipDuoWins: {},
+    quietLearningRescues: { quietCount: 0, pictureRhyme: 0 },
     keepsakes: [],
     bedtimeSessions: 0,
   };
@@ -275,7 +283,8 @@ export function completeRescue(
   state: GameState,
   zone: string,
   taskIndex: number,
-  difficulty: number
+  difficulty: number,
+  missionType?: MissionType,
 ): { newState: GameState; result: CompleteRescueResult } {
   const progress = state.zoneTaskProgress[zone] ?? 0;
   // Idempotency guard
@@ -308,6 +317,7 @@ export function completeRescue(
     }
   }
 
+  const quietLearningKind = missionType === 'quietCount' || missionType === 'pictureRhyme' ? missionType : null;
   const newState = addActivity({
     ...state,
     forestHarmony: newHarmony,
@@ -315,7 +325,8 @@ export function completeRescue(
     rescueCompletedCount: newRescues,
     unlockedZones: currentUnlocked,
     zoneTaskProgress: newProgress,
-  }, { rescueCount: 1 });
+    quietLearningRescues: quietLearningKind ? { ...state.quietLearningRescues, [quietLearningKind]: (state.quietLearningRescues[quietLearningKind] ?? 0) + 1 } : state.quietLearningRescues,
+  }, { rescueCount: 1, learningRounds: quietLearningKind ? 1 : 0 });
 
   saveState(newState);
   return {
@@ -421,6 +432,26 @@ export function completeCarePlay(state: GameState, critterName: string, critterT
   const newState = addActivity({
     ...state,
     carePlayWins: { ...state.carePlayWins, [critterName]: (state.carePlayWins[critterName] ?? 0) + 1 },
+    keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
+  }, { carePlayMoments: 1 });
+  saveState(newState);
+  return { newState, keepsake };
+}
+
+export function completeFriendshipDuo(state: GameState, duo: FriendshipDuo): { newState: GameState; keepsake: Keepsake } {
+  const keepsake: Keepsake = {
+    id: `duo-${Date.now()}-${duo.id}`,
+    source: 'care-play',
+    critterName: `${duo.names[0]} & ${duo.names[1]}`,
+    critterType: duo.types[0],
+    title: `${duo.names[0]} & ${duo.names[1]}: ${duo.title}`,
+    message: duo.celebration,
+    createdAt: Date.now(),
+  };
+  const newState = addActivity({
+    ...state,
+    carePlayWins: { ...state.carePlayWins, [duo.names[0]]: (state.carePlayWins[duo.names[0]] ?? 0) + 1, [duo.names[1]]: (state.carePlayWins[duo.names[1]] ?? 0) + 1 },
+    friendshipDuoWins: { ...state.friendshipDuoWins, [duo.id]: (state.friendshipDuoWins[duo.id] ?? 0) + 1 },
     keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
   }, { carePlayMoments: 1 });
   saveState(newState);

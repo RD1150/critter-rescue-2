@@ -41,6 +41,8 @@ interface Props {
   onClearCelebration: () => void;
   keepCelebrationVisible?: boolean;
   bedtimeReminderEnabled: boolean;
+  showPlaytimeSuggestion: boolean;
+  onDismissPlaytimeSuggestion: () => void;
   lastNurseryGraduate: NurseryGraduate | null;
   onAcknowledgeGraduate: () => void;
   reduceMotion: boolean;
@@ -74,6 +76,8 @@ export default function CampScreen({
   onClearCelebration,
   keepCelebrationVisible = false,
   bedtimeReminderEnabled,
+  showPlaytimeSuggestion,
+  onDismissPlaytimeSuggestion,
   lastNurseryGraduate,
   onAcknowledgeGraduate,
   reduceMotion,
@@ -366,7 +370,8 @@ export default function CampScreen({
 
       {/* Bottom controls float above the dimensional world, like pinned rescue notes. */}
       <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
-        {bedtimeReminderEnabled && rescueCount > 0 && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
+        {showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(270px,78vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #E2C9AB', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🍃</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Grown-up time check</p><p className="font-body text-[10px] leading-snug text-[#5C4D3C]">Would a cuddle, stretch, or quiet rest feel good now?</p></div><button onClick={onDismissPlaytimeSuggestion} className="rounded-lg bg-[#EAF4EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#3D7A58] active:scale-95">Not yet</button></div></div>}
+        {bedtimeReminderEnabled && rescueCount > 0 && !showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
         <div className="flex items-end gap-2">
           <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[130px]"
             style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>

@@ -31,3 +31,11 @@ This reference guides quiet, handmade celebration motion and season changes so t
 | Enrichment expansion visual reference | Art direction for family-specific care celebrations, parent-only bedtime reminders, and seasonal Storybook pages | Plush squirrel acorn twirl, duck pond ripples, hedgehog under a felt blanket, and spring/summer/autumn/winter Storybook motifs. Warm lantern glow, quilted materials, rounded woodland forms, no text or people. | `/manus-storage/celebration-bedtime-story-pages-reference_3c042a6d.png` |
 
 This reference is for visual consistency only. It preserves the existing calm plushie aesthetic and contains no personal data, text, or commerce prompts.
+
+## Quiet Learning, Playtime, and Friendship Duo visual direction
+
+| Asset | Purpose | Prompt summary | Project storage URL |
+|---|---|---|---|
+| Quiet learning and friendship visual reference | Art direction for visual counting, picture-rhyme, cooperative care, and the parent playtime preference | Plush squirrel and bird with oversized acorns, soft picture-rhyme objects, an otter-and-rabbit shared care moment, and a subtle moon card. Felt-and-plush diorama with large clear silhouettes and no text, numbers, people, or pressure cues. | `/manus-storage/quiet-learning-friendship-reference_4df28c47.png` |
+
+This reference guides visual learning prompts and friendship moments toward a quiet, tactile, non-competitive play language.

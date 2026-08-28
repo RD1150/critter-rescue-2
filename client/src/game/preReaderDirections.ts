@@ -1,6 +1,6 @@
 import type { MissionType } from './data';
 
-export type PreReaderDirectionKey = 'onboarding' | 'dailyTrail' | 'learningColor' | 'learningShape' | 'learningPattern' | MissionType;
+export type PreReaderDirectionKey = 'onboarding' | 'dailyTrail' | 'friendshipDuo' | 'friendshipDuoNuttyPip' | 'friendshipDuoSplashThistle' | 'friendshipDuoCloverShadow' | 'learningColor' | 'learningShape' | 'learningPattern' | MissionType;
 
 export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   onboarding: 'Tap Let’s Help a Friend.',
@@ -23,6 +23,12 @@ export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   colorMatch: 'Drag each color to the same color.',
   sizeOrdering: 'Put the pictures from small to big.',
   critterPath: 'Trace the safe path to the friend.',
+  quietCount: 'Tap the basket with three berries.',
+  pictureRhyme: 'Tap the picture that rhymes with bee.',
+  friendshipDuo: 'Tap the leaf, then tap the berry.',
+  friendshipDuoNuttyPip: 'Tap the leaf, then tap the berry.',
+  friendshipDuoSplashThistle: 'Tap the ripple, then tap the flower.',
+  friendshipDuoCloverShadow: 'Tap the blanket, then tap the moon.',
   learningColor: 'Tap the red circle.',
   learningShape: 'Tap the yellow square.',
   learningPattern: 'Tap the picture that comes next.',

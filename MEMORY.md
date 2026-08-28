@@ -113,6 +113,17 @@
 - `PreReaderDirection.tsx` supplies a preschool-sized “Hear directions” target. Captions are visible only when the persistent Parent Settings captions preference is enabled; the control itself remains visible even when captions are off.
 - The full direction treatment appears in first-play camp onboarding, Today’s Tiny Trail, every rescue introduction and active rescue header, and each Camp Learning Trail round. Direct mobile browser verification confirmed the spoken-direction card and readable caption in the counting rescue, the first color-learning round, and the Daily Trail card.
 - The obsolete `speechSynthesis` narration module and unused narration control were removed. A source scan confirms no browser SpeechSynthesis fallback remains in player code.
+
+## Quiet Learning Rescue Verification
+- Direct browser inspection confirmed the quiet counting rescue gives Daisy three large berry-basket choices, with the correct three-berry basket clearly distinguishable by icon count and an optional Nutty direction button.
+- Direct browser interaction confirmed the picture-rhyme rescue shows a visual bee cue and three large picture choices; choosing the tree gives a calm “bee and tree” success message and completion overlay without a penalty or timer.
+- Direct Critter Care Play inspection confirmed Friends Together presents rescued pairs as clear large choices. Nutty and Pip’s corrected optional direction now says “Tap the leaf, then tap the berry,” matching the visible leaf and berry cards; completing both gives a calm care-team celebration and local shared keepsake.
+- Direct Parent Settings inspection confirmed the new Gentle playtime check-in is parent-only, offers Off/10/20/30-minute choices, saves the chosen duration, and explains that any subsequent rest suggestion cannot lock play or show a countdown.
+- Direct quiet-count completion confirmed Daisy’s three-berry choice yields the gentle success line “Three berries! Daisy can have a cozy snack.” and the standard calm rescue completion without a failure path. The forced playtime-check-in preview also confirmed the camp now shows only this single parent-selected rest cue, rather than stacking it with the bedtime reminder.
+- Direct Parent Progress inspection confirmed the Grown-up view shows separate “Quiet learning rescues” and “Friends together” rows as gentle discoveries and shared care moments, alongside existing local-only learning and kindness context. It does not display scores, ranks, or streak obligations.
+- Direct Friendship Duo inspection with `reduceMotion=1` confirmed the shared-care card retains its readable leaf-and-berry instruction and large taps while the game’s nonessential movement is suppressed through the global reduced-motion path.
+- Direct quiet-count and forced-playtime checks with `reduceMotion=1` confirmed the large berry choices, optional direction, and single non-blocking rest suggestion remain clear and usable while the sanctuary uses its static low-motion rendering path.
+- Direct picture-rhyme completion with `reduceMotion=1` confirmed the image-led bee/tree prompt, optional Nutty direction, and calm “Bee and tree” success response remain readable and fully usable without nonessential motion.
 - Final verification: 5 Vitest files / 9 tests pass, `pnpm check` passes, and `pnpm build` completes in approximately four seconds. The only remaining build output is the existing non-blocking large-chunk warning.
 
 ## Parent Progress and Resilient Play Verification

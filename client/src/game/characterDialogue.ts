@@ -27,6 +27,8 @@ const TASK_HELP: Record<MissionType, string> = {
   colorMatch: 'Help me match the same colors!',
   sizeOrdering: 'Help me put these from smallest to biggest!',
   critterPath: 'Help me find the safe trail!',
+  quietCount: 'Help me count three little berries!',
+  pictureRhyme: 'Help me find the picture rhyme for bee!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

@@ -359,6 +359,32 @@ function CountingPuzzle({ count, onComplete }: { count: number; onComplete: () =
   );
 }
 
+// ── Quiet Counting Rescue ───────────────────────
+function QuietCountPuzzle({ onComplete }: { onComplete: () => void }) {
+  const baskets = [{ id: 'two', berries: 2 }, { id: 'three', berries: 3 }, { id: 'four', berries: 4 }];
+  const [message, setMessage] = useState('Count the berries slowly. Which basket has three?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (id: string) => {
+    if (chosen) return;
+    if (id === 'three') { setChosen(id); setMessage('Three berries! Daisy can have a cozy snack.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That basket has a different number. Let’s count together, slowly.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-2xl bg-white/10 px-4 py-2 text-center"><p className="font-body text-xs text-white/90">🍓 Find the basket with <strong>three</strong> berries</p></div><div className="grid w-full max-w-md grid-cols-3 gap-3">{baskets.map((basket) => <button key={basket.id} onClick={() => choose(basket.id)} disabled={Boolean(chosen)} aria-label={`Choose the basket with ${basket.berries} berries`} className={`min-h-[150px] rounded-3xl border-2 p-3 text-center shadow-lg transition-transform active:scale-95 ${chosen === basket.id ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="grid grid-cols-2 justify-items-center gap-1 text-4xl">{Array.from({ length: basket.berries }, (_, index) => <span key={index}>🍓</span>)}</span><span className="mt-3 block font-display text-lg text-[#5C4D3C]">{Array.from({ length: basket.berries }, () => '●').join(' ')}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
+// ── Picture-Rhyme Rescue ─────────────────────────
+function PictureRhymePuzzle({ onComplete }: { onComplete: () => void }) {
+  const choices = [{ emoji: '🌳', label: 'tree', correct: true }, { emoji: '🐟', label: 'fish', correct: false }, { emoji: '🌸', label: 'flower', correct: false }];
+  const [message, setMessage] = useState('Listen for “bee.” Which picture sounds like bee?');
+  const [chosen, setChosen] = useState<string | null>(null);
+  const choose = (choice: typeof choices[number]) => {
+    if (chosen) return;
+    if (choice.correct) { setChosen(choice.label); setMessage('Bee and tree! Those words sound alike. Finn found the safe tree.'); playMatch(); setTimeout(onComplete, 650); }
+    else { setMessage('That picture makes a different sound. Let’s listen for bee one more time.'); playChime(); }
+  };
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🐝</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Bee</p></div><p className="font-body text-sm text-white/90">Which picture rhymes with bee?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -744,6 +770,8 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'maze':          return <MazePuzzle difficulty={difficulty} onComplete={handlePuzzleComplete} />;
       case 'gather':        return <GatherPuzzle targetCount={objectCount} difficulty={difficulty} onComplete={handlePuzzleComplete} />;
       case 'counting':      return <CountingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
+      case 'quietCount':    return <QuietCountPuzzle onComplete={handlePuzzleComplete} />;
+      case 'pictureRhyme':  return <PictureRhymePuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

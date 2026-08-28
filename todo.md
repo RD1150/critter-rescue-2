@@ -188,3 +188,18 @@
 - [x] Add gentle seasonal Storybook pages that respond to the selected camp theme and can be revisited without time limits.
 - [x] Test and visually verify celebration variations, bedtime-reminder controls, seasonal story content, and Reduce Motion behavior.
 - [x] Save a deployable checkpoint and push the verified celebrations, bedtime-reminder, and seasonal-Storybook expansion to GitHub.
+
+## Quiet Learning, Playtime Preference, and Friendship Duos
+
+- [x] Add quiet counting and rhyming rescue activities with large visual prompts, optional directions, and no failure state.
+- [x] Add a parent-controlled playtime-duration preference that offers a gentle, non-blocking rest suggestion after a chosen session length.
+- [x] Add cooperative critter friendship duos with shared two-step care moments that celebrate empathy rather than points.
+- [x] Surface learning and friendship accomplishments in the parent summary without scores, streaks, or comparisons.
+- [x] Test and visually verify learning rescues, playtime preferences, duo care, parent summary, and Reduce Motion behavior.
+- [x] Correct the Nutty-and-Pip Friendship Duo spoken direction to match its visible leaf-and-berry care steps.
+- [x] Restore normal resumable behavior after regenerating the corrected Friendship Duo audio clip.
+- [x] Prevent optional playtime and bedtime cards from appearing together in the child-facing camp HUD.
+- [x] Add duo-specific spoken directions and captions so every friendship pair’s instruction matches its visible care steps.
+- [x] Verify quiet counting, friendship-duo, and playtime-suggestion experiences with Reduce Motion enabled.
+- [x] Verify picture-rhyme rescue prompts, optional direction, and calm completion with Reduce Motion enabled.
+- [ ] Save a deployable checkpoint and push the verified quiet-learning, playtime, and friendship-duo expansion to GitHub.

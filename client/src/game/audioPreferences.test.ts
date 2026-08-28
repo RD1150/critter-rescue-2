@@ -24,8 +24,8 @@ describe('audio preferences', () => {
     expect(getAudioPreferences()).toEqual(DEFAULT_PREFERENCES);
   });
 
-  it('persists spoken-direction, seasonal soundscape, theme, and bedtime-reminder preferences with the other audio settings', () => {
-    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, soundscapeEnabled: true, soundscapeVolume: 0.18, campTheme: 'winter' as const, bedtimeReminderEnabled: true, largeIconMode: true, reduceMotion: true };
+  it('persists spoken-direction, seasonal soundscape, theme, bedtime-reminder, and gentle playtime preferences with the other audio settings', () => {
+    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, soundscapeEnabled: true, soundscapeVolume: 0.18, campTheme: 'winter' as const, bedtimeReminderEnabled: true, playtimeDurationMinutes: 20 as const, largeIconMode: true, reduceMotion: true };
     saveAudioPreferences(next);
     expect(getAudioPreferences()).toEqual(next);
   });
