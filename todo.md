@@ -217,4 +217,4 @@
 - [x] Select Counting, Rhymes, and Nature in actual Parent Settings and verify each saved preference surfaces its matching child-facing Focus action.
 - [x] Add a saved-preference helper test for parent learning-focus route resolution.
 - [x] Add a CampScreen component test showing a saved learning theme renders the matching Focus action and invokes its matching launch callback without a preview override.
-- [ ] Save a deployable checkpoint and push the verified phonics, nature-journal, and learning-theme expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified phonics, nature-journal, and learning-theme expansion to GitHub.
