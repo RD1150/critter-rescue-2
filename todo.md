@@ -240,4 +240,4 @@
 - [x] Add gentle weather-based sanctuary interactions that invite short child-led actions without timers or penalties.
 - [x] Persist syllable and weather discoveries locally and surface them in the parent summary without scores or comparisons.
 - [x] Test and visually verify syllable play, weather interactions, optional directions, and Reduce Motion behavior.
-- [ ] Save a deployable checkpoint and push the verified syllable and weather-sanctuary expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified syllable and weather-sanctuary expansion to GitHub.
