@@ -202,4 +202,4 @@
 - [x] Add duo-specific spoken directions and captions so every friendship pair’s instruction matches its visible care steps.
 - [x] Verify quiet counting, friendship-duo, and playtime-suggestion experiences with Reduce Motion enabled.
 - [x] Verify picture-rhyme rescue prompts, optional direction, and calm completion with Reduce Motion enabled.
-- [ ] Save a deployable checkpoint and push the verified quiet-learning, playtime, and friendship-duo expansion to GitHub.
+- [x] Save a deployable checkpoint and push the verified quiet-learning, playtime, and friendship-duo expansion to GitHub.
