@@ -317,4 +317,4 @@
 - [x] Add a parent-only beta feedback modal that validates and securely submits bug reports or suggestions without collecting child information.
 - [x] Increase touch-target clarity and responsive spacing for iPad and mobile Safari, especially in child navigation and rescue controls.
 - [x] Add regression coverage and visually verify the holiday edition, beta feedback flow, and iPad/mobile Safari layouts.
-- [ ] Save a deployable checkpoint and push the verified holiday, feedback, and mobile update to GitHub.
+- [x] Save a deployable checkpoint and push the verified holiday, feedback, and mobile update to GitHub.
