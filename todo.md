@@ -290,4 +290,4 @@
 - [x] Add a concise, clearly parent-facing first-play tip that supports co-play without exposing adult guidance in child flow.
 - [x] Create and integrate warm, storybook loading artwork that preserves the plush sanctuary aesthetic and Reduce Motion support.
 - [x] Test and visually verify the zone selector, parent tip, and loading state across laptop, tablet, and mobile screens.
-- [ ] Save a deployable checkpoint and push the verified navigation and loading-art update to GitHub.
+- [x] Save a deployable checkpoint and push the verified navigation and loading-art update to GitHub.
