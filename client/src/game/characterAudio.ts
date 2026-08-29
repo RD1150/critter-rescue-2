@@ -180,15 +180,24 @@ export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): voi
   void activeAudio.play().catch(() => {});
 }
 
-export function playPreReaderDirection(key: PreReaderDirectionKey): void {
-  if (typeof Audio === 'undefined') return;
-  if (!getAudioPreferences().spokenDirectionsEnabled) return;
+export async function playPreReaderDirection(key: PreReaderDirectionKey): Promise<boolean> {
+  if (typeof Audio === 'undefined') return false;
+  if (!getAudioPreferences().spokenDirectionsEnabled) return false;
   const source = PRE_READER_AUDIO[key];
-  if (!source) return;
+  if (!source) return false;
   if (activeAudio) activeAudio.pause();
-  activeAudio = new Audio(source);
-  activeAudio.volume = getAudioPreferences().voiceVolume;
-  void activeAudio.play().catch(() => {});
+  const audio = new Audio(source);
+  audio.preload = 'auto';
+  audio.volume = getAudioPreferences().voiceVolume;
+  audio.currentTime = 0;
+  activeAudio = audio;
+  try {
+    await audio.play();
+    return true;
+  } catch {
+    if (activeAudio === audio) activeAudio = null;
+    return false;
+  }
 }
 
 function playSource(source: string): Promise<void> {

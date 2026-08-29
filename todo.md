@@ -291,3 +291,9 @@
 - [x] Create and integrate warm, storybook loading artwork that preserves the plush sanctuary aesthetic and Reduce Motion support.
 - [x] Test and visually verify the zone selector, parent tip, and loading state across laptop, tablet, and mobile screens.
 - [x] Save a deployable checkpoint and push the verified navigation and loading-art update to GitHub.
+
+## Nutty Spoken-Direction Playback Fix
+
+- [x] Diagnose and repair the reported issue where tapping Hear Nutty or Listen does not play the optional Nutty direction.
+- [x] Add regression coverage and directly verify an optional Nutty direction plays only after a child tap.
+- [ ] Save a deployable checkpoint and push the verified audio-control fix to GitHub.
