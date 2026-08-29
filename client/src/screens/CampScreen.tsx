@@ -39,6 +39,7 @@ interface Props {
   onOpenNatureJournal: () => void;
   onOpenWeatherWonder: () => void;
   celebrationPath: CelebrationPath | null;
+  holidayEditionEnabled?: boolean;
   onOpenCelebrationPath: () => void;
   onOpenTeamRescue: () => void;
   learningTheme: LearningTheme;
@@ -81,6 +82,7 @@ export default function CampScreen({
   onOpenNatureJournal,
   onOpenWeatherWonder,
   celebrationPath,
+  holidayEditionEnabled = false,
   onOpenCelebrationPath,
   onOpenTeamRescue,
   learningTheme,
@@ -231,31 +233,31 @@ export default function CampScreen({
       {import.meta.env.DEV && Object.keys(renderedDecorations).length > 0 && <output data-testid="rendered-home-decoration-status" className="absolute z-20 left-3 bottom-[94px] max-w-[68vw] rounded-lg bg-[#FFF9EF]/90 px-2 py-1 font-body text-[9px] text-[#49392C] shadow-sm">3D home accents: {Object.entries(renderedDecorations).map(([name, status]) => `${name}=${status.decoration} (${status.meshIds.join(', ')})`).join(' · ')}</output>}
 
       {/* Top field-journal HUD */}
-      <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">
+      <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pointer-events-none">
         <div className="pointer-events-auto flex items-center gap-1.5 rounded-2xl px-3 py-2 sm:gap-2"
           style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.2)', borderTop: '2.5px solid #E66B5B' }}>
           {logoFailed ? <div role="img" aria-label="Critter Rescue" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#D8B867] bg-[#F7EBD8] font-display text-xs font-bold text-[#5D3D2A]">CR</div> : <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0 object-contain" onError={() => setLogoFailed(true)} />}
           <div className="min-w-0 flex-1">
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#49392C] text-[10px] mt-0.5"><span className="sm:hidden">{themeNote.icon} Cozy camp</span><span className="hidden sm:inline">{themeNote.icon} {themeNote.campLine}</span></p>
+            <p className="font-body text-[#49392C] text-[10px] mt-0.5"><span className="sm:hidden">{holidayEditionEnabled ? '✨ Cozy celebration' : `${themeNote.icon} Cozy camp`}</span><span className="hidden sm:inline">{holidayEditionEnabled ? '✨ A cozy celebration trail is ready.' : `${themeNote.icon} ${themeNote.campLine}`}</span></p>
           </div>
           <div className="flex flex-col items-center px-1">
             <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
             <span className="font-body text-[8px] text-[#49392C] uppercase tracking-wide">saved</span>
           </div>
-          <button onClick={() => { playButton(); onOpenJournal(); }} className="shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal" title="Critter Journal">
+          <button onClick={() => { playButton(); onOpenJournal(); }} className="min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal" title="Critter Journal">
             <BookOpen size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery" title="Critter Nursery">
+          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery" title="Critter Nursery">
             <Home size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings" title="Parent Settings">
+          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings" title="Parent Settings">
             <Settings size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game" title="Learning Play">
+          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game" title="Learning Play">
             <Palette size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook" title="Critter Storybook">
+          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook" title="Critter Storybook">
             <Sparkles size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </div>

@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { submitBetaFeedback, validateBetaFeedback } from "./server/betaFeedback";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -203,10 +204,59 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+function vitePluginBetaFeedback(): Plugin {
+  return {
+    name: "critter-rescue-beta-feedback",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith("/api/beta-feedback") || req.method !== "POST") return next();
+        const respond = (payload: unknown) => {
+          void (async () => {
+            try {
+              const validated = validateBetaFeedback(payload);
+              if (!validated.feedback) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ ok: false, message: validated.error }));
+                return;
+              }
+              await submitBetaFeedback(validated.feedback);
+              res.writeHead(201, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ ok: true }));
+            } catch (error) {
+              console.error("[Beta feedback] development submission failed", error);
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ ok: false, message: "Feedback is resting for a moment. Please try again soon." }));
+            }
+          })();
+        };
+
+        const parsedBody = (req as { body?: unknown }).body;
+        if (parsedBody && typeof parsedBody === "object") {
+          respond(parsedBody);
+          return;
+        }
+        let rawBody = "";
+        req.on("data", (chunk) => { rawBody += String(chunk); });
+        req.on("end", () => {
+          try { respond(JSON.parse(rawBody || "{}")); }
+          catch { respond({}); }
+        });
+        if (req.readableEnded) respond({});
+      });
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginBetaFeedback(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
 export default defineConfig({
   plugins,
+  test: {
+    include: [
+      path.resolve(import.meta.dirname, "client/src/**/*.test.{ts,tsx}"),
+      path.resolve(import.meta.dirname, "server/**/*.test.ts"),
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),

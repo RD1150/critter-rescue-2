@@ -310,3 +310,11 @@
 
 - [x] Assess the current game against product, technical, privacy, store-listing, accessibility, and device-testing launch gates.
 - [x] Document a prioritized controlled-launch checklist and a clear market-readiness recommendation.
+
+## Holiday Edition, Parent Beta Feedback, and Safari Touch Refinement
+
+- [x] Create a parent-selectable Holiday Edition that respectfully combines the existing celebration paths without changing child-facing calm-play rules.
+- [x] Add a parent-only beta feedback modal that validates and securely submits bug reports or suggestions without collecting child information.
+- [x] Increase touch-target clarity and responsive spacing for iPad and mobile Safari, especially in child navigation and rescue controls.
+- [x] Add regression coverage and visually verify the holiday edition, beta feedback flow, and iPad/mobile Safari layouts.
+- [ ] Save a deployable checkpoint and push the verified holiday, feedback, and mobile update to GitHub.

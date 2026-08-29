@@ -91,6 +91,8 @@
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
@@ -119,9 +121,27 @@
   .game-screen {
     position: fixed;
     inset: 0;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+  }
+  .game-screen button,
+  .game-screen [role="button"] {
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .game-screen input,
+  .game-screen select,
+  .game-screen textarea {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @supports (-webkit-touch-callout: none) {
+    .game-screen { height: -webkit-fill-available; min-height: -webkit-fill-available; }
   }
   .paper-card {
     background: oklch(0.98 0.015 75);

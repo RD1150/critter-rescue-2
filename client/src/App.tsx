@@ -478,6 +478,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               onOpenNatureJournal={handleOpenNatureJournal}
               onOpenWeatherWonder={handleOpenWeatherWonder}
               celebrationPath={activeCelebrationPath}
+              holidayEditionEnabled={audioPreferences.holidayEditionEnabled}
               onOpenCelebrationPath={handleOpenCelebrationPath}
               onOpenTeamRescue={handleOpenTeamRescue}
               learningTheme={activeLearningTheme}
