@@ -101,7 +101,7 @@ export default function CampScreen({
   onAcknowledgeGraduate,
   reduceMotion,
 }: Props) {
-  const [showZoneSelect, setShowZoneSelect] = useState(false);
+  const [showZoneSelect, setShowZoneSelect] = useState(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('preview') === 'zoneselector');
   const [showMobilePlayMenu, setShowMobilePlayMenu] = useState(false);
   const [dialogue, setDialogue] = useState<string | null>(null);
   const [friendNote, setFriendNote] = useState<CritterData | null>(null);
@@ -119,6 +119,7 @@ export default function CampScreen({
   const totalTasks = ZONES.reduce((sum, zone) => sum + zone.totalTasks, 0);
   const completedTasks = Object.values(zoneTaskProgress).reduce((sum, value) => sum + value, 0);
   const allComplete = completedTasks >= totalTasks;
+  const nextTrailZone = ZONES.find((zone) => unlockedZones.includes(zone.id) && (zoneTaskProgress[zone.id] ?? 0) < zone.totalTasks) ?? null;
   const dailyCompleted = dailyTrail.completedKeys.length;
   const dailyDone = dailyTrail.rewardEarned;
   const sanctuaryGrowth = getSanctuaryGrowth(kindnessMoments);
@@ -469,42 +470,43 @@ export default function CampScreen({
 
       {/* Zone selector remains a tangible journal drawer layered over the 3D world. */}
       {showZoneSelect && (
-        <div className="absolute inset-0 z-50 flex flex-col justify-end bg-black/35" onClick={() => setShowZoneSelect(false)}>
-          <div className="rounded-t-3xl px-4 pt-3 pb-6 max-h-[70vh] overflow-y-auto"
+        <div className="absolute inset-0 z-50 flex flex-col justify-end bg-[#082419]/70 px-2 backdrop-blur-sm sm:px-4" onClick={() => setShowZoneSelect(false)}>
+          <div role="dialog" aria-modal="true" aria-labelledby="trail-picker-title" aria-describedby="trail-picker-help" className="max-h-[76vh] overflow-y-auto rounded-t-3xl px-4 pb-6 pt-3"
             style={{ background: 'linear-gradient(180deg, #3F2B1B 0%, #2B1D12 100%)', borderTop: '3px solid #E66B5B' }}
             onClick={(event) => event.stopPropagation()}>
             <div className="w-10 h-1 rounded-full bg-white/30 mx-auto mb-2" />
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-base">🧭</span>
-              <h2 className="font-display text-xl font-bold text-white">Choose a rescue trail</h2>
+            <div className="flex items-center justify-center gap-2">
+              <MapPinned size={20} className="text-[#F5C842]" aria-hidden="true" />
+              <h2 id="trail-picker-title" className="font-display text-xl font-bold text-white">Pick a rescue trail</h2>
             </div>
-            <p className="font-body text-white/55 text-xs text-center mb-3">Every glowing path leads to a friend in need.</p>
+            <p id="trail-picker-help" className="mb-3 mt-1 font-body text-center text-xs text-white/80">Start with the card that says <strong className="text-[#FFF1BE]">Ready now</strong>.</p>
             <div className="flex flex-col gap-2.5">
               {ZONES.map((zone) => {
                 const unlocked = unlockedZones.includes(zone.id);
                 const completed = zoneTaskProgress[zone.id] ?? 0;
                 const done = completed >= zone.totalTasks;
+                const isNextTrail = zone.id === nextTrailZone?.id;
+                const status = !unlocked ? 'Not ready yet' : done ? 'All friends safe' : isNextTrail ? 'Ready now' : 'Ready to explore';
+                const guidance = !unlocked ? 'Keep helping friends to open this trail.' : done ? 'Every friend is safe here.' : isNextTrail ? 'A little friend is waiting here.' : 'You can visit this trail next.';
                 return (
                   <button
                     key={zone.id}
                     disabled={!unlocked || done}
                     onClick={() => { playButton(); setShowZoneSelect(false); setTimeout(() => onStartRescue(zone.id), 180); }}
-                    className={`rounded-2xl overflow-hidden text-left transition-transform active:scale-[0.98] ${!unlocked || done ? 'opacity-55' : 'hover:scale-[1.01]'}`}
-                    style={{ background: `linear-gradient(135deg, ${zone.bgColors[0]}, ${zone.bgColors[2]})`, border: '1px solid rgba(255,255,255,.15)' }}>
+                    aria-label={`${zone.name}: ${status}. ${guidance}`}
+                    className={`rounded-2xl overflow-hidden text-left transition-transform active:scale-[0.98] ${!unlocked || done ? 'opacity-55' : 'hover:scale-[1.01]'} ${isNextTrail ? 'ring-2 ring-[#F5C842] ring-offset-2 ring-offset-[#3F2B1B]' : ''}`}
+                    style={{ background: `linear-gradient(135deg, ${zone.bgColors[0]}, ${zone.bgColors[2]})`, border: '1px solid rgba(255,255,255,.2)' }}>
                     <div className="px-4 py-3 flex items-center gap-3">
                       <span className="text-3xl">{zone.emoji}</span>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between gap-2">
                           <span className="font-display font-bold text-white text-base">{zone.name}</span>
-                          {!unlocked && <span className="text-sm">🔒</span>}
-                          {done && <span className="text-sm">💚</span>}
+                          <span className={`rounded-full px-2 py-0.5 font-body text-[10px] font-bold ${isNextTrail ? 'bg-[#FFF1BE] text-[#5D3D2A]' : 'bg-black/20 text-white'}`}>{status}</span>
                         </div>
-                        <p className="text-white/70 text-xs font-body mt-0.5">
-                          {!unlocked ? `Unlocks at ${zone.unlockHarmony} harmony` : done ? 'Every friend is safe here!' : `${zone.totalTasks - completed} friends need help`}
-                        </p>
+                        <p className="mt-0.5 font-body text-xs text-white/90">{guidance}</p>
                         {unlocked && <div className="flex gap-1 mt-1.5">
                           {Array.from({ length: zone.totalTasks }).map((_, index) => (
-                            <div key={index} className={`w-2 h-2 rounded-full ${index < completed ? 'bg-[#F5C842]' : index === completed && !done ? 'bg-white/70 ring-1 ring-[#F5C842]' : 'bg-white/20'}`} />
+                            <div key={index} aria-hidden="true" className={`h-2 w-2 rounded-full ${index < completed ? 'bg-[#F5C842]' : index === completed && !done ? 'bg-white ring-1 ring-[#F5C842]' : 'bg-white/30'}`} />
                           ))}
                         </div>}
                       </div>
@@ -513,7 +515,7 @@ export default function CampScreen({
                 );
               })}
             </div>
-            <button onClick={() => setShowZoneSelect(false)} className="mt-4 w-full text-white/55 text-sm font-body py-2">Close journal</button>
+            <button onClick={() => setShowZoneSelect(false)} className="mt-4 w-full rounded-xl border border-white/35 bg-white/10 py-2.5 font-body text-sm font-bold text-white active:scale-95">Back to camp</button>
           </div>
         </div>
       )}

@@ -65,18 +65,20 @@ type Scene =
   | 'teamRescue'
   | 'learning';
 
-function LoadingScreen({ online }: { online: boolean }) {
+function LoadingScreen({ online, reduceMotion }: { online: boolean; reduceMotion: boolean }) {
   return (
     <div className="game-screen forest-bg relative flex flex-col items-center justify-center gap-4 overflow-hidden px-6 text-center">
-      <div className="absolute -left-12 top-20 h-40 w-40 rounded-full bg-[#F5C842]/10 blur-2xl" />
-      <div className="absolute -right-12 bottom-16 h-44 w-44 rounded-full bg-[#E66B5B]/15 blur-2xl" />
+      <img src="/manus-storage/critter-rescue-loading-storybook_c4113735.png" alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-80" />
+      <div className="absolute inset-0 bg-[#103B2A]/40" />
+      <div className="absolute -left-12 top-20 h-40 w-40 rounded-full bg-[#F5C842]/20 blur-2xl" />
+      <div className="absolute -right-12 bottom-16 h-44 w-44 rounded-full bg-[#E66B5B]/20 blur-2xl" />
       <img
         src="/manus-storage/game-logo_a4abbdba.png"
         alt="Critter Rescue"
-        className="relative w-20 h-20 animate-float drop-shadow-xl"
+        className={`relative h-20 w-20 drop-shadow-xl ${reduceMotion ? '' : 'motion-safe:animate-float'}`}
       />
       <h1 className="relative font-display text-3xl font-bold text-white drop-shadow-lg">Critter Rescue</h1>
-      <div className="relative rounded-2xl px-5 py-4" style={{ background: 'rgba(250,245,232,.12)', border: '1px solid rgba(255,255,255,.18)' }}><p className="font-display text-white text-base">{online ? 'Waking up a cozy forest…' : 'Your saved camp is ready offline.'}</p><p className="font-body text-white/70 text-xs mt-1">{online ? 'We are keeping your little place in the woods safe.' : 'Reconnect whenever you like for the newest updates.'}</p><div className="mt-3 flex justify-center gap-2"><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" /><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" style={{ animationDelay: '120ms' }} /><span className="h-2 w-2 rounded-full bg-[#F5C842] animate-pulse" style={{ animationDelay: '240ms' }} /></div></div>
+      <div className="relative max-w-sm rounded-2xl px-5 py-4 shadow-xl" style={{ background: 'rgba(22,59,42,.72)', border: '1px solid rgba(255,245,220,.36)' }}><p className="font-display text-base text-white">{online ? 'Waking up a cozy forest…' : 'Your saved camp is ready offline.'}</p><p className="mt-1 font-body text-xs text-[#FFF5DC]/90">{online ? 'We are keeping your little place in the woods safe.' : 'Reconnect whenever you like for the newest updates.'}</p><div className="mt-3 flex justify-center gap-2" aria-label="Loading"><span className={`h-2 w-2 rounded-full bg-[#F5C842] ${reduceMotion ? '' : 'motion-safe:animate-pulse'}`} /><span className={`h-2 w-2 rounded-full bg-[#F5C842] ${reduceMotion ? '' : 'motion-safe:animate-pulse'}`} style={{ animationDelay: '120ms' }} /><span className={`h-2 w-2 rounded-full bg-[#F5C842] ${reduceMotion ? '' : 'motion-safe:animate-pulse'}`} style={{ animationDelay: '240ms' }} /></div></div>
     </div>
   );
 }
@@ -119,6 +121,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewJournal = previewMode === 'journal';
     const previewGraduate = previewMode === 'graduate';
     const previewFirstPlay = previewMode === 'firstplay';
+    const previewLoading = previewMode === 'loading';
+    const previewZoneSelector = previewMode === 'zoneselector';
     const previewRescue = previewMode === 'rescue';
     const previewRescue2 = previewMode === 'rescue2';
     const previewRescue3 = previewMode === 'rescue3';
@@ -149,7 +153,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -168,7 +172,11 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       setCareCelebration(getCareCelebration('Nutty', 'squirrel', previewCareMoment));
     }
     setTimeout(() => {
-      if (preview3d) {
+      if (previewLoading) {
+        setScene('loading');
+      } else if (previewZoneSelector) {
+        setScene('camp');
+      } else if (preview3d) {
         setScene('camp');
       } else if (previewNursery) {
         setScene('nursery');
@@ -432,7 +440,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setState(acknowledgeDailyReward(state));
   }, [state]);
 
-  if (scene === 'loading' || !state) return <LoadingScreen online={online} />;
+  if (scene === 'loading' || !state) return <LoadingScreen online={online} reduceMotion={audioPreferences.reduceMotion} />;
 
   return (
     <ErrorBoundary>

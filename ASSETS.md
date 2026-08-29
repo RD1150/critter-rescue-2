@@ -76,3 +76,11 @@ The ritual soundscape is designed for low-volume, adult-enabled listening only. 
 | Lights & kindness trail | Owl-led, Hanukkah-inspired lights activity represented respectfully without naming it in child-facing copy | `/manus-storage/critter-rescue-appstore-lights-kindness_878d46d7.png` |
 
 These five 9:16 promotional images are designed as standalone App Store media. Their screens represent the implemented game features and exclude prices, sales prompts, scores, countdowns, social content, or child-directed commerce. Lightweight review confirmed the corrected Calm Ritual image reflects the single implemented sound choice and explicit grown-up start control; the Pumpkin & lantern image clearly presents Ember, the single large action, and its gentle two-step interaction; the Harvest & kindness image stays with Nutty, an apple, and a basket; the Lights & kindness image retains Sage, an accurate menorah motif, and neutral child-facing copy; and the Winter sparkle image stays with Clover, a warm lantern, and its calm one-action prompt.
+
+## Storybook loading artwork
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Lantern woodland loading scene | Wordless, warm-paper loading backdrop with a plush fox, gentle lantern, and a deliberately clear center for the loading message. | `/manus-storage/critter-rescue-loading-storybook_c4113735.png` |
+
+The artwork is decorative only and keeps the existing loading copy high contrast. Its motion is optional and respects system Reduced Motion preferences.

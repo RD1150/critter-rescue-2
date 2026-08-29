@@ -283,3 +283,11 @@
 - [x] Add accessible labels or tooltips to header icon navigation and preserve a calm one-primary-action hierarchy.
 - [x] Refine the modal and header across laptop, tablet, and mobile viewports, then add regression coverage and verify the full interface.
 - [x] Save a deployable checkpoint and push the verified sanctuary UI update to GitHub.
+
+## Child-Friendly Trail Choice, Parent Tip, and Storybook Loading Art
+
+- [x] Simplify the rescue-zone selector so children can identify their next available trail and understand locked paths at a glance.
+- [x] Add a concise, clearly parent-facing first-play tip that supports co-play without exposing adult guidance in child flow.
+- [x] Create and integrate warm, storybook loading artwork that preserves the plush sanctuary aesthetic and Reduce Motion support.
+- [x] Test and visually verify the zone selector, parent tip, and loading state across laptop, tablet, and mobile screens.
+- [ ] Save a deployable checkpoint and push the verified navigation and loading-art update to GitHub.
