@@ -304,4 +304,4 @@
 - [x] Add a gentle, Reduce Motion-safe speaking indicator to the direction character while optional audio plays.
 - [x] Add a short comfort-volume check before the first optional direction begins, without blocking captions or visual play.
 - [x] Add regression coverage and verify replay, comfort check, and speaking feedback across responsive child flows.
-- [ ] Save a deployable checkpoint and push the verified audio-experience update to GitHub.
+- [x] Save a deployable checkpoint and push the verified audio-experience update to GitHub.
