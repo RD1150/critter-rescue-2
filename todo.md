@@ -296,4 +296,4 @@
 
 - [x] Diagnose and repair the reported issue where tapping Hear Nutty or Listen does not play the optional Nutty direction.
 - [x] Add regression coverage and directly verify an optional Nutty direction plays only after a child tap.
-- [ ] Save a deployable checkpoint and push the verified audio-control fix to GitHub.
+- [x] Save a deployable checkpoint and push the verified audio-control fix to GitHub.
