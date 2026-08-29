@@ -318,3 +318,9 @@
 - [x] Increase touch-target clarity and responsive spacing for iPad and mobile Safari, especially in child navigation and rescue controls.
 - [x] Add regression coverage and visually verify the holiday edition, beta feedback flow, and iPad/mobile Safari layouts.
 - [x] Save a deployable checkpoint and push the verified holiday, feedback, and mobile update to GitHub.
+
+## Subscriber Scale and Potential Acquisition Value
+
+- [x] Research relevant small-app buyer criteria and current valuation benchmarks for a recurring-revenue scenario.
+- [x] Model transparent subscriber, revenue, retention, and valuation scenarios for Critter Rescue with stated assumptions.
+- [x] Document a cautious subscriber-scale recommendation and the evidence a buyer would need before assigning a higher value.
