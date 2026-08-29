@@ -305,3 +305,8 @@
 - [x] Add a short comfort-volume check before the first optional direction begins, without blocking captions or visual play.
 - [x] Add regression coverage and verify replay, comfort check, and speaking feedback across responsive child flows.
 - [x] Save a deployable checkpoint and push the verified audio-experience update to GitHub.
+
+## Market-Readiness Assessment
+
+- [x] Assess the current game against product, technical, privacy, store-listing, accessibility, and device-testing launch gates.
+- [x] Document a prioritized controlled-launch checklist and a clear market-readiness recommendation.
