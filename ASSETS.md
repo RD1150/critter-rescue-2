@@ -64,3 +64,15 @@ This reference guides the new learning and weather moments toward safe, child-le
 | Seasonal celebration-path visual reference | Art direction for four independently selected, respectful seasonal paths | Friendly pumpkin and lantern, harvest-and-kindness, winter sparkle, and distinct blue-and-gold Hanukkah-inspired lights motifs in the existing soft plush diorama style; no text, people, stereotypes, or commercial imagery. | `/manus-storage/seasonal-celebration-path-reference_0ffd38be.png` |
 
 The ritual soundscape is designed for low-volume, adult-enabled listening only. The visual reference informs child-facing motifs, while holiday names and selection remain in the parent setting.
+
+## App Store seasonal and calm-play screenshot set
+
+| Asset | App Store focus | Project storage URL |
+|---|---|---|
+| Calm ritual | Parent-controlled shared sound ritual, low-volume playback, and no-autoplay positioning | `/manus-storage/critter-rescue-appstore-calm-ritual-final_cdf57a8d.png` |
+| Pumpkin & lantern trail | Autumnal fox-led two-step visual trail | `/manus-storage/critter-rescue-appstore-pumpkin-lantern_b7105078.png` |
+| Harvest & kindness trail | Cozy squirrel-led apple-and-basket trail with no cultural stereotypes | `/manus-storage/critter-rescue-appstore-harvest-kindness_8d74bc95.png` |
+| Winter sparkle trail | Bunny-led winter lights activity, independent of holiday naming | `/manus-storage/critter-rescue-appstore-winter-sparkle_098eed4d.png` |
+| Lights & kindness trail | Owl-led, Hanukkah-inspired lights activity represented respectfully without naming it in child-facing copy | `/manus-storage/critter-rescue-appstore-lights-kindness_878d46d7.png` |
+
+These five 9:16 promotional images are designed as standalone App Store media. Their screens represent the implemented game features and exclude prices, sales prompts, scores, countdowns, social content, or child-directed commerce. Lightweight review confirmed the corrected Calm Ritual image reflects the single implemented sound choice and explicit grown-up start control; the Pumpkin & lantern image clearly presents Ember, the single large action, and its gentle two-step interaction; the Harvest & kindness image stays with Nutty, an apple, and a basket; the Lights & kindness image retains Sage, an accurate menorah motif, and neutral child-facing copy; and the Winter sparkle image stays with Clover, a warm lantern, and its calm one-action prompt.

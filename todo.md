@@ -269,3 +269,8 @@
 - [x] Research and define respectful, non-labeled visual motifs for pumpkin-and-lantern, harvest-and-gratitude, winter-lights, and Hanukkah-inspired lights-and-kindness paths.
 - [x] Create parent-selectable, timer-free celebration paths that keep holiday naming and controls parent-facing while giving children calm visual cues.
 - [x] Test each seasonal path for clarity, accessibility, and Reduce Motion compatibility.
+
+## App Store Seasonal and Calm-Play Screenshot Set
+
+- [x] Create a set of portrait App Store screenshots that accurately feature the calming ritual controls and each seasonal visual path.
+- [x] Verify the screenshots for readable parent-facing copy, accurate in-game representation, and a cohesive Critter Rescue visual identity.
