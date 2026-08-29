@@ -324,3 +324,8 @@
 - [x] Research relevant small-app buyer criteria and current valuation benchmarks for a recurring-revenue scenario.
 - [x] Model transparent subscriber, revenue, retention, and valuation scenarios for Critter Rescue with stated assumptions.
 - [x] Document a cautious subscriber-scale recommendation and the evidence a buyer would need before assigning a higher value.
+
+## Parent Subscription Price Validation
+
+- [x] Research current parent-facing educational-app pricing signals relevant to a $4.99 monthly subscription hypothesis.
+- [x] Document a low-risk pricing test with parent-safe decision thresholds, without adding child-directed sales mechanics.
