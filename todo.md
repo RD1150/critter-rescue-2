@@ -282,4 +282,4 @@
 - [x] Increase overlay dimming, improve text contrast, and standardize icons without changing the warm storybook palette or game logic.
 - [x] Add accessible labels or tooltips to header icon navigation and preserve a calm one-primary-action hierarchy.
 - [x] Refine the modal and header across laptop, tablet, and mobile viewports, then add regression coverage and verify the full interface.
-- [ ] Save a deployable checkpoint and push the verified sanctuary UI update to GitHub.
+- [x] Save a deployable checkpoint and push the verified sanctuary UI update to GitHub.
