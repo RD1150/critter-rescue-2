@@ -180,13 +180,27 @@ export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): voi
   void activeAudio.play().catch(() => {});
 }
 
-export async function playPreReaderDirection(key: PreReaderDirectionKey): Promise<boolean> {
+export type PreReaderPlaybackCallbacks = { onEnded?: () => void; onUnavailable?: () => void };
+
+export async function playPreReaderDirection(key: PreReaderDirectionKey, callbacks: PreReaderPlaybackCallbacks = {}): Promise<boolean> {
   if (typeof Audio === 'undefined') return false;
   if (!getAudioPreferences().spokenDirectionsEnabled) return false;
   const source = PRE_READER_AUDIO[key];
   if (!source) return false;
   if (activeAudio) activeAudio.pause();
   const audio = new Audio(source);
+  let playbackUnavailable = false;
+  const reportUnavailable = () => {
+    if (playbackUnavailable) return;
+    playbackUnavailable = true;
+    if (activeAudio === audio) activeAudio = null;
+    callbacks.onUnavailable?.();
+  };
+  audio.addEventListener('ended', () => {
+    if (activeAudio === audio) activeAudio = null;
+    callbacks.onEnded?.();
+  }, { once: true });
+  audio.addEventListener('error', reportUnavailable, { once: true });
   audio.preload = 'auto';
   audio.volume = getAudioPreferences().voiceVolume;
   audio.currentTime = 0;
@@ -195,7 +209,7 @@ export async function playPreReaderDirection(key: PreReaderDirectionKey): Promis
     await audio.play();
     return true;
   } catch {
-    if (activeAudio === audio) activeAudio = null;
+    reportUnavailable();
     return false;
   }
 }

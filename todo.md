@@ -297,3 +297,11 @@
 - [x] Diagnose and repair the reported issue where tapping Hear Nutty or Listen does not play the optional Nutty direction.
 - [x] Add regression coverage and directly verify an optional Nutty direction plays only after a child tap.
 - [x] Save a deployable checkpoint and push the verified audio-control fix to GitHub.
+
+## Gentle Direction Replay and Comfort Feedback
+
+- [x] Add a replay button after an optional direction finishes, without introducing autoplay.
+- [x] Add a gentle, Reduce Motion-safe speaking indicator to the direction character while optional audio plays.
+- [x] Add a short comfort-volume check before the first optional direction begins, without blocking captions or visual play.
+- [x] Add regression coverage and verify replay, comfort check, and speaking feedback across responsive child flows.
+- [ ] Save a deployable checkpoint and push the verified audio-experience update to GitHub.

@@ -16,12 +16,14 @@ describe('pre-reader direction playback', () => {
   it('preloads and starts the Nutty onboarding clip after an explicit Listen request', async () => {
     const play = vi.fn().mockResolvedValue(undefined);
     const pause = vi.fn();
-    const AudioMock = vi.fn().mockImplementation(function (this: { preload: string; volume: number; currentTime: number; play: typeof play; pause: typeof pause }) {
+    const addEventListener = vi.fn();
+    const AudioMock = vi.fn().mockImplementation(function (this: { preload: string; volume: number; currentTime: number; play: typeof play; pause: typeof pause; addEventListener: typeof addEventListener }) {
       this.preload = '';
       this.volume = 1;
       this.currentTime = 2;
       this.play = play;
       this.pause = pause;
+      this.addEventListener = addEventListener;
     });
     Object.defineProperty(window, 'Audio', { configurable: true, value: AudioMock });
 

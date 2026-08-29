@@ -26,7 +26,7 @@ describe('audio preferences', () => {
   });
 
   it('persists spoken-direction, soundscape style, celebration path, camp and learning themes, bedtime-reminder, and gentle playtime preferences with the other audio settings', () => {
-    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, soundscapeEnabled: true, soundscapeVolume: 0.18, soundscapeStyle: 'ritual' as const, celebrationPath: 'lightsKindness' as const, campTheme: 'winter' as const, learningTheme: 'phonics' as const, bedtimeReminderEnabled: true, playtimeDurationMinutes: 20 as const, largeIconMode: true, reduceMotion: true };
+    const next = { voiceVolume: 0.4, captionsEnabled: false, spokenDirectionsEnabled: false, directionVolumeCheckComplete: true, soundscapeEnabled: true, soundscapeVolume: 0.18, soundscapeStyle: 'ritual' as const, celebrationPath: 'lightsKindness' as const, campTheme: 'winter' as const, learningTheme: 'phonics' as const, bedtimeReminderEnabled: true, playtimeDurationMinutes: 20 as const, largeIconMode: true, reduceMotion: true };
     saveAudioPreferences(next);
     expect(getAudioPreferences()).toEqual(next);
   });
