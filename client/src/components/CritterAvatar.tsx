@@ -2,7 +2,7 @@
 // CritterAvatar — renders a plush critter character
 // All 19 critter types with generated plush images
 // ─────────────────────────────────────────────
-import React from 'react';
+import React, { useState } from 'react';
 import { CritterType } from '../game/data';
 
 export type Expression = 'happy' | 'worried' | 'grateful' | 'scared' | 'excited' | 'neutral';
@@ -30,13 +30,6 @@ export const PLUSH_IMAGES: Record<CritterType, string> = {
   ladybug:  '/manus-storage/plush-ladybug_508df29a.png',
 };
 
-const CRITTER_EMOJI: Record<CritterType, string> = {
-  bunny: '🐰', fox: '🦊', owl: '🦉', squirrel: '🐿️', bird: '🐦',
-  ladybug: '🐛', frog: '🐸', otter: '🦦', turtle: '🐢', fish: '🐟',
-  duck: '🦆', hedgehog: '🦔', snail: '🐌', lizard: '🦎', bee: '🐝',
-  eagle: '🦅', goat: '🐐', beaver: '🦫', bear: '🐻',
-};
-
 // Expression modifiers via CSS filter
 const EXPRESSION_FILTER: Record<Expression, string> = {
   happy:    'none',
@@ -60,11 +53,11 @@ export default function CritterAvatar({
   type, size = 80, expression = 'happy', animate = false, className = '', style,
 }: Props) {
   const imgSrc = PLUSH_IMAGES[type];
-  const emoji = CRITTER_EMOJI[type] || '🐾';
+  const [imageFailed, setImageFailed] = useState(false);
   const filter = EXPRESSION_FILTER[expression];
   const animClass = animate ? 'animate-critter-hop' : '';
 
-  if (imgSrc) {
+  if (imgSrc && !imageFailed) {
     return (
       <img
         src={imgSrc}
@@ -74,18 +67,19 @@ export default function CritterAvatar({
         className={`critter-avatar object-contain select-none drop-shadow-md ${animClass} ${className}`}
         style={{ '--critter-avatar-size': `${size}px`, filter, width: size, height: size, ...style } as React.CSSProperties}
         draggable={false}
+        onError={() => setImageFailed(true)}
       />
     );
   }
 
   return (
     <span
-        className={`critter-avatar inline-flex items-center justify-center select-none ${animClass} ${className}`}
-        style={{ '--critter-avatar-size': `${size}px`, fontSize: size * 0.7, width: size, height: size, filter, ...style } as React.CSSProperties}
+        className={`critter-avatar inline-flex items-center justify-center rounded-full border-2 border-[#D8B867] bg-[#F7EBD8] font-display font-bold text-[#5D3D2A] shadow-sm select-none ${animClass} ${className}`}
+        style={{ '--critter-avatar-size': `${size}px`, fontSize: Math.max(12, size * 0.34), width: size, height: size, filter, ...style } as React.CSSProperties}
       role="img"
-      aria-label={type}
+      aria-label={`${type} plush friend`}
     >
-      {emoji}
+      {type.slice(0, 1).toUpperCase()}
     </span>
   );
 }

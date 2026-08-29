@@ -274,3 +274,12 @@
 
 - [x] Create a set of portrait App Store screenshots that accurately feature the calming ritual controls and each seasonal visual path.
 - [x] Verify the screenshots for readable parent-facing copy, accurate in-game representation, and a cohesive Critter Rescue visual identity.
+
+## Plushie Sanctuary UI Clarity and Accessibility Pass
+
+- [x] Repair the sanctuary header and rescue-modal logo/critter image presentation, including the clipped brand text.
+- [x] Simplify the first-play rescue modal using the requested title, reassurance, Listen label, ordered three-step path, and clear primary and secondary actions.
+- [x] Increase overlay dimming, improve text contrast, and standardize icons without changing the warm storybook palette or game logic.
+- [x] Add accessible labels or tooltips to header icon navigation and preserve a calm one-primary-action hierarchy.
+- [x] Refine the modal and header across laptop, tablet, and mobile viewports, then add regression coverage and verify the full interface.
+- [ ] Save a deployable checkpoint and push the verified sanctuary UI update to GitHub.

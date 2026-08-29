@@ -15,6 +15,7 @@ import type { LearningTheme } from '../game/learningThemes';
 import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
 import { getLearningFocusLaunch } from '../game/learningFocus';
 import type { CelebrationPath } from '../game/celebrationPaths';
+import { BookOpen, Home, Palette, Settings, Sparkles, MapPinned, Puzzle, Volume2 } from 'lucide-react';
 
 interface Props {
   forestHarmony: number;
@@ -109,6 +110,7 @@ export default function CampScreen({
   const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
   const [showFirstGuide, setShowFirstGuide] = useState(() => rescueCount === 0);
   const [renderedDecorations, setRenderedDecorations] = useState<Record<string, { decoration: HomeDecoration; meshIds: string[] }>>({});
+  const [logoFailed, setLogoFailed] = useState(false);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dailyRewardVoicePlayed = useRef<string | null>(null);
 
@@ -231,29 +233,29 @@ export default function CampScreen({
       <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-3 pointer-events-none">
         <div className="pointer-events-auto flex items-center gap-1.5 rounded-2xl px-3 py-2 sm:gap-2"
           style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.2)', borderTop: '2.5px solid #E66B5B' }}>
-          <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0" />
+          {logoFailed ? <div role="img" aria-label="Critter Rescue" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#D8B867] bg-[#F7EBD8] font-display text-xs font-bold text-[#5D3D2A]">CR</div> : <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0 object-contain" onError={() => setLogoFailed(true)} />}
           <div className="min-w-0 flex-1">
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#5C4D3C] text-[10px] mt-0.5"><span className="sm:hidden">{themeNote.icon} Cozy camp</span><span className="hidden sm:inline">{themeNote.icon} {themeNote.campLine}</span></p>
+            <p className="font-body text-[#49392C] text-[10px] mt-0.5"><span className="sm:hidden">{themeNote.icon} Cozy camp</span><span className="hidden sm:inline">{themeNote.icon} {themeNote.campLine}</span></p>
           </div>
           <div className="flex flex-col items-center px-1">
             <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
-            <span className="font-body text-[8px] text-[#5C4D3C] uppercase tracking-wide">saved</span>
+            <span className="font-body text-[8px] text-[#49392C] uppercase tracking-wide">saved</span>
           </div>
-          <button onClick={() => { playButton(); onOpenJournal(); }} className="shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal">
-            <span className="text-lg">📖</span>
+          <button onClick={() => { playButton(); onOpenJournal(); }} className="shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal" title="Critter Journal">
+            <BookOpen size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery">
-            <span className="text-lg">🧸</span>
+          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery" title="Critter Nursery">
+            <Home size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings">
-            <span className="text-lg">⚙️</span>
+          <button onClick={() => { playButton(); onOpenParentSettings(); }} className="shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings" title="Parent Settings">
+            <Settings size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game">
-            <span className="text-lg">🌈</span>
+          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game" title="Learning Play">
+            <Palette size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
-          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden shrink-0 rounded-lg px-2 py-1 hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook">
-            <span className="text-lg">✨</span>
+          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook" title="Critter Storybook">
+            <Sparkles size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -332,18 +334,18 @@ export default function CampScreen({
         </div>
       )}
       {showFirstGuide && !campArrival && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center px-5 bg-[#103B2A]/45">
-          <div className="paper-card relative w-full max-w-md p-5 text-center animate-pop-in" style={{ borderTop: '4px solid #E66B5B' }}>
-            <div className="flex items-center justify-center gap-2"><CritterAvatar type={companionType as CritterType} size={52} expression="excited" animate /><div className="text-left"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#E66B5B] font-bold">Your Rescue Buddy</p><h2 className="font-display font-bold text-[#2D2418] text-xl">Let’s help a friend!</h2></div></div>
-            <p className="font-display italic text-[#5C4D3C] text-sm mt-3">“You do not need to know everything. We will do this together.”</p>
-            <PreReaderDirection directionKey="onboarding" className="mt-3" />
-            <div className="mt-4 grid grid-cols-3 gap-2 text-left">
-              <div className="rounded-xl bg-[#F8E8D8] p-2"><span className="block text-lg">1. 🧭</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Go to Sunny Meadow</p></div>
-              <div className="rounded-xl bg-[#E2EEDB] p-2"><span className="block text-lg">2. 🧩</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Do the little rescue game</p></div>
-              <div className="rounded-xl bg-[#F9DDE0] p-2"><span className="block text-lg">3. 🏕️</span><p className="font-body text-[10px] font-bold text-[#4A3022] mt-1">Bring your friend home</p></div>
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#082419]/75 px-4 backdrop-blur-[3px] sm:px-5">
+          <div role="dialog" aria-modal="true" aria-labelledby="first-rescue-title" aria-describedby="first-rescue-reassurance" className={`paper-card relative w-full max-w-sm px-4 py-4 text-center shadow-2xl sm:max-w-md sm:px-5 ${reduceMotion ? '' : 'animate-pop-in'}`} style={{ borderTop: '4px solid #D75B50' }}>
+            <div className="flex items-center justify-center gap-2.5"><CritterAvatar type={companionType as CritterType} size={52} expression="excited" animate={!reduceMotion} /><div className="text-left"><p className="font-body text-[10px] font-bold uppercase tracking-[.14em] text-[#9A4038]">Sunny Meadow</p><h2 id="first-rescue-title" className="font-display text-xl font-bold leading-tight text-[#2D2418]">A friend needs your help!</h2></div></div>
+            <p id="first-rescue-reassurance" className="font-display mt-2 italic text-sm text-[#49392C]">“We’ll do this together.”</p>
+            <PreReaderDirection directionKey="onboarding" minimal className="mt-3" />
+            <div className="mt-3 grid grid-cols-3 gap-1.5 text-left sm:gap-2">
+              <div className="rounded-xl border border-[#E2C9AB] bg-[#F8E8D8] p-2"><MapPinned size={17} className="text-[#8C4130]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#3A2B20]">1. Go to Sunny Meadow</p></div>
+              <div className="rounded-xl border border-[#C8D9BF] bg-[#E2EEDB] p-2"><Puzzle size={17} className="text-[#3D7A58]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#283C2F]">2. Complete the little rescue</p></div>
+              <div className="rounded-xl border border-[#E4C4C9] bg-[#F9DDE0] p-2"><Home size={17} className="text-[#9A4038]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#4A3022]">3. Bring your friend home</p></div>
             </div>
-            <button onClick={beginFirstRescue} className="btn-coral mt-4 w-full text-base">Let’s Help a Friend!</button>
-            <button onClick={() => setShowFirstGuide(false)} className="mt-2 font-body text-xs text-[#5C4D3C] underline">I want to look around first</button>
+            <button onClick={beginFirstRescue} className="btn-coral mt-3 w-full text-base">Start the Rescue.</button>
+            <button onClick={() => setShowFirstGuide(false)} className="mt-2 w-full rounded-xl border border-[#B99773] bg-[#FFF9EF] px-3 py-2.5 font-body text-sm font-bold text-[#5D3D2A] shadow-sm active:scale-95">Explore First</button>
           </div>
         </div>
       )}
@@ -351,7 +353,7 @@ export default function CampScreen({
       {/* 3D interaction cue */}
       <div className="absolute z-10 left-3 top-[116px] pointer-events-none">
         <div className="rounded-full px-3 py-1.5 bg-[#173D2C]/75 border border-white/15 backdrop-blur-sm">
-          <span className="font-body text-[10px] text-white/80">🧸 Tap a plushie to say hello · red button starts a rescue</span>
+          <span className="font-body text-[10px] text-white/95">Tap a plushie to say hello. The coral button starts a rescue.</span>
         </div>
       </div>
 
