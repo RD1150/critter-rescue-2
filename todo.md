@@ -329,3 +329,9 @@
 
 - [x] Research current parent-facing educational-app pricing signals relevant to a $4.99 monthly subscription hypothesis.
 - [x] Document a low-risk pricing test with parent-safe decision thresholds, without adding child-directed sales mechanics.
+
+## Monthly Operating Cost and Break-Even Assessment
+
+- [x] Inventory current and future recurring expenses for hosting, App Store distribution, optional voice generation, support, and subscription operations.
+- [x] Model transparent low, base, and growth monthly-cost scenarios with break-even subscriber counts.
+- [x] Document the expense estimate assumptions and the next information needed to replace them with actual bills.
