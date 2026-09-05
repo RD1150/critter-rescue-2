@@ -84,3 +84,11 @@ These five 9:16 promotional images are designed as standalone App Store media. T
 | Lantern woodland loading scene | Wordless, warm-paper loading backdrop with a plush fox, gentle lantern, and a deliberately clear center for the loading message. | `/manus-storage/critter-rescue-loading-storybook_c4113735.png` |
 
 The artwork is decorative only and keeps the existing loading copy high contrast. Its motion is optional and respects system Reduced Motion preferences.
+
+## River Rescue visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Clover’s River Rescue reference | Wordless storybook direction for a soft plush rabbit waiting safely on a river rock, a sturdy log, soft rope, and warm grassy bank. Supports the picture-led log → rope → safe-trail sequence. | `/manus-storage/critter-rescue-river-rescue-reference_ad273719.png` |
+
+The visual reference keeps the river shallow, gentle, and non-threatening. It depicts calm planning and a safe path home rather than peril, speed, or a failure state.

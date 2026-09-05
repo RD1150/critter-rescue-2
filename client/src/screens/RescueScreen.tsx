@@ -9,6 +9,7 @@ import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/
 import { useAudioPreferences } from '../game/audioPreferences';
 import { getRescueDialogue } from '../game/characterDialogue';
 import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
+import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 
@@ -448,6 +449,75 @@ function SyllableClapPuzzle({ onComplete }: { onComplete: () => void }) {
   return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">{Array.from({ length: pattern.choices.find((choice) => choice.correct)?.claps ?? 2 }, () => '👏').join('')}</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">{pattern.clue}</p></div><p className="font-body text-sm text-white/90">{pattern.prompt}</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{pattern.choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
+// ── Picture-led River Rescue ─────────────────────
+function RiverRescuePuzzle({ onComplete }: { onComplete: () => void }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [usedTools, setUsedTools] = useState<RiverRescueToolId[]>([]);
+  const [message, setMessage] = useState(RIVER_RESCUE_STEPS[0].prompt);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const activeStep = RIVER_RESCUE_STEPS[stepIndex];
+
+  const chooseTool = (toolId: RiverRescueToolId) => {
+    if (isFinishing || usedTools.includes(toolId)) return;
+    if (toolId !== activeStep.id) {
+      playChime();
+      setMessage(activeStep.gentleRetry);
+      return;
+    }
+
+    playMatch();
+    setUsedTools((current) => [...current, toolId]);
+    setMessage(activeStep.success);
+
+    if (stepIndex === RIVER_RESCUE_STEPS.length - 1) {
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+
+    setTimeout(() => {
+      const nextStep = RIVER_RESCUE_STEPS[stepIndex + 1];
+      setStepIndex((current) => current + 1);
+      setMessage(nextStep.prompt);
+    }, 850);
+  };
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Clover’s three-step River Rescue">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#C7E1E2] bg-[#EAF6F8] px-4 py-3 shadow-lg" aria-label={`River Rescue step ${Math.min(stepIndex + 1, 3)} of 3`}>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🌲</span><span className="font-body text-[10px] font-bold text-[#397C9C]">COZY BANK</span></div>
+        <div className="relative mx-2 flex h-20 flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#9DDCE6]" aria-hidden>
+          {usedTools.includes('log') && <span className="absolute left-[24%] top-[34%] rotate-[-8deg] text-4xl">🪵</span>}
+          {usedTools.includes('rope') && <span className="absolute left-[40%] top-[16%] text-3xl">〰️</span>}
+          <div className={`absolute top-[22%] ${usedTools.includes('guide') ? 'left-[8%]' : usedTools.includes('rope') ? 'left-[32%]' : 'left-[62%]'} transition-all duration-500`}><CritterAvatar type="bunny" size={50} expression={usedTools.includes('guide') ? 'grateful' : 'worried'} /></div>
+          <span className="absolute bottom-1 right-3 text-sm">〰️</span><span className="absolute left-3 top-1 text-sm">〰️</span>
+        </div>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🏡</span><span className="font-body text-[10px] font-bold text-[#397C9C]">SAFE HOME</span></div>
+      </div>
+
+      <div className="rounded-2xl border border-[#F4D38E] bg-[#FFF8E6] px-4 py-3 text-center shadow-md">
+        <p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#9A653F]">Step {Math.min(stepIndex + 1, 3)} of 3</p>
+        <p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p>
+      </div>
+
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="River rescue helper tools">
+        {RIVER_RESCUE_STEPS.map((step) => {
+          const isUsed = usedTools.includes(step.id);
+          const isActive = step.id === activeStep.id && !isFinishing;
+          return (
+            <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#F0B45B] bg-[#FFF8E6] ring-2 ring-[#FBE4B6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+              <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
+              <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
+              {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
+            </button>
+          );
+        })}
+      </div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one picture. There is no rush.</p>
+    </div>
+  );
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -839,6 +909,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'alliteration':  return <AlliterationPuzzle onComplete={handlePuzzleComplete} />;
       case 'habitatMatch':  return <HabitatMatchPuzzle onComplete={handlePuzzleComplete} />;
       case 'syllableClap':  return <SyllableClapPuzzle onComplete={handlePuzzleComplete} />;
+      case 'riverRescue':   return <RiverRescuePuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

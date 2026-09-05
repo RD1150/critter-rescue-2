@@ -29,6 +29,7 @@ export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   alliteration: 'Tap the picture that starts like cricket.',
   habitatMatch: 'Tap the home where the duck can rest.',
   syllableClap: 'Tap the picture with two claps.',
+  riverRescue: 'Tap the log, then rope, then trail.',
   friendshipDuo: 'Tap the leaf, then tap the berry.',
   friendshipDuoNuttyPip: 'Tap the leaf, then tap the berry.',
   friendshipDuoSplashThistle: 'Tap the ripple, then tap the flower.',

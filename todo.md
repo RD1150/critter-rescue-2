@@ -335,3 +335,16 @@
 - [x] Inventory current and future recurring expenses for hosting, App Store distribution, optional voice generation, support, and subscription operations.
 - [x] Model transparent low, base, and growth monthly-cost scenarios with break-even subscriber counts.
 - [x] Document the expense estimate assumptions and the next information needed to replace them with actual bills.
+
+## Three-Step River Rescue Sequence
+
+- [x] Add a picture-led River Rescue where Clover the rabbit needs three calm, ordered helper actions: place the log, send the rope, and guide Clover to the bank.
+- [x] Use large visual side choices, one obvious step at a time, and gentle retry feedback that develops planning and cause-and-effect without penalties.
+- [x] Create and record warm storybook river-rescue visual art that matches the existing plush sanctuary aesthetic.
+- [x] Add regression coverage and verify the River Rescue flow on laptop, tablet, mobile, and Reduce Motion views.
+- [ ] Save a deployable checkpoint and push the verified River Rescue module to GitHub.
+
+## Reusable Ten-Rescue Module System
+
+- [x] Define a reusable three-step rescue data format that can support a curated library of ten calm planning-and-cause-effect games.
+- [x] Document a parent-reviewed AI-assisted authoring workflow that drafts new rescue packs from approved templates rather than generating unreviewed child-facing games at runtime.

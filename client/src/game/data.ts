@@ -8,7 +8,7 @@ export type MissionType =
   | 'memory' | 'pattern' | 'maze' | 'gather'
   | 'tracing' | 'sorting' | 'counting' | 'shapeFit'
   | 'spotDifference' | 'sequence' | 'findTools'
-  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap';
+  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue';
 
 export interface CritterData {
   name: string;
@@ -109,6 +109,7 @@ const RIVERSIDE_CRITTERS: CritterData[] = [
   c('Reed','🦆','motherly and warm','"My babies are safe!"','"You\'re so kind!"','"Almost done! Keep going!"','"You can do it!"'),
   c('Bubbles','🐙','playful and artistic','"I can paint again! Thank you!"','"You made me smile so big!"','"You\'re so creative!"','"Try imagining it differently!"'),
   c('Piper','🦢','graceful and peaceful','"The river flows gently again."','"Your kindness ripples everywhere."','"You move through this so gracefully."','"Stillness brings clarity."'),
+  c('Clover','🐰','soft and brave','"I knew I could cross with you close by."','"The riverbank feels cozy again."','"One calm helper at a time!"','"Let’s look at which helper comes first."'),
 ];
 
 const DEEPWOODS_CRITTERS: CritterData[] = [
@@ -166,6 +167,7 @@ const RIVERSIDE_TASKS: TaskDef[] = [
   { type:'pictureRhyme', critter:RIVERSIDE_CRITTERS[2], scenarioText:'Finn needs a picture rhyme to find a tall safe tree!', hintText:'Listen for the word that sounds like bee, then tap its picture rhyme.', objectCount:3, difficulty:2, requiresOrder:false, introText:'Finn heard a tiny bee beside a tall tree. Can you find the picture that rhymes with bee?' },
   { type:'habitatMatch', critter:RIVERSIDE_CRITTERS[3], scenarioText:'Reed needs help finding the cozy pond home!', hintText:'Tap the home where a duck can rest.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Reed is looking for a cozy home beside the water. Can you choose the right habitat together?' },
   { type:'guidePath', critter:EVERYONE_RIVER, scenarioText:'Light the whole riverside for everyone!', hintText:'Place 5 lanterns in order along the path!', objectCount:5, difficulty:4, requiresOrder:true, introText:"It's getting dark on the river. Every friend needs to find their way home safely." },
+  { type:'riverRescue', critter:RIVERSIDE_CRITTERS[6], scenarioText:'Clover is waiting safely on a river rock!', hintText:'Choose the helpers in a calm, safe order.', objectCount:3, difficulty:2, requiresOrder:true, introText:'Clover found a quiet river rock, but the cozy bank is just out of reach. Can you choose the helpers in order?' },
 ];
 
 const DEEPWOODS_TASKS: TaskDef[] = [
@@ -199,7 +201,7 @@ const ZONE_TASKS: Record<string, TaskDef[]> = {
 
 export const ZONES: ZoneInfo[] = [
   { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','alliteration','syllableClap','sequence','shapeFit','colorMatch','sizeOrdering','critterPath'], totalTasks:11, emoji:'🌸' },
-  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath'], totalTasks:9, emoji:'🌊' },
+  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath','riverRescue'], totalTasks:10, emoji:'🌊' },
   { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath'], totalTasks:8, emoji:'🌲' },
   { id:'mountain', name:'Misty Mountain', description:'The highest peak, where the bravest friends wait', unlockHarmony:75, bgColors:['#8B9AAA','#7A8A9A','#6A7A6A','#4A6A4A','#3A5A3A'], missionTypes:['bridge','shelter','guidePath','pattern','gather','counting','shapeFit','spotDifference','findTools','colorMatch','sizeOrdering','critterPath'], totalTasks:8, emoji:'⛰️' },
 ];
