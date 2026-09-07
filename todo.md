@@ -352,3 +352,8 @@
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.
+
+## Competitive Differentiation and Parent-Safe Growth Strategy
+
+- [x] Research comparable preschool games, parent trust signals, and ethical word-of-mouth growth patterns.
+- [x] Prioritize a practical product, retention, and launch-marketing roadmap that preserves Critter Rescue’s calm, privacy-first design.
