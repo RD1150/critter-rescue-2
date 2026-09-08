@@ -35,6 +35,10 @@ const TASK_HELP: Record<MissionType, string> = {
   syllableClap: 'Help me find the picture with two little claps!',
   riverRescue: 'Help me choose our river helpers in a safe order!',
   nestRescue: 'Help me choose our cozy nest helpers in order!',
+  lodgeRescue: 'Help me choose our cozy lodge helpers in order!',
+  tellingTime: 'Help me find the clock that says seven o’clock!',
+  gardenSort: 'Help me put every picture in the matching basket!',
+  brickBuild: 'Help me build our little block cottage in order!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

@@ -356,6 +356,22 @@
 - [x] Add deterministic data and interaction coverage, then verify normal and Reduce Motion views on phone, tablet, and laptop.
 - [x] Save a deployable checkpoint and synchronize the verified nest-rescue update to GitHub.
 
+## Lodge-Building Rescue
+
+- [x] Add Bark’s picture-led three-step Lodge-Building Rescue: choose sturdy sticks, add soft leaf lining, then settle the round door.
+- [x] Create and record a warm storybook lodge-building art reference and optional tap-to-play Nutty direction.
+- [x] Add deterministic data and interaction coverage, then verify normal and Reduce Motion views on phone, tablet, and laptop.
+- [ ] Save a deployable checkpoint and synchronize the verified lodge-rescue update to GitHub.
+
+## Telling Time, Sorting, and Brick-Building Activities
+
+- [x] Add a picture-led Telling Time rescue that introduces only full hours with one large clock-reading choice at a time and no timed performance.
+- [x] Add a calm sorting rescue with large visual categories, forgiving drag-or-tap interaction, and gentle retry feedback.
+- [x] Add a generic virtual brick-building activity using original rounded block shapes, simple guided construction steps, and no third-party branding.
+- [x] Create storybook visual references and optional tap-to-play Nutty directions for all three activities.
+- [x] Add deterministic coverage and verify each activity on phone, tablet, laptop, and Reduce Motion views.
+- [ ] Save a deployable checkpoint and synchronize the verified activity-library expansion to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

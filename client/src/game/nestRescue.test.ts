@@ -13,10 +13,10 @@ describe('Nest Rescue definition', () => {
     });
   });
 
-  it('is the final deep-woods mission without replacing earlier rescues', () => {
+  it('remains a Deep Woods mission without replacing earlier rescues', () => {
     const mission = getZoneTask('deepwoods', 8);
     expect(mission?.type).toBe('nestRescue');
     expect(mission?.critter.name).toBe('Wren');
-    expect(getZoneTaskCount('deepwoods')).toBe(9);
+    expect(getZoneTaskCount('deepwoods')).toBe(10);
   });
 });

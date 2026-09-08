@@ -149,13 +149,17 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewSyllableClap = previewMode === 'syllableclap';
     const previewRiverRescue = previewMode === 'riverrescue';
     const previewNestRescue = previewMode === 'nestrescue';
+    const previewLodgeRescue = previewMode === 'lodgerescue';
+    const previewTellingTime = previewMode === 'tellingtime';
+    const previewGardenSort = previewMode === 'gardensort';
+    const previewBrickBuild = previewMode === 'brickbuild';
     const previewWeather = previewMode === 'weather';
     const previewCelebrationPath = previewMode === 'celebrationpath';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -231,6 +235,22 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       } else if (previewNestRescue) {
         setCurrentMission(getZoneTask('deepwoods', 8));
         setCurrentZoneBg(ZONES[2].bgColors);
+        setScene('rescue');
+      } else if (previewLodgeRescue) {
+        setCurrentMission(getZoneTask('deepwoods', 9));
+        setCurrentZoneBg(ZONES[2].bgColors);
+        setScene('rescue');
+      } else if (previewTellingTime) {
+        setCurrentMission(getZoneTask('riverside', 10));
+        setCurrentZoneBg(ZONES[1].bgColors);
+        setScene('rescue');
+      } else if (previewGardenSort) {
+        setCurrentMission(getZoneTask('meadow', 11));
+        setCurrentZoneBg(ZONES[0].bgColors);
+        setScene('rescue');
+      } else if (previewBrickBuild) {
+        setCurrentMission(getZoneTask('mountain', 8));
+        setCurrentZoneBg(ZONES[3].bgColors);
         setScene('rescue');
       } else if (previewParentSettings) {
         setScene('parentSettings');

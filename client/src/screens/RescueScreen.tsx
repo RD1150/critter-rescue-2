@@ -11,6 +11,10 @@ import { getRescueDialogue } from '../game/characterDialogue';
 import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
 import { NEST_RESCUE_STEPS, NestRescueToolId } from '../game/nestRescue';
+import { LODGE_RESCUE_STEPS, LodgeRescueToolId } from '../game/lodgeRescue';
+import { TELLING_TIME_ROUND } from '../game/tellingTime';
+import { GARDEN_SORT_BASKETS, GARDEN_SORT_ITEMS, GardenSortCategory } from '../game/gardenSort';
+import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 
@@ -587,6 +591,205 @@ function NestRescuePuzzle({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+// ── Picture-led Lodge-Building Rescue ─────────────
+function LodgeRescuePuzzle({ onComplete }: { onComplete: () => void }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [usedTools, setUsedTools] = useState<LodgeRescueToolId[]>([]);
+  const [message, setMessage] = useState(LODGE_RESCUE_STEPS[0].prompt);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const activeStep = LODGE_RESCUE_STEPS[stepIndex];
+
+  const chooseTool = (toolId: LodgeRescueToolId) => {
+    if (isFinishing || usedTools.includes(toolId)) return;
+    if (toolId !== activeStep.id) {
+      playChime();
+      setMessage(activeStep.gentleRetry);
+      return;
+    }
+    playMatch();
+    setUsedTools((current) => [...current, toolId]);
+    setMessage(activeStep.success);
+    if (stepIndex === LODGE_RESCUE_STEPS.length - 1) {
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setTimeout(() => {
+      const nextStep = LODGE_RESCUE_STEPS[stepIndex + 1];
+      setStepIndex((current) => current + 1);
+      setMessage(nextStep.prompt);
+    }, 850);
+  };
+
+  const hasSticks = usedTools.includes('sturdySticks');
+  const hasLeaves = usedTools.includes('leafLining');
+  const hasDoor = usedTools.includes('roundDoor');
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Bark’s three-step Lodge-Building Rescue">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#CFB57F] bg-[#F7EAD5] px-4 py-3 shadow-lg" aria-label={`Lodge Rescue step ${Math.min(stepIndex + 1, 3)} of 3`}>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🌲</span><span className="font-body text-[10px] font-bold text-[#7C5A36]">DEEP WOODS</span></div>
+        <div className="relative mx-2 flex h-20 flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#D8C595]" aria-hidden>
+          <span className="absolute right-2 top-0 text-5xl">🏡</span>
+          {hasSticks && <span className="absolute bottom-1 left-[18%] text-4xl">🪵</span>}
+          {hasLeaves && <span className="absolute right-[34%] top-[40%] text-3xl">🍂</span>}
+          {hasDoor && <span className="absolute right-[15%] top-[31%] text-3xl">🚪</span>}
+          <div className={`absolute top-[25%] ${hasDoor ? 'right-[22%]' : hasLeaves ? 'right-[42%]' : hasSticks ? 'left-[39%]' : 'left-[14%]'} transition-all duration-500`}><CritterAvatar type="fox" size={48} expression={hasDoor ? 'grateful' : 'worried'} /></div>
+          <span className="absolute bottom-1 left-3 text-xs">🍄</span><span className="absolute bottom-2 right-3 text-xs">🍄</span>
+        </div>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🏡</span><span className="font-body text-[10px] font-bold text-[#7C5A36]">COZY LODGE</span></div>
+      </div>
+      <div className="rounded-2xl border border-[#D6C28A] bg-[#FFF8E6] px-4 py-3 text-center shadow-md">
+        <p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#8B6536]">Step {Math.min(stepIndex + 1, 3)} of 3</p>
+        <p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p>
+      </div>
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="Lodge rescue helper pictures">
+        {LODGE_RESCUE_STEPS.map((step) => {
+          const isUsed = usedTools.includes(step.id);
+          const isActive = step.id === activeStep.id && !isFinishing;
+          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+            <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
+            <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
+            {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
+          </button>;
+        })}
+      </div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one picture. There is no rush.</p>
+    </div>
+  );
+}
+
+function HourClock({ hour }: { hour: number }) {
+  return (
+    <div className="relative mx-auto h-20 w-20 rounded-full border-4 border-[#7A5A3A] bg-[#FFFDF7] shadow-inner" aria-hidden>
+      <span className="absolute left-1/2 top-1 -translate-x-1/2 font-body text-[10px] font-bold text-[#49392C]">12</span>
+      <span className="absolute right-1 top-1/2 -translate-y-1/2 font-body text-[10px] font-bold text-[#49392C]">3</span>
+      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 font-body text-[10px] font-bold text-[#49392C]">6</span>
+      <span className="absolute left-1 top-1/2 -translate-y-1/2 font-body text-[10px] font-bold text-[#49392C]">9</span>
+      <span className="absolute bottom-1/2 left-1/2 h-7 w-1 -translate-x-1/2 rounded-full bg-[#E66B5B]" style={{ transformOrigin: 'bottom center', transform: `translateX(-50%) rotate(${hour * 30}deg)` }} />
+      <span className="absolute bottom-1/2 left-1/2 h-8 w-1 -translate-x-1/2 rounded-full bg-[#49392C]" style={{ transformOrigin: 'bottom center', transform: 'translateX(-50%) rotate(0deg)' }} />
+      <span className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#F0B45B]" />
+    </div>
+  );
+}
+
+// ── Picture-led Full-Hour Telling Time ───────────
+function TellingTimePuzzle({ onComplete }: { onComplete: () => void }) {
+  const [message, setMessage] = useState(TELLING_TIME_ROUND.prompt);
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  const chooseHour = (hour: number) => {
+    if (isFinishing) return;
+    if (hour !== TELLING_TIME_ROUND.targetHour) {
+      playChime();
+      setMessage(TELLING_TIME_ROUND.gentleRetry);
+      return;
+    }
+    playMatch();
+    setMessage(TELLING_TIME_ROUND.success);
+    setIsFinishing(true);
+    setTimeout(onComplete, 900);
+  };
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Brook’s full-hour telling time activity">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#B8D7DD] bg-[#E8F7F5] px-4 py-3 shadow-lg">
+        <div className="text-center"><span className="block text-xl" aria-hidden>🌤️</span><span className="font-body text-[10px] font-bold text-[#397C9C]">MORNING</span></div>
+        <div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#CFEAF1]" aria-hidden><HourClock hour={7} /></div>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🐢</span><span className="font-body text-[10px] font-bold text-[#397C9C]">BROOK</span></div>
+      </div>
+      <div className="rounded-2xl border border-[#B8D7DD] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#397C9C]">Look at the hands</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="Clock picture choices">
+        {TELLING_TIME_ROUND.choiceHours.map((hour) => <button key={hour} type="button" onClick={() => chooseHour(hour)} disabled={isFinishing} aria-label={`Clock showing ${hour} o’clock`} className={`min-h-[148px] rounded-3xl border-2 bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${hour === TELLING_TIME_ROUND.targetHour ? 'border-[#E4B770]' : 'border-[#D7E6E0]'}`}><HourClock hour={hour} /><span className="mt-2 block font-display text-sm text-[#49392C]">{hour} o’clock</span></button>)}
+      </div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one clock picture. There is no rush.</p>
+    </div>
+  );
+}
+
+// ── Picture-led Garden Sorting ───────────────────
+function GardenSortPuzzle({ onComplete }: { onComplete: () => void }) {
+  const [itemIndex, setItemIndex] = useState(0);
+  const [message, setMessage] = useState(`Daisy found a ${GARDEN_SORT_ITEMS[0].label.toLowerCase()}. Which basket matches?`);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const item = GARDEN_SORT_ITEMS[itemIndex];
+
+  const chooseBasket = (category: GardenSortCategory) => {
+    if (isFinishing) return;
+    if (category !== item.category) {
+      playChime();
+      setMessage(`That basket is for ${category}. This ${item.label.toLowerCase()} goes with the ${item.category}.`);
+      return;
+    }
+    playMatch();
+    if (itemIndex === GARDEN_SORT_ITEMS.length - 1) {
+      setMessage('Every garden treasure has a cozy matching basket. You sorted them with Daisy!');
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setMessage(`That is a great match. Let’s find a basket for the next picture.`);
+    setTimeout(() => {
+      const nextItem = GARDEN_SORT_ITEMS[itemIndex + 1];
+      setItemIndex((current) => current + 1);
+      setMessage(`Daisy found a ${nextItem.label.toLowerCase()}. Which basket matches?`);
+    }, 700);
+  };
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Daisy’s garden sorting activity">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#C2D9A9] bg-[#ECF5E4] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>🌼</span><span className="font-body text-[10px] font-bold text-[#55734A]">GARDEN</span></div><div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#DDEED3]" aria-hidden><span className="text-6xl">{isFinishing ? '✨' : item.icon}</span></div><div className="text-center"><span className="block text-xl" aria-hidden>🐛</span><span className="font-body text-[10px] font-bold text-[#55734A]">DAISY</span></div></div>
+      <div className="rounded-2xl border border-[#C2D9A9] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#55734A]">Picture {Math.min(itemIndex + 1, GARDEN_SORT_ITEMS.length)} of {GARDEN_SORT_ITEMS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
+      <div className="grid w-full grid-cols-2 gap-4" aria-label="Garden basket choices">{(['berries', 'leaves'] as const).map((category) => { const basket = GARDEN_SORT_BASKETS[category]; return <button key={category} type="button" onClick={() => chooseBasket(category)} disabled={isFinishing} aria-label={basket.label} className="min-h-[150px] rounded-3xl border-2 border-[#B7D5B0] bg-white/90 px-3 py-4 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60"><span className="block text-5xl" aria-hidden>{basket.icon}</span><span className="mt-2 block text-3xl" aria-hidden>{category === 'berries' ? '🍓' : '🍃'}</span><span className="mt-2 block font-display text-base text-[#49392C]">{basket.label}</span></button>; })}</div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one basket. There is no rush.</p>
+    </div>
+  );
+}
+
+// ── Original unbranded Cozy Block Builder ────────
+function BrickBuildPuzzle({ onComplete }: { onComplete: () => void }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [usedBlocks, setUsedBlocks] = useState<BrickBuildBlockId[]>([]);
+  const [message, setMessage] = useState(BRICK_BUILD_STEPS[0].prompt);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const activeStep = BRICK_BUILD_STEPS[stepIndex];
+
+  const chooseBlock = (blockId: BrickBuildBlockId) => {
+    if (isFinishing || usedBlocks.includes(blockId)) return;
+    if (blockId !== activeStep.id) {
+      playChime();
+      setMessage(activeStep.gentleRetry);
+      return;
+    }
+    playMatch();
+    setUsedBlocks((current) => [...current, blockId]);
+    setMessage(activeStep.success);
+    if (stepIndex === BRICK_BUILD_STEPS.length - 1) {
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setTimeout(() => {
+      const nextStep = BRICK_BUILD_STEPS[stepIndex + 1];
+      setStepIndex((current) => current + 1);
+      setMessage(nextStep.prompt);
+    }, 850);
+  };
+
+  const hasBase = usedBlocks.includes('wideBase');
+  const hasWalls = usedBlocks.includes('coralWalls');
+  const hasRoof = usedBlocks.includes('mossRoof');
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Summit’s Cozy Block Builder">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#BCC8D2] bg-[#EEF1F0] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>⛰️</span><span className="font-body text-[10px] font-bold text-[#5C6872]">CAMP</span></div><div className="relative mx-2 flex h-24 flex-1 items-end justify-center overflow-hidden rounded-2xl bg-[#D6E0DE]" aria-hidden>{hasBase && <span className="absolute bottom-3 h-7 w-20 rounded-lg bg-[#62A7D9] shadow-md" />}{hasWalls && <><span className="absolute bottom-10 left-[36%] h-9 w-8 rounded-t-md bg-[#E98978] shadow-md" /><span className="absolute bottom-10 right-[36%] h-9 w-8 rounded-t-md bg-[#E98978] shadow-md" /></>}{hasRoof && <span className="absolute bottom-[4.75rem] h-8 w-24 rounded-t-[36px] bg-[#83A86A] shadow-md" />}<div className={`absolute bottom-3 ${hasRoof ? 'right-[17%]' : hasWalls ? 'right-[29%]' : hasBase ? 'left-[43%]' : 'left-[15%]'} transition-all duration-500`}><CritterAvatar type="bear" size={42} expression={hasRoof ? 'grateful' : 'worried'} /></div></div><div className="text-center"><span className="block text-xl" aria-hidden>🏠</span><span className="font-body text-[10px] font-bold text-[#5C6872]">COTTAGE</span></div></div>
+      <div className="rounded-2xl border border-[#BCC8D2] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#5C6872]">Build step {Math.min(stepIndex + 1, 3)} of 3</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="Original building block choices">{BRICK_BUILD_STEPS.map((step) => { const isUsed = usedBlocks.includes(step.id); const isActive = step.id === activeStep.id && !isFinishing; return <button key={step.id} type="button" onClick={() => chooseBlock(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already placed' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}><span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>{isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}</button>; })}</div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Build one soft block at a time. There is no rush.</p>
+    </div>
+  );
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -980,6 +1183,10 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'syllableClap':  return <SyllableClapPuzzle onComplete={handlePuzzleComplete} />;
       case 'riverRescue':   return <RiverRescuePuzzle onComplete={handlePuzzleComplete} />;
       case 'nestRescue':    return <NestRescuePuzzle onComplete={handlePuzzleComplete} />;
+      case 'lodgeRescue':   return <LodgeRescuePuzzle onComplete={handlePuzzleComplete} />;
+      case 'tellingTime':   return <TellingTimePuzzle onComplete={handlePuzzleComplete} />;
+      case 'gardenSort':    return <GardenSortPuzzle onComplete={handlePuzzleComplete} />;
+      case 'brickBuild':    return <BrickBuildPuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

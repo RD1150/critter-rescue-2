@@ -14,9 +14,9 @@ describe('River Rescue data', () => {
     });
   });
 
-  it('adds Clover’s River Rescue as the final Riverside mission without replacing earlier missions', () => {
+  it('keeps Clover’s River Rescue in the Riverside path without replacing earlier missions', () => {
     const mission = getZoneTask('riverside', 9);
-    expect(getZoneTaskCount('riverside')).toBe(10);
+    expect(getZoneTaskCount('riverside')).toBe(11);
     expect(mission).toMatchObject({ type: 'riverRescue', zone: 'riverside', taskIndex: 9 });
     expect(mission?.critter).toMatchObject({ name: 'Clover', type: 'bunny' });
   });

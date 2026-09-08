@@ -8,7 +8,7 @@ export type MissionType =
   | 'memory' | 'pattern' | 'maze' | 'gather'
   | 'tracing' | 'sorting' | 'counting' | 'shapeFit'
   | 'spotDifference' | 'sequence' | 'findTools'
-  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue' | 'nestRescue';
+  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue' | 'nestRescue' | 'lodgeRescue' | 'tellingTime' | 'gardenSort' | 'brickBuild';
 
 export interface CritterData {
   name: string;
@@ -156,6 +156,7 @@ const MEADOW_TASKS: TaskDef[] = [
   { type:'letterSound', critter:MEADOW_CRITTERS[4], scenarioText:'Buttercup needs the picture that starts like ball!', hintText:'Listen for the first sound, then tap the matching picture.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Buttercup heard a bouncy ball. Can you find the picture that starts with the same sound?' },
   { type:'alliteration', critter:MEADOW_CRITTERS[5], scenarioText:'Cricket is making a silly sound song!', hintText:'Find the picture that starts like cricket.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Cricket says, “cricket, cloud, cozy!” Can you find a picture that starts with the same sound?' },
   { type:'syllableClap', critter:MEADOW_CRITTERS[5], scenarioText:'Cricket is clapping Turtle’s name!', hintText:'Tap the picture with two claps.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Cricket hears a name with two little claps: tur-tle. Can you find the picture with two claps?' },
+  { type:'gardenSort', critter:MEADOW_CRITTERS[2], scenarioText:'Daisy is sorting little garden treasures!', hintText:'Choose the basket that matches each picture.', objectCount:4, difficulty:1, requiresOrder:false, introText:'Daisy found berries and leaves in the sunny garden. Can you help place each picture in the matching basket?' },
 ];
 
 const RIVERSIDE_TASKS: TaskDef[] = [
@@ -169,6 +170,7 @@ const RIVERSIDE_TASKS: TaskDef[] = [
   { type:'habitatMatch', critter:RIVERSIDE_CRITTERS[3], scenarioText:'Reed needs help finding the cozy pond home!', hintText:'Tap the home where a duck can rest.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Reed is looking for a cozy home beside the water. Can you choose the right habitat together?' },
   { type:'guidePath', critter:EVERYONE_RIVER, scenarioText:'Light the whole riverside for everyone!', hintText:'Place 5 lanterns in order along the path!', objectCount:5, difficulty:4, requiresOrder:true, introText:"It's getting dark on the river. Every friend needs to find their way home safely." },
   { type:'riverRescue', critter:RIVERSIDE_CRITTERS[6], scenarioText:'Clover is waiting safely on a river rock!', hintText:'Choose the helpers in a calm, safe order.', objectCount:3, difficulty:2, requiresOrder:true, introText:'Clover found a quiet river rock, but the cozy bank is just out of reach. Can you choose the helpers in order?' },
+  { type:'tellingTime', critter:RIVERSIDE_CRITTERS[1], scenarioText:'Brook is planning a seven o’clock pond visit!', hintText:'Find the clock with the short hand on seven and the long hand on twelve.', objectCount:3, difficulty:2, requiresOrder:false, introText:'Brook likes a gentle morning pond visit at seven o’clock. Can you find the clock that shows seven?' },
 ];
 
 const DEEPWOODS_TASKS: TaskDef[] = [
@@ -181,6 +183,7 @@ const DEEPWOODS_TASKS: TaskDef[] = [
   { type:'pattern', critter:DEEPWOODS_CRITTERS[3], scenarioText:"Thistle's hive entrance has a secret code!", hintText:'Watch the pattern and repeat it!', objectCount:4, difficulty:4, requiresOrder:true, introText:'The hive door only opens with the right pattern. Watch carefully!' },
   { type:'maze', critter:DEEPWOODS_CRITTERS[0], scenarioText:'Shadow is lost deep in the winding forest paths!', hintText:'Trace through the dark forest maze carefully', objectCount:5, difficulty:4, requiresOrder:false, introText:'The deep woods twist and turn in every direction. Shadow needs you to find the way out.' },
   { type:'nestRescue', critter:DEEPWOODS_CRITTERS[6], scenarioText:'Wren needs a gentle route to a cozy willow nest!', hintText:'Choose the nest helpers in a calm, helpful order.', objectCount:3, difficulty:3, requiresOrder:true, introText:'Wren found a quiet willow branch, but their nest needs a safe, soft way to come together. Can you choose the helpers in order?' },
+  { type:'lodgeRescue', critter:DEEPWOODS_CRITTERS[4], scenarioText:'Bark is making a cozy woodland lodge!', hintText:'Choose the lodge helpers in a calm, helpful order.', objectCount:3, difficulty:3, requiresOrder:true, introText:'Bark has a quiet little lodge spot in the Deep Woods. Can you choose the helpers in order to make it firm, soft, and cozy?' },
 ];
 
 const MOUNTAIN_TASKS: TaskDef[] = [
@@ -192,6 +195,7 @@ const MOUNTAIN_TASKS: TaskDef[] = [
   { type:'pattern', critter:MOUNTAIN_CRITTERS[2], scenarioText:'Flint needs to remember the trail markers!', hintText:'Watch the pattern and repeat it!', objectCount:5, difficulty:4, requiresOrder:true, introText:'The mountain mist has covered the trail markers. Help Flint remember the way!' },
   { type:'gather', critter:MOUNTAIN_CRITTERS[1], scenarioText:'Pebble needs mountain herbs before the snowstorm!', hintText:'Tap the herbs and berries — watch out for rocks!', objectCount:5, difficulty:4, requiresOrder:false, introText:'The mountain wind is blowing everything around! Help Pebble catch the good herbs before the storm hits.' },
   { type:'bridge', critter:EVERYONE_MOUNTAIN, scenarioText:'Build the grand mountain bridge for every critter!', hintText:'Place 6 stones in order across the chasm!', objectCount:6, difficulty:5, requiresOrder:true, introText:"This is it — the final bridge. Every friend you've saved is watching and believing in you." },
+  { type:'brickBuild', critter:MOUNTAIN_CRITTERS[3], scenarioText:'Summit is building a tiny cozy camp cottage!', hintText:'Choose each big building block in a helpful order.', objectCount:3, difficulty:2, requiresOrder:true, introText:'Summit found three big soft building blocks for a tiny camp cottage. Can you choose which block goes on the bottom, middle, and top?' },
 ];
 
 const ZONE_TASKS: Record<string, TaskDef[]> = {
@@ -202,10 +206,10 @@ const ZONE_TASKS: Record<string, TaskDef[]> = {
 };
 
 export const ZONES: ZoneInfo[] = [
-  { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','alliteration','syllableClap','sequence','shapeFit','colorMatch','sizeOrdering','critterPath'], totalTasks:11, emoji:'🌸' },
-  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath','riverRescue'], totalTasks:10, emoji:'🌊' },
-  { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath','nestRescue'], totalTasks:9, emoji:'🌲' },
-  { id:'mountain', name:'Misty Mountain', description:'The highest peak, where the bravest friends wait', unlockHarmony:75, bgColors:['#8B9AAA','#7A8A9A','#6A7A6A','#4A6A4A','#3A5A3A'], missionTypes:['bridge','shelter','guidePath','pattern','gather','counting','shapeFit','spotDifference','findTools','colorMatch','sizeOrdering','critterPath'], totalTasks:8, emoji:'⛰️' },
+  { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','alliteration','syllableClap','sequence','shapeFit','colorMatch','sizeOrdering','critterPath','gardenSort'], totalTasks:12, emoji:'🌸' },
+  { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath','riverRescue','tellingTime'], totalTasks:11, emoji:'🌊' },
+  { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath','nestRescue','lodgeRescue'], totalTasks:10, emoji:'🌲' },
+  { id:'mountain', name:'Misty Mountain', description:'The highest peak, where the bravest friends wait', unlockHarmony:75, bgColors:['#8B9AAA','#7A8A9A','#6A7A6A','#4A6A4A','#3A5A3A'], missionTypes:['bridge','shelter','guidePath','pattern','gather','counting','shapeFit','spotDifference','findTools','colorMatch','sizeOrdering','critterPath','brickBuild'], totalTasks:9, emoji:'⛰️' },
 ];
 
 export const ZONE_UNLOCK_THRESHOLDS: Record<string, number> = {

@@ -100,3 +100,21 @@ The visual reference keeps the river shallow, gentle, and non-threatening. It de
 | Wren’s Nest Route Rescue reference | Wordless soft-plush willow scene with a sturdy branch path, moss bundle, and cozy nest cup in the intended planning order. | `/manus-storage/critter-rescue-nest-route-reference_b1e89ab7.png` |
 
 This reference keeps Wren safe and the task focused on calm spatial planning: route first, soft material second, cozy nest last. The matching optional Nutty direction is stored at `/manus-storage/direction-nestRescue_a4a6c566.mp3` and only plays after a child or family tap.
+
+## Lodge-Building Rescue visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Bark’s Lodge-Building Rescue reference | Wordless storybook direction for a plush fox calmly building a cozy woodland lodge with sturdy sticks, soft leaf lining, and a round door in that planning order. | `/manus-storage/critter-rescue-lodge-rescue-reference_74e15b1d.png` |
+
+This reference preserves the game’s soft, safe, non-urgent woodland setting. The matching optional Nutty direction is stored at `/manus-storage/direction-lodgeRescue_97316825.mp3` and only plays after a child or family tap.
+
+## Telling Time, Sorting, and Brick-Building activity visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Telling Time reference | Wordless plush turtle scene with one large full-hour analog clock and a morning sun cue. | `/manus-storage/critter-rescue-telling-time-reference_1b7b441b.png` |
+| Garden Sorting reference | Wordless plush snail scene with broad green leaves and red berries beside two large woven baskets. | `/manus-storage/critter-rescue-sorting-reference_d502e3c6.png` |
+| Brick-Building reference | Wordless plush bear scene with original unbranded rounded blocks forming a small camp cottage. | `/manus-storage/critter-rescue-brick-build-reference_44e4d318.png` |
+
+These references are decorative authoring guides rather than runtime child-facing generation. Matching optional Nutty directions are stored at `/manus-storage/direction-tellingTime_5f8c9813.mp3`, `/manus-storage/direction-gardenSort_46623443.mp3`, and `/manus-storage/direction-brickBuild_a54f4e2d.mp3`; each plays only after a child or family tap.
