@@ -354,7 +354,7 @@
 - [x] Add a picture-led three-step nest-building rescue that practices spatial planning: choose a safe path, carry soft nest material, and settle the nest.
 - [x] Create and record a warm storybook nest-rescue art reference and optional tap-to-play direction.
 - [x] Add deterministic data and interaction coverage, then verify normal and Reduce Motion views on phone, tablet, and laptop.
-- [ ] Save a deployable checkpoint and synchronize the verified nest-rescue update to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified nest-rescue update to GitHub.
 
 ## GitHub Connector Verification
 
