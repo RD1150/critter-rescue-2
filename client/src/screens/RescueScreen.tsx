@@ -10,6 +10,7 @@ import { useAudioPreferences } from '../game/audioPreferences';
 import { getRescueDialogue } from '../game/characterDialogue';
 import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
+import { NEST_RESCUE_STEPS, NestRescueToolId } from '../game/nestRescue';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 
@@ -518,6 +519,74 @@ function RiverRescuePuzzle({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+// ── Picture-led Nest-Building Route Rescue ───────
+function NestRescuePuzzle({ onComplete }: { onComplete: () => void }) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [usedTools, setUsedTools] = useState<NestRescueToolId[]>([]);
+  const [message, setMessage] = useState(NEST_RESCUE_STEPS[0].prompt);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const activeStep = NEST_RESCUE_STEPS[stepIndex];
+
+  const chooseTool = (toolId: NestRescueToolId) => {
+    if (isFinishing || usedTools.includes(toolId)) return;
+    if (toolId !== activeStep.id) {
+      playChime();
+      setMessage(activeStep.gentleRetry);
+      return;
+    }
+    playMatch();
+    setUsedTools((current) => [...current, toolId]);
+    setMessage(activeStep.success);
+    if (stepIndex === NEST_RESCUE_STEPS.length - 1) {
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setTimeout(() => {
+      const nextStep = NEST_RESCUE_STEPS[stepIndex + 1];
+      setStepIndex((current) => current + 1);
+      setMessage(nextStep.prompt);
+    }, 850);
+  };
+
+  const hasPath = usedTools.includes('branchPath');
+  const hasMoss = usedTools.includes('mossBundle');
+  const hasNest = usedTools.includes('nestCup');
+
+  return (
+    <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Wren’s three-step Nest Route Rescue">
+      <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#BFD7A4] bg-[#EEF5E7] px-4 py-3 shadow-lg" aria-label={`Nest Rescue step ${Math.min(stepIndex + 1, 3)} of 3`}>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🌳</span><span className="font-body text-[10px] font-bold text-[#55734A]">WILLOW TREE</span></div>
+        <div className="relative mx-2 flex h-20 flex-1 items-center justify-center overflow-hidden rounded-2xl bg-[#DDEED3]" aria-hidden>
+          <span className="absolute right-2 top-0 text-5xl">🌿</span>
+          {hasPath && <span className="absolute bottom-2 left-[17%] text-4xl">🌿</span>}
+          {hasMoss && <span className="absolute right-[32%] top-[42%] text-3xl">🍃</span>}
+          {hasNest && <span className="absolute right-[14%] top-[33%] text-4xl">🪺</span>}
+          <div className={`absolute top-[27%] ${hasNest ? 'right-[19%]' : hasMoss ? 'right-[40%]' : hasPath ? 'left-[38%]' : 'left-[15%]'} transition-all duration-500`}><CritterAvatar type="bird" size={48} expression={hasNest ? 'grateful' : 'worried'} /></div>
+          <span className="absolute bottom-1 left-3 text-xs">🍂</span><span className="absolute bottom-2 right-3 text-xs">🍂</span>
+        </div>
+        <div className="text-center"><span className="block text-xl" aria-hidden>🪺</span><span className="font-body text-[10px] font-bold text-[#55734A]">COZY NEST</span></div>
+      </div>
+      <div className="rounded-2xl border border-[#D6C28A] bg-[#FFF8E6] px-4 py-3 text-center shadow-md">
+        <p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#8B6536]">Step {Math.min(stepIndex + 1, 3)} of 3</p>
+        <p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p>
+      </div>
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="Nest rescue helper pictures">
+        {NEST_RESCUE_STEPS.map((step) => {
+          const isUsed = usedTools.includes(step.id);
+          const isActive = step.id === activeStep.id && !isFinishing;
+          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#E4B770] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+            <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
+            <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
+            {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
+          </button>;
+        })}
+      </div>
+      <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one picture. There is no rush.</p>
+    </div>
+  );
+}
+
 // ── Sequence Puzzle ────────────────────────────
 const SEQ_STAGES = [
   ['🌱','Seed'],['🌿','Sprout'],['🌸','Flower'],['🍎','Fruit'],['🍂','Autumn'],
@@ -910,6 +979,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'habitatMatch':  return <HabitatMatchPuzzle onComplete={handlePuzzleComplete} />;
       case 'syllableClap':  return <SyllableClapPuzzle onComplete={handlePuzzleComplete} />;
       case 'riverRescue':   return <RiverRescuePuzzle onComplete={handlePuzzleComplete} />;
+      case 'nestRescue':    return <NestRescuePuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

@@ -8,7 +8,7 @@ export type MissionType =
   | 'memory' | 'pattern' | 'maze' | 'gather'
   | 'tracing' | 'sorting' | 'counting' | 'shapeFit'
   | 'spotDifference' | 'sequence' | 'findTools'
-  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue';
+  | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue' | 'nestRescue';
 
 export interface CritterData {
   name: string;
@@ -119,6 +119,7 @@ const DEEPWOODS_CRITTERS: CritterData[] = [
   c('Thistle','🐝','busy and grateful','"The whole hive says thank you!"','"We\'ll be friends forever!"','"Buzz buzz — keep going!"','"You\'re doing awesome!"'),
   c('Bark','🦊','clever and playful','"The forest feels like home again!"','"You outsmarted the dark!"','"I knew you could do it!"','"Think outside the box!"'),
   c('Ferns','🦢','small but mighty','"You made the forest bigger for me!"','"Big heart, you have!"','"Courage is what matters, not size!"','"One step at a time, friend."'),
+  c('Wren','🐦','bright and careful','"My little nest feels safe again!"','"You made each step so gentle."','"One helpful picture at a time!"','"Let’s look for the first cozy helper."'),
 ];
 
 const MOUNTAIN_CRITTERS: CritterData[] = [
@@ -179,6 +180,7 @@ const DEEPWOODS_TASKS: TaskDef[] = [
   { type:'spotDifference', critter:DEEPWOODS_CRITTERS[2], scenarioText:"Ember's forest looks different today!", hintText:'Find the differences between the two pictures', objectCount:4, difficulty:3, requiresOrder:false, introText:'Something changed in the deep woods! Can you find what\'s different?' },
   { type:'pattern', critter:DEEPWOODS_CRITTERS[3], scenarioText:"Thistle's hive entrance has a secret code!", hintText:'Watch the pattern and repeat it!', objectCount:4, difficulty:4, requiresOrder:true, introText:'The hive door only opens with the right pattern. Watch carefully!' },
   { type:'maze', critter:DEEPWOODS_CRITTERS[0], scenarioText:'Shadow is lost deep in the winding forest paths!', hintText:'Trace through the dark forest maze carefully', objectCount:5, difficulty:4, requiresOrder:false, introText:'The deep woods twist and turn in every direction. Shadow needs you to find the way out.' },
+  { type:'nestRescue', critter:DEEPWOODS_CRITTERS[6], scenarioText:'Wren needs a gentle route to a cozy willow nest!', hintText:'Choose the nest helpers in a calm, helpful order.', objectCount:3, difficulty:3, requiresOrder:true, introText:'Wren found a quiet willow branch, but their nest needs a safe, soft way to come together. Can you choose the helpers in order?' },
 ];
 
 const MOUNTAIN_TASKS: TaskDef[] = [
@@ -202,7 +204,7 @@ const ZONE_TASKS: Record<string, TaskDef[]> = {
 export const ZONES: ZoneInfo[] = [
   { id:'meadow', name:'Sunny Meadow', description:'A gentle clearing where little ones play', unlockHarmony:0, bgColors:['#87CEEB','#A8D8F0','#7EC8A0','#4A7A35','#3E6B2F'], missionTypes:['bridge','clearPath','memory','maze','tracing','counting','quietCount','letterSound','alliteration','syllableClap','sequence','shapeFit','colorMatch','sizeOrdering','critterPath'], totalTasks:11, emoji:'🌸' },
   { id:'riverside', name:'Rushing River', description:'Where the water meets the trees', unlockHarmony:15, bgColors:['#6BAACC','#87CEEB','#5A9E7A','#3E6B2F','#2D5A1E'], missionTypes:['bridge','clearPath','guidePath','memory','pictureRhyme','habitatMatch','sorting','tracing','spotDifference','sizeOrdering','critterPath','riverRescue'], totalTasks:10, emoji:'🌊' },
-  { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath'], totalTasks:8, emoji:'🌲' },
+  { id:'deepwoods', name:'Deep Woods', description:'Ancient trees, hidden paths, quiet friends', unlockHarmony:40, bgColors:['#5A7A5E','#3E6B2F','#2D5A1E','#1F4216','#162F10'], missionTypes:['clearPath','shelter','guidePath','pattern','maze','sorting','spotDifference','sequence','findTools','critterPath','nestRescue'], totalTasks:9, emoji:'🌲' },
   { id:'mountain', name:'Misty Mountain', description:'The highest peak, where the bravest friends wait', unlockHarmony:75, bgColors:['#8B9AAA','#7A8A9A','#6A7A6A','#4A6A4A','#3A5A3A'], missionTypes:['bridge','shelter','guidePath','pattern','gather','counting','shapeFit','spotDifference','findTools','colorMatch','sizeOrdering','critterPath'], totalTasks:8, emoji:'⛰️' },
 ];
 

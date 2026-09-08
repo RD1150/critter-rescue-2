@@ -349,6 +349,13 @@
 - [x] Define a reusable three-step rescue data format that can support a curated library of ten calm planning-and-cause-effect games.
 - [x] Document a parent-reviewed AI-assisted authoring workflow that drafts new rescue packs from approved templates rather than generating unreviewed child-facing games at runtime.
 
+## Nest-Building Route Rescue
+
+- [x] Add a picture-led three-step nest-building rescue that practices spatial planning: choose a safe path, carry soft nest material, and settle the nest.
+- [x] Create and record a warm storybook nest-rescue art reference and optional tap-to-play direction.
+- [x] Add deterministic data and interaction coverage, then verify normal and Reduce Motion views on phone, tablet, and laptop.
+- [ ] Save a deployable checkpoint and synchronize the verified nest-rescue update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

@@ -9,7 +9,7 @@ const { playPreReaderDirection, useAudioPreferences } = vi.hoisted(() => ({ play
 vi.mock('../game/characterAudio', () => ({ playPreReaderDirection }));
 vi.mock('../game/audioPreferences', () => ({ useAudioPreferences }));
 vi.mock('../game/preReaderDirections', () => ({
-  PRE_READER_DIRECTIONS: { onboarding: 'Tap Let’s Help a Friend.' },
+  PRE_READER_DIRECTIONS: { onboarding: 'Tap Let’s Help a Friend.', nestRescue: 'Tap the branch, then moss, then nest.' },
 }));
 
 describe('PreReaderDirection', () => {
@@ -34,6 +34,14 @@ describe('PreReaderDirection', () => {
     fireEvent.click(within(container).getByRole('button', { name: /Listen to direction:/ }));
     await waitFor(() => expect(within(container).getByRole('status')).toBeTruthy());
     expect(within(container).getByRole('img', { name: 'squirrel' }).parentElement?.className).not.toContain('animate-speaking-pulse');
+  });
+
+  it('keeps Nest Rescue’s visual instruction available without any audio control when spoken directions are disabled', () => {
+    useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: false, captionsEnabled: true, directionVolumeCheckComplete: true, reduceMotion: false }, vi.fn()]);
+    const { container } = render(<PreReaderDirection directionKey="nestRescue" />);
+    expect(within(container).getByText(/Tap the branch, then moss, then nest/i)).toBeTruthy();
+    expect(within(container).queryByRole('button', { name: /Listen/i })).toBeNull();
+    expect(playPreReaderDirection).not.toHaveBeenCalled();
   });
 
   it('asks for a grown-up comfort-volume check before first optional audio and offers replay after the clip ends', async () => {

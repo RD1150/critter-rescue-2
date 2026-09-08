@@ -92,3 +92,11 @@ The artwork is decorative only and keeps the existing loading copy high contrast
 | Clover’s River Rescue reference | Wordless storybook direction for a soft plush rabbit waiting safely on a river rock, a sturdy log, soft rope, and warm grassy bank. Supports the picture-led log → rope → safe-trail sequence. | `/manus-storage/critter-rescue-river-rescue-reference_ad273719.png` |
 
 The visual reference keeps the river shallow, gentle, and non-threatening. It depicts calm planning and a safe path home rather than peril, speed, or a failure state.
+
+## Nest-Building Route Rescue visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Wren’s Nest Route Rescue reference | Wordless soft-plush willow scene with a sturdy branch path, moss bundle, and cozy nest cup in the intended planning order. | `/manus-storage/critter-rescue-nest-route-reference_b1e89ab7.png` |
+
+This reference keeps Wren safe and the task focused on calm spatial planning: route first, soft material second, cozy nest last. The matching optional Nutty direction is stored at `/manus-storage/direction-nestRescue_a4a6c566.mp3` and only plays after a child or family tap.
