@@ -118,3 +118,11 @@ This reference preserves the game’s soft, safe, non-urgent woodland setting. T
 | Brick-Building reference | Wordless plush bear scene with original unbranded rounded blocks forming a small camp cottage. | `/manus-storage/critter-rescue-brick-build-reference_44e4d318.png` |
 
 These references are decorative authoring guides rather than runtime child-facing generation. Matching optional Nutty directions are stored at `/manus-storage/direction-tellingTime_5f8c9813.mp3`, `/manus-storage/direction-gardenSort_46623443.mp3`, and `/manus-storage/direction-brickBuild_a54f4e2d.mp3`; each plays only after a child or family tap.
+
+## Parent Activity Guide and Creative Block Studio visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Creative Block Studio reference | Wordless art direction for an original, unbranded open-ended building mat with a plush bear, large rounded blocks, a cottage, a flower tower, and a small bridge. | `/manus-storage/critter-rescue-creative-block-studio-reference_36f5d761.png` |
+
+This reference extends the existing Cozy Block Builder with child-safe creative play. It uses original rounded shapes only and excludes third-party branding, logos, sharp plastic bricks, tiny pieces, and commercial prompts.
