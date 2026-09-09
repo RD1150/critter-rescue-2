@@ -383,7 +383,7 @@
 - [x] Add a clearly parent-facing activity-library guide that explains each available game’s learning focus, suggested co-play prompt, and how to open it without changing child progression.
 - [x] Expand the original unbranded Cozy Block Builder with an optional, calm creative-build mode using original rounded blocks, large tap targets, and a simple reset action.
 - [x] Add deterministic coverage and verify the parent guide and creative builder on phone, tablet, laptop, and Reduce Motion views.
-- [ ] Save a deployable checkpoint and synchronize the verified guide and builder expansion to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified guide and builder expansion to GitHub.
 
 ## GitHub Connector Verification
 
