@@ -495,7 +495,7 @@ export default function CampScreen({
                     key={zone.id}
                     disabled={!unlocked || done}
                     onClick={() => { playButton(); setShowZoneSelect(false); setTimeout(() => onStartRescue(zone.id), 180); }}
-                    aria-label={`${zone.name}: ${status}. ${guidance}`}
+                    aria-label={`${zone.name}: ${status}. ${completed} of ${zone.totalTasks} rescues complete. ${guidance}`}
                     className={`rounded-2xl overflow-hidden text-left transition-transform active:scale-[0.98] ${!unlocked || done ? 'opacity-55' : 'hover:scale-[1.01]'} ${isNextTrail ? 'ring-2 ring-[#F5C842] ring-offset-2 ring-offset-[#3F2B1B]' : ''}`}
                     style={{ background: `linear-gradient(135deg, ${zone.bgColors[0]}, ${zone.bgColors[2]})`, border: '1px solid rgba(255,255,255,.2)' }}>
                     <div className="px-4 py-3 flex items-center gap-3">
@@ -506,10 +506,13 @@ export default function CampScreen({
                           <span className={`rounded-full px-2 py-0.5 font-body text-[10px] font-bold ${isNextTrail ? 'bg-[#FFF1BE] text-[#5D3D2A]' : 'bg-black/20 text-white'}`}>{status}</span>
                         </div>
                         <p className="mt-0.5 font-body text-xs text-white/90">{guidance}</p>
-                        {unlocked && <div className="flex gap-1 mt-1.5">
-                          {Array.from({ length: zone.totalTasks }).map((_, index) => (
-                            <div key={index} aria-hidden="true" className={`h-2 w-2 rounded-full ${index < completed ? 'bg-[#F5C842]' : index === completed && !done ? 'bg-white ring-1 ring-[#F5C842]' : 'bg-white/30'}`} />
-                          ))}
+                        {unlocked && <div className="mt-1.5 flex items-center gap-2">
+                          <span className="whitespace-nowrap font-body text-[10px] font-bold text-white/90">{completed} of {zone.totalTasks} rescues</span>
+                          <div className="flex gap-1" aria-hidden="true">
+                            {Array.from({ length: zone.totalTasks }).map((_, index) => (
+                              <div key={index} className={`h-2 w-2 rounded-full ${index < completed ? 'bg-[#F5C842]' : index === completed && !done ? 'bg-white ring-1 ring-[#F5C842]' : 'bg-white/30'}`} />
+                            ))}
+                          </div>
                         </div>}
                       </div>
                     </div>

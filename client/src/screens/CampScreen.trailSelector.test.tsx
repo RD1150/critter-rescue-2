@@ -19,6 +19,8 @@ describe('CampScreen child-first trail selector', () => {
     const picker = within(container).getByRole('dialog', { name: 'Pick a rescue trail' });
     expect(within(picker).getByText(/Start with the card that says/i)).toBeTruthy();
     expect(within(picker).getByRole('button', { name: /Sunny Meadow: Ready now/i })).toBeTruthy();
+    expect(within(picker).getByText('2 of 12 rescues')).toBeTruthy();
+    expect(within(picker).getByText('0 of 11 rescues')).toBeTruthy();
     expect(within(picker).getByRole('button', { name: /Deep Woods: Not ready yet/i })).toBeTruthy();
     fireEvent.click(within(picker).getByRole('button', { name: /Sunny Meadow: Ready now/i }));
     vi.advanceTimersByTime(180);

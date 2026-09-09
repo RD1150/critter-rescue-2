@@ -372,6 +372,12 @@
 - [x] Add deterministic coverage and verify each activity on phone, tablet, laptop, and Reduce Motion views.
 - [x] Save a deployable checkpoint and synchronize the verified activity-library expansion to GitHub.
 
+## Deployed Ninth-Task Visibility Repair
+
+- [x] Diagnose why the deployed mission path does not visibly reach its ninth task despite the verified source commit.
+- [x] Apply and test the smallest safe correction so the additional mission is available in ordinary play.
+- [ ] Verify the corrected path in a production build and responsive preview, then checkpoint and synchronize GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.
