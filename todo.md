@@ -376,7 +376,7 @@
 
 - [x] Diagnose why the deployed mission path does not visibly reach its ninth task despite the verified source commit.
 - [x] Apply and test the smallest safe correction so the additional mission is available in ordinary play.
-- [ ] Verify the corrected path in a production build and responsive preview, then checkpoint and synchronize GitHub.
+- [x] Verify the corrected path in a production build and responsive preview, then checkpoint and synchronize GitHub.
 
 ## GitHub Connector Verification
 
