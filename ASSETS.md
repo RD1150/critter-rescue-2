@@ -126,3 +126,18 @@ These references are decorative authoring guides rather than runtime child-facin
 | Creative Block Studio reference | Wordless art direction for an original, unbranded open-ended building mat with a plush bear, large rounded blocks, a cottage, a flower tower, and a small bridge. | `/manus-storage/critter-rescue-creative-block-studio-reference_36f5d761.png` |
 
 This reference extends the existing Cozy Block Builder with child-safe creative play. It uses original rounded shapes only and excludes third-party branding, logos, sharp plastic bricks, tiny pieces, and commercial prompts.
+
+## Cozy Block Studio inspiration cards
+
+| Card | Child-facing idea | Project storage URL |
+|---|---|---|
+| Little Bridge | Make a little bridge. | `/manus-storage/critter-rescue-build-prompt-little-bridge_605f6456.png` |
+| Cozy Home | Make a cozy home for a friend. | `/manus-storage/critter-rescue-build-prompt-cozy-home_9561c0bb.png` |
+| Tall Tower | How tall would you like to build? | `/manus-storage/critter-rescue-build-prompt-tall-tower_9a91b4a6.png` |
+| Flower Spot | Can you make a place for a flower? | `/manus-storage/critter-rescue-build-prompt-flower-spot_a7ce60de.png` |
+| Sunny Window | Where could a sunny window go? | `/manus-storage/critter-rescue-build-prompt-sunny-window_0f54b2cc.png` |
+| Two-Color Build | Pick two colors to build with. | `/manus-storage/critter-rescue-build-prompt-two-color_4d83aacf.png` |
+| Friendly Door | Add a door for a friend to visit. | `/manus-storage/critter-rescue-build-prompt-friendly-door_926d8646.png` |
+| Make a Path | Can you make a path to your creation? | `/manus-storage/critter-rescue-build-prompt-make-a-path_4c01deeb.png` |
+
+The cards are pre-authored, optional ideas rather than requirements. They never score a build, compare children, or require an exact outcome; every card also leaves space for independent free build.

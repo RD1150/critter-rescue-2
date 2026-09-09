@@ -385,6 +385,20 @@
 - [x] Add deterministic coverage and verify the parent guide and creative builder on phone, tablet, laptop, and Reduce Motion views.
 - [x] Save a deployable checkpoint and synchronize the verified guide and builder expansion to GitHub.
 
+## Cozy Block Studio Local Creations
+
+- [x] Add privacy-preserving local-only saved creations with a clear name, block layout, and no uploads, accounts, or child profile data.
+- [x] Add child-friendly save, revisit, load, and grown-up removal controls without scores, timers, or commercial prompts.
+- [x] Add deterministic coverage and verify saved creations on phone, tablet, laptop, and Reduce Motion views.
+- [ ] Save a deployable checkpoint and synchronize the verified local-creations update to GitHub.
+
+## Cozy Block Studio Inspiration Cards
+
+- [x] Create eight original, picture-led inspiration cards: Little Bridge, Cozy Home, Tall Tower, Flower Spot, Sunny Window, Two-Color Build, Friendly Door, and Make a Path.
+- [x] Add an optional child-facing inspiration chooser that can be skipped at any time and never measures, scores, or requires a matching build.
+- [x] Add deterministic coverage and verify the inspiration cards on phone, tablet, laptop, and Reduce Motion views.
+- [ ] Save a deployable checkpoint and synchronize the verified inspiration-card update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.
