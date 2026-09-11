@@ -405,7 +405,7 @@
 - [x] Make only parent-selected custom prompts available in the Cozy Block Studio alongside the built-in optional inspiration cards.
 - [x] Add a new calm picture-led Animal Home & Care Match with one pair at a time: dog → dog house, bird → birdhouse, cat → scratching post, and pig → mud bath; include gentle retry feedback, optional directions, and no timer or score.
 - [x] Create the matching-rescue visual reference and player-initiated optional direction asset, then add deterministic coverage.
-- [ ] Verify parent/editor and matching-rescue views on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
+- [x] Verify parent/editor and matching-rescue views on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
 
 ## GitHub Connector Verification
 
