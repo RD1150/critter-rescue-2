@@ -10,6 +10,6 @@ describe('Garden Sorting activity', () => {
 
   it('adds Daisy’s garden sorting activity to the Sunny Meadow', () => {
     expect(getZoneTask('meadow', 11)).toMatchObject({ type: 'gardenSort', taskIndex: 11, critter: { name: 'Daisy' } });
-    expect(getZoneTaskCount('meadow')).toBe(12);
+    expect(getZoneTaskCount('meadow')).toBe(13);
   });
 });

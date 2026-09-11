@@ -10,10 +10,11 @@ vi.mock('../game/seasonalSoundscape', () => ({ startParentSelectedSoundscape: vi
 
 describe('ParentSettingsScreen first-play tip', () => {
   it('offers brief grown-up co-play guidance without adding it to the child flow', () => {
-    render(<ParentSettingsScreen onBack={vi.fn()} onOpenProgress={vi.fn()} onOpenGallery={vi.fn()} onOpenActivityGuide={vi.fn()} />);
+    render(<ParentSettingsScreen onBack={vi.fn()} onOpenProgress={vi.fn()} onOpenGallery={vi.fn()} onOpenActivityGuide={vi.fn()} onOpenBuildPrompts={vi.fn()} />);
     expect(screen.getByText('Grown-up first-play tip')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Follow their lead, then name one kind thing.' })).toBeTruthy();
     expect(screen.getByText(/There is no right pace and no need to finish everything/i)).toBeTruthy();
     expect(screen.getByRole('button', { name: /Open activity library guide/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Choose Cozy Block Studio ideas/i })).toBeTruthy();
   });
 });

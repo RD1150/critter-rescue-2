@@ -39,6 +39,7 @@ const TASK_HELP: Record<MissionType, string> = {
   tellingTime: 'Help me find the clock that says seven o’clock!',
   gardenSort: 'Help me put every picture in the matching basket!',
   brickBuild: 'Help me build our little block cottage in order!',
+  animalHomeMatch: 'Help me match every animal with its special cozy place!',
 };
 
 const VOICE_SETTINGS: Record<CritterType, string> = {

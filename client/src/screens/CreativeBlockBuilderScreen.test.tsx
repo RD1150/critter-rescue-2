@@ -31,6 +31,17 @@ describe('CreativeBlockBuilderScreen', () => {
     expect(screen.getByText('Your own idea is ready. Pick any block and make it your way.')).toBeTruthy();
   });
 
+  it('shows only a parent-selected local idea and keeps Build my own available', () => {
+    window.localStorage.setItem('critter-rescue-parent-build-prompts', JSON.stringify([{ id: 'parent-1', title: 'Soft tunnel', prompt: 'Can you make a soft tunnel for a friend?', enabled: true, createdAt: 1 }, { id: 'parent-2', title: 'Hidden idea', prompt: 'Can you make a hidden idea for later?', enabled: false, createdAt: 2 }]));
+    render(<CreativeBlockBuilderScreen onBack={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'A special build idea' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Soft tunnel/i })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Hidden idea/i })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Soft tunnel/i }));
+    expect(screen.getByText('Can you make a soft tunnel for a friend? You can use any blocks you like.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Build my own' })).toBeTruthy();
+  });
+
   it('saves a local build, opens it again, and lets a family remove it without uploads or profiles', () => {
     window.localStorage.clear();
     render(<CreativeBlockBuilderScreen onBack={vi.fn()} />);

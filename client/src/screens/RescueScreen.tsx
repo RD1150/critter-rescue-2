@@ -15,6 +15,7 @@ import { LODGE_RESCUE_STEPS, LodgeRescueToolId } from '../game/lodgeRescue';
 import { TELLING_TIME_ROUND } from '../game/tellingTime';
 import { GARDEN_SORT_BASKETS, GARDEN_SORT_ITEMS, GardenSortCategory } from '../game/gardenSort';
 import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
+import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchChoiceId } from '../game/animalHomeMatch';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 
@@ -746,6 +747,44 @@ function GardenSortPuzzle({ onComplete }: { onComplete: () => void }) {
   );
 }
 
+// ── Picture-led Animal Home and Care Match ───────
+function AnimalHomeMatchPuzzle({ onComplete }: { onComplete: () => void }) {
+  const [roundIndex, setRoundIndex] = useState(0);
+  const [message, setMessage] = useState(`Where does this ${ANIMAL_HOME_MATCH_ROUNDS[0].animal.toLowerCase()} feel cozy?`);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const round = ANIMAL_HOME_MATCH_ROUNDS[roundIndex];
+
+  const choosePlace = (choiceId: AnimalHomeMatchChoiceId) => {
+    if (isFinishing) return;
+    const choice = ANIMAL_HOME_MATCH_CHOICES[choiceId];
+    if (choiceId !== round.correctChoice) {
+      playChime();
+      setMessage(`${choice.label} is a cozy place for another animal. Which place goes with the ${round.animal.toLowerCase()}?`);
+      return;
+    }
+    playMatch();
+    if (roundIndex === ANIMAL_HOME_MATCH_ROUNDS.length - 1) {
+      setMessage('Every animal found a special cozy place. You helped Daisy make caring matches!');
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setMessage('That is a caring match. Let’s look at the next animal picture.');
+    setTimeout(() => {
+      const nextRound = ANIMAL_HOME_MATCH_ROUNDS[roundIndex + 1];
+      setRoundIndex((current) => current + 1);
+      setMessage(`Where does this ${nextRound.animal.toLowerCase()} feel cozy?`);
+    }, 700);
+  };
+
+  return <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Animal home and care matching activity">
+    <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#E7C9A7] bg-[#FFF1D9] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>🏡</span><span className="font-body text-[10px] font-bold text-[#9A6842]">COZY PLACES</span></div><div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#F9E4C8]" aria-hidden><span className="text-6xl">{isFinishing ? '✨' : round.animalIcon}</span></div><div className="text-center"><span className="block text-xl" aria-hidden>🐛</span><span className="font-body text-[10px] font-bold text-[#9A6842]">DAISY</span></div></div>
+    <div className="rounded-2xl border border-[#E7C9A7] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#9A6842]">Animal {Math.min(roundIndex + 1, ANIMAL_HOME_MATCH_ROUNDS.length)} of {ANIMAL_HOME_MATCH_ROUNDS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
+    <div className="grid w-full grid-cols-3 gap-3" aria-label="Cozy place picture choices">{round.choices.map((choiceId) => { const choice = ANIMAL_HOME_MATCH_CHOICES[choiceId]; return <button key={choiceId} type="button" onClick={() => choosePlace(choiceId)} disabled={isFinishing} aria-label={choice.label} className="min-h-[150px] rounded-3xl border-2 border-[#E7C9A7] bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60"><span aria-hidden="true" className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-4xl shadow-sm" style={{ background: choice.color }}>{choice.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{choice.label}</span></button>; })}</div>
+    <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one cozy place. There is no rush.</p>
+  </div>;
+}
+
 // ── Original unbranded Cozy Block Builder ────────
 function BrickBuildPuzzle({ onComplete }: { onComplete: () => void }) {
   const [stepIndex, setStepIndex] = useState(0);
@@ -1187,6 +1226,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       case 'tellingTime':   return <TellingTimePuzzle onComplete={handlePuzzleComplete} />;
       case 'gardenSort':    return <GardenSortPuzzle onComplete={handlePuzzleComplete} />;
       case 'brickBuild':    return <BrickBuildPuzzle onComplete={handlePuzzleComplete} />;
+      case 'animalHomeMatch': return <AnimalHomeMatchPuzzle onComplete={handlePuzzleComplete} />;
       case 'sequence':      return <SequencePuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'sorting':       return <SortingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
       case 'findTools':     return <FindToolsPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;

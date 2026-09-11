@@ -13,4 +13,5 @@ export const ACTIVITY_LIBRARY: readonly ActivityLibraryEntry[] = [
   { title: 'Nest Route', icon: '🪺', learningFocus: 'Spatial planning', findIt: 'Later in the Deep Woods trail.', coPlayPrompt: 'Try: “What helps Wren get ready first?”' },
   { title: 'Lodge Builder', icon: '🏡', learningFocus: 'Building in a helpful order', findIt: 'At the end of the Deep Woods trail.', coPlayPrompt: 'Try: “What makes a cozy home?”' },
   { title: 'Cozy Block Builder', icon: '🧱', learningFocus: 'Sequencing and creative construction', findIt: 'Later in the Misty Mountain trail.', coPlayPrompt: 'Try: “Tell me about what you built.”' },
+  { title: 'Animal Home & Care Match', icon: '🏡', learningFocus: 'Matching animals with familiar homes and care places', findIt: 'At the end of the Sunny Meadow trail.', coPlayPrompt: 'Try: “Which cozy place goes with this animal?”' },
 ];

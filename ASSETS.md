@@ -141,3 +141,11 @@ This reference extends the existing Cozy Block Builder with child-safe creative 
 | Make a Path | Can you make a path to your creation? | `/manus-storage/critter-rescue-build-prompt-make-a-path_4c01deeb.png` |
 
 The cards are pre-authored, optional ideas rather than requirements. They never score a build, compare children, or require an exact outcome; every card also leaves space for independent free build.
+
+## Animal Home and Care Match visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Animal Home and Care Match reference | Wordless picture-led matching direction for a plush dog and dog house, bird and birdhouse, cat and scratching post, and pig and gentle mud bath. | `/manus-storage/critter-rescue-animal-home-care-match-reference_7c44462c.png` |
+
+This original reference keeps each pair visually clear and safe for preschool matching. The optional Nutty direction is stored at `/manus-storage/direction-animalHomeMatch_622da09b.mp3` and plays only after a child or family tap.
