@@ -6,6 +6,17 @@ export type ParentBuildPrompt = {
   createdAt: number;
 };
 
+export type ParentBuildPromptTemplate = Pick<ParentBuildPrompt, 'title' | 'prompt'> & {
+  id: string;
+};
+
+export const PARENT_BUILD_PROMPT_TEMPLATES: readonly ParentBuildPromptTemplate[] = [
+  { id: 'leafy-bridge', title: 'Leafy bridge', prompt: 'Can you make a leafy bridge for a friend?' },
+  { id: 'pond-lookout', title: 'Pond lookout', prompt: 'Can you build a cozy lookout by a little pond?' },
+  { id: 'flower-gate', title: 'Flower gate', prompt: 'Can you make a bright flower gate to walk through?' },
+  { id: 'moon-home', title: 'Moon home', prompt: 'Can you build a small moonlit home for a friend?' },
+];
+
 const STORAGE_KEY = 'critter-rescue-parent-build-prompts';
 const MAX_PROMPTS = 8;
 const cleanText = (value: string, max: number) => value.trim().replace(/\s+/g, ' ').slice(0, max);

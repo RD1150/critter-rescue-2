@@ -407,6 +407,14 @@
 - [x] Create the matching-rescue visual reference and player-initiated optional direction asset, then add deterministic coverage.
 - [x] Verify parent/editor and matching-rescue views on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
 
+## Prompt Templates, Expanded Matching, Clock Rounds, and Market Review
+
+- [x] Add parent-only, local template cards that can prefill concise child-safe Studio prompts without using AI generation or collecting child data.
+- [x] Add two calm animal-care matching pairs with one animal and large picture choices at a time, including gentle retry wording and optional directions.
+- [x] Add additional picture-led full-hour clock rounds with one large time choice at a time and no timed performance or scoring.
+- [ ] Add deterministic coverage, verify the expanded learning activities on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
+- [ ] Directly verify the parent-selectable Holiday Edition and perform a current market-readiness review covering quality, child privacy, accessibility, mobile behavior, and launch requirements.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

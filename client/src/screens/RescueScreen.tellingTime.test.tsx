@@ -14,7 +14,7 @@ vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playC
 describe('Telling Time in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
 
-  it('keeps the full-hour choice calm and completes only after Brook’s seven o’clock clock', () => {
+  it('keeps three full-hour rounds calm and completes only after Brook finds each clock', () => {
     vi.useFakeTimers();
     const onComplete = vi.fn();
     const mission = getZoneTask('riverside', 10);
@@ -27,6 +27,12 @@ describe('Telling Time in RescueScreen', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /clock showing 7 o’clock/i }));
     expect(screen.getByText(/You found seven o’clock/i)).toBeTruthy();
+    act(() => { vi.advanceTimersByTime(700); });
+    fireEvent.click(screen.getByRole('button', { name: /clock showing 3 o’clock/i }));
+    expect(screen.getByText(/You found three o’clock/i)).toBeTruthy();
+    act(() => { vi.advanceTimersByTime(700); });
+    fireEvent.click(screen.getByRole('button', { name: /clock showing 10 o’clock/i }));
+    expect(screen.getByText(/You found every full hour/i)).toBeTruthy();
     act(() => { vi.advanceTimersByTime(1300); });
     act(() => { vi.advanceTimersByTime(2000); });
     fireEvent.click(screen.getByRole('button', { name: /back to camp/i }));

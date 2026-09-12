@@ -3,9 +3,9 @@ import { getZoneTask, getZoneTaskCount } from './data';
 import { ANIMAL_HOME_MATCH_ROUNDS } from './animalHomeMatch';
 
 describe('Animal Home and Care Match', () => {
-  it('uses the approved four clear animal and place pairs', () => {
+  it('uses six clear animal and place pairs', () => {
     expect(ANIMAL_HOME_MATCH_ROUNDS.map((round) => [round.animal, round.correctChoice])).toEqual([
-      ['Dog', 'dogHouse'], ['Bird', 'birdHouse'], ['Cat', 'scratchingPost'], ['Pig', 'mudBath'],
+      ['Dog', 'dogHouse'], ['Bird', 'birdHouse'], ['Cat', 'scratchingPost'], ['Pig', 'mudBath'], ['Duck', 'pond'], ['Rabbit', 'burrow'],
     ]);
   });
 

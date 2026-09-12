@@ -32,7 +32,7 @@ export const PRE_READER_DIRECTIONS: Record<PreReaderDirectionKey, string> = {
   riverRescue: 'Tap the log, then rope, then trail.',
   nestRescue: 'Tap the branch, then moss, then nest.',
   lodgeRescue: 'Tap the sticks, then leaves, then door.',
-  tellingTime: 'Tap the clock that says seven o’clock.',
+  tellingTime: 'Tap the clock that shows the right hour.',
   gardenSort: 'Put each berry or leaf in its matching basket.',
   brickBuild: 'Tap the wide block, walls, then roof.',
   animalHomeMatch: 'Tap the place that goes with each animal.',

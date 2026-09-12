@@ -154,7 +154,7 @@ export const PRE_READER_AUDIO: Record<PreReaderDirectionKey, string> = {
   riverRescue: '/manus-storage/direction-riverRescue_e6a71518.mp3',
   nestRescue: '/manus-storage/direction-nestRescue_a4a6c566.mp3',
   lodgeRescue: '/manus-storage/direction-lodgeRescue_97316825.mp3',
-  tellingTime: '/manus-storage/direction-tellingTime_5f8c9813.mp3',
+  tellingTime: '/manus-storage/direction-tellingTime_fafdddfc.mp3',
   gardenSort: '/manus-storage/direction-gardenSort_46623443.mp3',
   brickBuild: '/manus-storage/direction-brickBuild_a54f4e2d.mp3',
   animalHomeMatch: '/manus-storage/direction-animalHomeMatch_622da09b.mp3',

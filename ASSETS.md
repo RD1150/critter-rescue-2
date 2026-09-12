@@ -117,7 +117,7 @@ This reference preserves the game’s soft, safe, non-urgent woodland setting. T
 | Garden Sorting reference | Wordless plush snail scene with broad green leaves and red berries beside two large woven baskets. | `/manus-storage/critter-rescue-sorting-reference_d502e3c6.png` |
 | Brick-Building reference | Wordless plush bear scene with original unbranded rounded blocks forming a small camp cottage. | `/manus-storage/critter-rescue-brick-build-reference_44e4d318.png` |
 
-These references are decorative authoring guides rather than runtime child-facing generation. Matching optional Nutty directions are stored at `/manus-storage/direction-tellingTime_5f8c9813.mp3`, `/manus-storage/direction-gardenSort_46623443.mp3`, and `/manus-storage/direction-brickBuild_a54f4e2d.mp3`; each plays only after a child or family tap.
+These references are decorative authoring guides rather than runtime child-facing generation. Matching optional Nutty directions are stored at `/manus-storage/direction-tellingTime_fafdddfc.mp3`, `/manus-storage/direction-gardenSort_46623443.mp3`, and `/manus-storage/direction-brickBuild_a54f4e2d.mp3`; each plays only after a child or family tap. The refreshed telling-time cue says “Tap the clock that shows the right hour” so it remains accurate for every full-hour round.
 
 ## Parent Activity Guide and Creative Block Studio visual direction
 
@@ -149,3 +149,11 @@ The cards are pre-authored, optional ideas rather than requirements. They never 
 | Animal Home and Care Match reference | Wordless picture-led matching direction for a plush dog and dog house, bird and birdhouse, cat and scratching post, and pig and gentle mud bath. | `/manus-storage/critter-rescue-animal-home-care-match-reference_7c44462c.png` |
 
 This original reference keeps each pair visually clear and safe for preschool matching. The optional Nutty direction is stored at `/manus-storage/direction-animalHomeMatch_622da09b.mp3` and plays only after a child or family tap.
+
+## Expanded Matching and Full-Hour Clock visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Expanded matching and clock reference | Wordless storybook direction for adding a duck-and-pond and frog-and-leafy-shelter picture pair alongside clear 3 o’clock and 10 o’clock analog clock cues. | `/manus-storage/critter-rescue-expanded-matching-clock-reference_d03192e4.png` |
+
+This authoring reference keeps the additional matching and time-reading rounds calm, picture-led, and non-competitive. Existing optional direction controls remain tap-only; no new audio autoplays.

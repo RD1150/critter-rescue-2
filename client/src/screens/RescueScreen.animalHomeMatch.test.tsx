@@ -14,7 +14,7 @@ vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playC
 describe('Animal Home and Care Match in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
 
-  it('shows one animal at a time, gives gentle feedback, and completes the four calm pairs', () => {
+  it('shows one animal at a time, gives gentle feedback, and completes the six calm pairs', () => {
     vi.useFakeTimers();
     const onComplete = vi.fn();
     const mission = getZoneTask('meadow', 12);
@@ -30,6 +30,10 @@ describe('Animal Home and Care Match in RescueScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Scratching post' }));
     act(() => { vi.advanceTimersByTime(700); });
     fireEvent.click(screen.getByRole('button', { name: 'Mud bath' }));
+    act(() => { vi.advanceTimersByTime(700); });
+    fireEvent.click(screen.getByRole('button', { name: 'Pond' }));
+    act(() => { vi.advanceTimersByTime(700); });
+    fireEvent.click(screen.getByRole('button', { name: 'Burrow' }));
     expect(screen.getByText(/Every animal found a special cozy place/i)).toBeTruthy();
     act(() => { vi.advanceTimersByTime(1300); });
     act(() => { vi.advanceTimersByTime(2000); });

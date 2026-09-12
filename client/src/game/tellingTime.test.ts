@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { getZoneTask, getZoneTaskCount } from './data';
-import { TELLING_TIME_ROUND } from './tellingTime';
+import { TELLING_TIME_ROUNDS } from './tellingTime';
 
 describe('Telling Time activity', () => {
-  it('uses one calm full-hour reading with a visible correct clock', () => {
-    expect(TELLING_TIME_ROUND.targetHour).toBe(7);
-    expect(TELLING_TIME_ROUND.choiceHours).toContain(TELLING_TIME_ROUND.targetHour);
-    expect(TELLING_TIME_ROUND.choiceHours).toHaveLength(3);
-    expect(TELLING_TIME_ROUND.gentleRetry).toMatch(/different time/i);
+  it('uses three calm full-hour readings with a visible correct clock for every round', () => {
+    expect(TELLING_TIME_ROUNDS.map((round) => round.targetHour)).toEqual([7, 3, 10]);
+    TELLING_TIME_ROUNDS.forEach((round) => {
+      expect(round.choiceHours).toContain(round.targetHour);
+      expect(round.choiceHours).toHaveLength(3);
+      expect(round.gentleRetry).toMatch(/different time/i);
+    });
   });
 
   it('adds Brook’s full-hour activity to the Riverside path', () => {

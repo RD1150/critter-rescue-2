@@ -12,7 +12,7 @@ import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
 import { NEST_RESCUE_STEPS, NestRescueToolId } from '../game/nestRescue';
 import { LODGE_RESCUE_STEPS, LodgeRescueToolId } from '../game/lodgeRescue';
-import { TELLING_TIME_ROUND } from '../game/tellingTime';
+import { TELLING_TIME_ROUNDS } from '../game/tellingTime';
 import { GARDEN_SORT_BASKETS, GARDEN_SORT_ITEMS, GardenSortCategory } from '../game/gardenSort';
 import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
 import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchChoiceId } from '../game/animalHomeMatch';
@@ -676,32 +676,43 @@ function HourClock({ hour }: { hour: number }) {
 
 // ── Picture-led Full-Hour Telling Time ───────────
 function TellingTimePuzzle({ onComplete }: { onComplete: () => void }) {
-  const [message, setMessage] = useState(TELLING_TIME_ROUND.prompt);
+  const [roundIndex, setRoundIndex] = useState(0);
+  const [message, setMessage] = useState(TELLING_TIME_ROUNDS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const round = TELLING_TIME_ROUNDS[roundIndex];
 
   const chooseHour = (hour: number) => {
     if (isFinishing) return;
-    if (hour !== TELLING_TIME_ROUND.targetHour) {
+    if (hour !== round.targetHour) {
       playChime();
-      setMessage(TELLING_TIME_ROUND.gentleRetry);
+      setMessage(round.gentleRetry);
       return;
     }
     playMatch();
-    setMessage(TELLING_TIME_ROUND.success);
-    setIsFinishing(true);
-    setTimeout(onComplete, 900);
+    if (roundIndex === TELLING_TIME_ROUNDS.length - 1) {
+      setMessage('You found every full hour. Brook has a gentle plan for the day!');
+      setIsFinishing(true);
+      setTimeout(onComplete, 900);
+      return;
+    }
+    setMessage(round.success);
+    setTimeout(() => {
+      const nextRound = TELLING_TIME_ROUNDS[roundIndex + 1];
+      setRoundIndex((current) => current + 1);
+      setMessage(nextRound.prompt);
+    }, 700);
   };
 
   return (
     <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Brook’s full-hour telling time activity">
       <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#B8D7DD] bg-[#E8F7F5] px-4 py-3 shadow-lg">
         <div className="text-center"><span className="block text-xl" aria-hidden>🌤️</span><span className="font-body text-[10px] font-bold text-[#397C9C]">MORNING</span></div>
-        <div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#CFEAF1]" aria-hidden><HourClock hour={7} /></div>
+        <div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#CFEAF1]" aria-hidden><HourClock hour={isFinishing ? round.targetHour : round.targetHour} /></div>
         <div className="text-center"><span className="block text-xl" aria-hidden>🐢</span><span className="font-body text-[10px] font-bold text-[#397C9C]">BROOK</span></div>
       </div>
-      <div className="rounded-2xl border border-[#B8D7DD] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#397C9C]">Look at the hands</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
+      <div className="rounded-2xl border border-[#B8D7DD] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#397C9C]">Clock {Math.min(roundIndex + 1, TELLING_TIME_ROUNDS.length)} of {TELLING_TIME_ROUNDS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
       <div className="grid w-full grid-cols-3 gap-3" aria-label="Clock picture choices">
-        {TELLING_TIME_ROUND.choiceHours.map((hour) => <button key={hour} type="button" onClick={() => chooseHour(hour)} disabled={isFinishing} aria-label={`Clock showing ${hour} o’clock`} className={`min-h-[148px] rounded-3xl border-2 bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${hour === TELLING_TIME_ROUND.targetHour ? 'border-[#E4B770]' : 'border-[#D7E6E0]'}`}><HourClock hour={hour} /><span className="mt-2 block font-display text-sm text-[#49392C]">{hour} o’clock</span></button>)}
+        {round.choiceHours.map((hour) => <button key={hour} type="button" onClick={() => chooseHour(hour)} disabled={isFinishing} aria-label={`Clock showing ${hour} o’clock`} className={`min-h-[148px] rounded-3xl border-2 bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${hour === round.targetHour ? 'border-[#E4B770]' : 'border-[#D7E6E0]'}`}><HourClock hour={hour} /><span className="mt-2 block font-display text-sm text-[#49392C]">{hour} o’clock</span></button>)}
       </div>
       <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one clock picture. There is no rush.</p>
     </div>
