@@ -412,8 +412,8 @@
 - [x] Add parent-only, local template cards that can prefill concise child-safe Studio prompts without using AI generation or collecting child data.
 - [x] Add two calm animal-care matching pairs with one animal and large picture choices at a time, including gentle retry wording and optional directions.
 - [x] Add additional picture-led full-hour clock rounds with one large time choice at a time and no timed performance or scoring.
-- [ ] Add deterministic coverage, verify the expanded learning activities on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
-- [ ] Directly verify the parent-selectable Holiday Edition and perform a current market-readiness review covering quality, child privacy, accessibility, mobile behavior, and launch requirements.
+- [x] Add deterministic coverage, verify the expanded learning activities on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
+- [x] Directly verify the parent-selectable Holiday Edition and perform a current market-readiness review covering quality, child privacy, accessibility, mobile behavior, and launch requirements.
 
 ## GitHub Connector Verification
 
