@@ -1,6 +1,7 @@
 // Recorded character dialogue is deliberately sparse and player-initiated.
 // Text always remains visible; a missing recording simply means the line stays quiet.
 import { getAudioPreferences } from './audioPreferences';
+import { resolveNativeNetworkUrl } from '../lib/nativeRuntime';
 import type { PreReaderDirectionKey } from './preReaderDirections';
 export type CharacterMoment = 'intro' | 'help' | 'thanks';
 
@@ -174,7 +175,7 @@ export function playCharacterAudio(name: string, moment: CharacterMoment, zone?:
   const source = RECORDED_LINES[getCharacterAudioKey(name, zone)]?.[moment];
   if (!source || typeof Audio === 'undefined') return;
   if (activeAudio) activeAudio.pause();
-  activeAudio = new Audio(source);
+  activeAudio = new Audio(resolveNativeNetworkUrl(source));
   activeAudio.volume = getAudioPreferences().voiceVolume;
   void activeAudio.play().catch(() => {});
 }
@@ -182,7 +183,7 @@ export function playCharacterAudio(name: string, moment: CharacterMoment, zone?:
 export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): void {
   if (typeof Audio === 'undefined') return;
   if (activeAudio) activeAudio.pause();
-  activeAudio = new Audio(DAILY_TRAIL_AUDIO[moment]);
+  activeAudio = new Audio(resolveNativeNetworkUrl(DAILY_TRAIL_AUDIO[moment]));
   activeAudio.volume = getAudioPreferences().voiceVolume;
   void activeAudio.play().catch(() => {});
 }
@@ -195,7 +196,7 @@ export async function playPreReaderDirection(key: PreReaderDirectionKey, callbac
   const source = PRE_READER_AUDIO[key];
   if (!source) return false;
   if (activeAudio) activeAudio.pause();
-  const audio = new Audio(source);
+  const audio = new Audio(resolveNativeNetworkUrl(source));
   let playbackUnavailable = false;
   const reportUnavailable = () => {
     if (playbackUnavailable) return;

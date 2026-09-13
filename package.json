@@ -6,6 +6,13 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build:native": "vite build --mode native",
+    "native:sync": "pnpm run build:native && cap sync",
+    "cap:add:ios": "cap add ios",
+    "cap:add:android": "cap add android",
+    "cap:open:ios": "cap open ios",
+    "cap:open:android": "cap open android",
+    "cap:assets": "capacitor-assets generate --ios --android",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
@@ -13,6 +20,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
     "@babylonjs/core": "^9.20.0",
     "@babylonjs/loaders": "^9.20.0",
     "@hookform/resolvers": "^5.2.2",
@@ -69,6 +79,8 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2",
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",

@@ -419,6 +419,14 @@
 
 - [x] Research current official Apple, Google Play, and U.S. children’s privacy requirements and provide a platform-specific launch checklist for Critter Rescue.
 
+## Native TestFlight and Google Play Closed-Beta Preparation
+
+- [x] Assess the existing React/Vite architecture and record the selected native iOS and Android packaging approach.
+- [x] Add native application metadata, privacy-safe permissions, app icons/splash placeholders, and platform wrapper configuration for bundle identifier `com.critterrescue.game`.
+- [x] Add reproducible commands and documentation for iOS TestFlight and Google Play closed-beta signing, build, upload, testing, and release-form completion.
+- [x] Validate release configuration, TypeScript, tests, production web build, and the generated native wrapper configuration.
+- [ ] Save a deployable checkpoint and synchronize the verified beta-preparation update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

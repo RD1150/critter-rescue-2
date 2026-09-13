@@ -13,6 +13,19 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.native
+
+# Native release secrets, generated archives, and local asset workspaces
+resources/
+*.keystore
+*.jks
+key.properties
+*.mobileprovision
+*.ipa
+*.aab
+*.apk
+ios/App/App/GoogleService-Info.plist
+android/app/google-services.json
 
 # IDE and editor files
 .vscode/

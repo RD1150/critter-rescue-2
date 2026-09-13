@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Bug, Lightbulb, Send } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
+import { isNativeRuntime, parentFeedbackEnabled, resolveNativeNetworkUrl } from '@/lib/nativeRuntime';
 
 type FeedbackKind = 'bug' | 'suggestion';
 type Props = { open: boolean; onOpenChange: (open: boolean) => void };
@@ -21,10 +22,14 @@ export default function BetaFeedbackModal({ open, onOpenChange }: Props) {
     event.preventDefault();
     const note = message.trim();
     if (note.length < 4) { setError('Please add a few words so we can understand your note.'); return; }
+    if (isNativeRuntime() && !parentFeedbackEnabled()) {
+      setError('Parent feedback will open after the grown-up safety check is added to this beta.');
+      return;
+    }
     setStatus('sending');
     setError('');
     try {
-      const response = await fetch('/api/beta-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, message: note, context: 'Parent Settings · beta' }) });
+      const response = await fetch(resolveNativeNetworkUrl('/api/beta-feedback'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, message: note, context: 'Parent Settings · beta' }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.ok) throw new Error(result.message || 'Feedback is resting for a moment. Please try again soon.');
       setStatus('sent');

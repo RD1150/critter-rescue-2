@@ -7,12 +7,14 @@ import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
 import { CELEBRATION_PATH_OPTIONS } from '../game/celebrationPaths';
 import { playButton } from '../game/sounds';
 import BetaFeedbackModal from '../components/BetaFeedbackModal';
+import { isNativeRuntime, parentFeedbackEnabled } from '../lib/nativeRuntime';
 
 interface Props { onBack: () => void; onOpenProgress: () => void; onOpenGallery: () => void; onOpenActivityGuide: () => void; onOpenBuildPrompts: () => void; }
 
 export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGallery, onOpenActivityGuide, onOpenBuildPrompts }: Props) {
   const [preferences, savePreferences] = useAudioPreferences();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const canUseParentFeedback = !isNativeRuntime() || parentFeedbackEnabled();
   const volume = Math.round(preferences.voiceVolume * 100);
   const soundscapeVolume = Math.round(preferences.soundscapeVolume * 100);
   const saveSoundscape = (next: typeof preferences) => { savePreferences(next); if (next.soundscapeEnabled) startParentSelectedSoundscape(next, resolveCampTheme(next.campTheme)); else syncSeasonalSoundscape(next, resolveCampTheme(next.campTheme)); };
@@ -39,10 +41,10 @@ export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGal
       <button onClick={() => { playButton(); onOpenBuildPrompts(); }} className="w-full rounded-xl border border-[#D9C3A1] bg-[#FFF8E8] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#8C5A35] font-bold">Grown-up creator</p><p className="font-display mt-0.5 text-base font-bold text-[#2D2418]">Choose Cozy Block Studio ideas →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">Write a short, local-only build idea and choose whether children see it in the studio.</p></button>
       <button onClick={() => { playButton(); onOpenProgress(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#F8E8D8', border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open learning & activity summary →</p></button>
       <button onClick={() => { playButton(); onOpenGallery(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#EAF4EF', border: '1px solid #B9D9C2' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#3D7A58] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open family keepsake gallery →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">Illustrated in-game memories only — no child photos, voice, sharing, or uploads.</p></button>
-      <button onClick={() => { playButton(); setFeedbackOpen(true); }} className="w-full rounded-xl border border-[#D9B199] bg-[#FFF0E7] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Beta helper</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Send bug report or suggestion →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">For grown-ups only. Please share no child names, photos, voices, or private details.</p></button>
+      {canUseParentFeedback && <button onClick={() => { playButton(); setFeedbackOpen(true); }} className="w-full rounded-xl border border-[#D9B199] bg-[#FFF0E7] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Beta helper</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Send bug report or suggestion →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">For grown-ups only. Please share no child names, photos, voices, or private details.</p></button>}
       <button onClick={() => savePreferences(DEFAULT_PREFERENCES)} className="w-full rounded-xl py-2 font-body text-sm text-white/85 active:scale-95" style={{ background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.22)' }}>Reset to game defaults</button>
       <p className="font-body text-center text-[10px] text-white/55 px-5">These settings are saved on this device. They change how the game looks and sounds, not the rescue progress.</p>
     </main>
-    <BetaFeedbackModal open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+    {canUseParentFeedback && <BetaFeedbackModal open={feedbackOpen} onOpenChange={setFeedbackOpen} />}
   </div>;
 }
