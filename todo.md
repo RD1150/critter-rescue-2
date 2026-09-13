@@ -415,6 +415,10 @@
 - [x] Add deterministic coverage, verify the expanded learning activities on phone, tablet, laptop, and Reduce Motion, then checkpoint and synchronize GitHub.
 - [x] Directly verify the parent-selectable Holiday Edition and perform a current market-readiness review covering quality, child privacy, accessibility, mobile behavior, and launch requirements.
 
+## Apple App Store and Google Play Children’s-App Compliance Review
+
+- [x] Research current official Apple, Google Play, and U.S. children’s privacy requirements and provide a platform-specific launch checklist for Critter Rescue.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.
