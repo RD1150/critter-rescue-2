@@ -451,7 +451,7 @@
 - [x] Fix any confirmed functional, responsive, accessibility, or release-configuration defects discovered in the audit and add regression coverage.
 - [x] Verify the final game on phone, tablet, and laptop views, with Reduce Motion, public policy access, parental gating, and parent contact validation.
 - [x] Run the complete test suite, TypeScript check, production build, and final source review.
-- [ ] Save a deployable checkpoint and synchronize the verified beta-ready build to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified beta-ready build to GitHub.
 
 ## GitHub Connector Verification
 
