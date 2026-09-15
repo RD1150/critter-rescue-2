@@ -427,6 +427,13 @@
 - [x] Validate release configuration, TypeScript, tests, production web build, and the generated native wrapper configuration.
 - [x] Save a deployable checkpoint and synchronize the verified beta-preparation update to GitHub.
 
+## Parent Legal and Support Pages
+- [x] Add a parent-facing Privacy Policy that accurately describes local game data, the beta-feedback flow, retained third-party services, and child-data safeguards.
+- [x] Add a parent-facing Terms of Use draft that explains family use, parent responsibilities, intellectual-property boundaries, feedback, updates, and contact requirements.
+- [x] Add a parent-facing FAQ covering gameplay, spoken directions, local creations, Holiday Edition, privacy, feedback, beta participation, and support.
+- [x] Integrate clearly labelled adult-facing access from Parent Settings and add direct preview routes without changing child game flow.
+- [x] Add deterministic coverage, validate responsive accessibility and the production build, then checkpoint and synchronize GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

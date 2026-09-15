@@ -29,6 +29,7 @@ import CelebrationPathScreen from './screens/CelebrationPathScreen';
 import ActivityLibraryGuideScreen from './screens/ActivityLibraryGuideScreen';
 import CreativeBlockBuilderScreen from './screens/CreativeBlockBuilderScreen';
 import ParentBuildPromptsScreen from './screens/ParentBuildPromptsScreen';
+import ParentLegalScreen, { type ParentLegalPage } from './screens/ParentLegalScreen';
 
 import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
@@ -69,7 +70,17 @@ type Scene =
   | 'learning'
   | 'activityGuide'
   | 'creativeBlocks'
-  | 'parentBuildPrompts';
+  | 'parentBuildPrompts'
+  | 'parentPrivacy'
+  | 'parentTerms'
+  | 'parentFaq';
+
+function getInitialScene(): Scene {
+  if (window.location.pathname === '/privacy') return 'parentPrivacy';
+  if (window.location.pathname === '/terms') return 'parentTerms';
+  if (window.location.pathname === '/faq') return 'parentFaq';
+  return 'loading';
+}
 
 function LoadingScreen({ online, reduceMotion }: { online: boolean; reduceMotion: boolean }) {
   return (
@@ -109,7 +120,7 @@ export default function App() {
   const previewPlaytimeSuggestion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('playtimeSuggestion') === '1';
   const { showSuggestion: showPlaytimeSuggestion, dismissSuggestion: dismissPlaytimeSuggestion } = useGentlePlaytimeSuggestion(audioPreferences.playtimeDurationMinutes, previewPlaytimeSuggestion);
   const [state, setState] = useState<GameState | null>(null);
-  const [scene, setScene] = useState<Scene>('loading');
+  const [scene, setScene] = useState<Scene>(getInitialScene);
 const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
 const [currentZoneBg, setCurrentZoneBg] = useState<string[]>(['#87CEEB', '#7EC8A0', '#3E6B2F']);
 const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
@@ -122,6 +133,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   useEffect(() => {
     const s = loadState();
     const previewMode = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('preview') : null;
+    const publicInformationPath = window.location.pathname === '/privacy' ? 'privacy' : window.location.pathname === '/terms' ? 'terms' : window.location.pathname === '/faq' ? 'faq' : null;
     const preview3d = previewMode === 'camp3d';
     const previewNursery = previewMode === 'nursery3d';
     const previewJournal = previewMode === 'journal';
@@ -163,13 +175,16 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewActivityGuide = previewMode === 'activityguide';
     const previewCreativeBlocks = previewMode === 'creativeblocks';
     const previewParentBuildPrompts = previewMode === 'parentbuildprompts';
+    const previewParentPrivacy = previewMode === 'privacy';
+    const previewParentTerms = previewMode === 'terms';
+    const previewParentFaq = previewMode === 'parentfaq';
     const previewWeather = previewMode === 'weather';
     const previewCelebrationPath = previewMode === 'celebrationpath';
     const previewReducedMotion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('reduceMotion') === '1';
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -272,6 +287,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('creativeBlocks');
       } else if (previewParentBuildPrompts) {
         setScene('parentBuildPrompts');
+      } else if (previewParentPrivacy || publicInformationPath === 'privacy') {
+        setScene('parentPrivacy');
+      } else if (previewParentTerms || publicInformationPath === 'terms') {
+        setScene('parentTerms');
+      } else if (previewParentFaq || publicInformationPath === 'faq') {
+        setScene('parentFaq');
       } else if (previewParentSettings) {
         setScene('parentSettings');
       } else if (previewDailyProgress || previewDailyReward) {
@@ -416,6 +437,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleOpenCreativeBlocks = useCallback(() => { playButton(); transition('creativeBlocks', 100); }, [transition]);
   const handleOpenParentBuildPrompts = useCallback(() => { playButton(); transition('parentBuildPrompts', 100); }, [transition]);
   const handleCloseParentBuildPrompts = useCallback(() => transition('parentSettings', 100), [transition]);
+  const handleOpenParentInformation = useCallback(() => { playButton(); transition('parentPrivacy', 100); }, [transition]);
+  const handleNavigateParentInformation = useCallback((page: ParentLegalPage) => transition(page === 'privacy' ? 'parentPrivacy' : page === 'terms' ? 'parentTerms' : 'parentFaq', 100), [transition]);
   const handleOpenParentProgress = useCallback(() => { playButton(); transition('parentProgress', 100); }, [transition]);
   const handleCloseParentProgress = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenStorybook = useCallback(() => { playButton(); transition('storybook', 100); }, [transition]);
@@ -495,6 +518,11 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setState(acknowledgeDailyReward(state));
   }, [state]);
 
+  const isPublicInformationScene = scene === 'parentPrivacy' || scene === 'parentTerms' || scene === 'parentFaq';
+  if (!state && isPublicInformationScene) {
+    const page: ParentLegalPage = scene === 'parentPrivacy' ? 'privacy' : scene === 'parentTerms' ? 'terms' : 'faq';
+    return <ParentLegalScreen page={page} onBack={() => setScene('loading')} onNavigate={(nextPage) => setScene(nextPage === 'privacy' ? 'parentPrivacy' : nextPage === 'terms' ? 'parentTerms' : 'parentFaq')} />;
+  }
   if (scene === 'loading' || !state) return <LoadingScreen online={online} reduceMotion={audioPreferences.reduceMotion} />;
 
   return (
@@ -608,10 +636,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               reduceMotion={audioPreferences.reduceMotion}
             />
           )}
-          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} />}
+          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} onOpenParentInformation={handleOpenParentInformation} />}
           {scene === 'activityGuide' && <ActivityLibraryGuideScreen onBack={handleCloseActivityGuide} onOpenCreativeBuilder={handleOpenCreativeBlocks} />}
           {scene === 'creativeBlocks' && <CreativeBlockBuilderScreen onBack={handleCloseActivityGuide} />}
           {scene === 'parentBuildPrompts' && <ParentBuildPromptsScreen onBack={handleCloseParentBuildPrompts} />}
+          {scene === 'parentPrivacy' && <ParentLegalScreen page="privacy" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
+          {scene === 'parentTerms' && <ParentLegalScreen page="terms" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
+          {scene === 'parentFaq' && <ParentLegalScreen page="faq" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
           {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onCompleteDuo={handleCompleteFriendshipDuo} onBack={handleCloseCarePlay} />}
