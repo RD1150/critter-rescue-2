@@ -23,4 +23,11 @@ describe('ParentLegalScreen', () => {
     fireEvent.click(within(screen.getByRole('navigation', { name: 'Parent information pages' })).getByRole('button', { name: 'Privacy' }));
     expect(onNavigate).toHaveBeenCalledWith('privacy');
   });
+
+  it('uses the supplied protected parent-settings return action', () => {
+    const onBack = vi.fn();
+    render(<ParentLegalScreen page="privacy" onBack={onBack} onNavigate={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Parent Settings' }));
+    expect(onBack).toHaveBeenCalledOnce();
+  });
 });

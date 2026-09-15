@@ -421,7 +421,7 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
             <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
             <PreReaderDirection directionKey="dailyTrail" className="mt-2" />
-            <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-1.5 font-body text-[10px] font-bold text-[#E66B5B] disabled:text-[#837260]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
+            <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-2 min-h-11 w-full rounded-xl bg-[#E66B5B] px-3 py-2 font-body text-xs font-bold text-white shadow-sm active:scale-95 disabled:bg-[#D8C7B2] disabled:text-[#5C4D3C]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
           </div>
           <div className="hidden flex-1 md:block" />
           <div className="pointer-events-auto hidden flex-wrap justify-end gap-2 md:flex">

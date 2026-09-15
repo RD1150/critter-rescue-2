@@ -442,6 +442,17 @@
 - [x] Add deterministic coverage and verify the parental gate and contact form on phone, tablet, laptop, and Reduce Motion views.
 - [x] Save a deployable checkpoint and synchronize the verified safety update to GitHub.
 
+## Final Release-Readiness QA and Bug-Fix Pass
+
+- [x] Audit launch-critical child, parent, privacy, contact, and native-wrapper flows for runtime errors, broken routes, inaccessible actions, and unsafe data collection.
+- [x] Repair the public Privacy, Terms, and FAQ return action so “Back to Parent Settings” opens the math gate instead of unexpectedly returning to camp.
+- [x] Ensure parent-information headings are not visually clipped at the top edge on standard desktop and mobile viewports.
+- [x] Make the mobile daily-trail start action a clear, large touch target that does not compete with the bottom action rail.
+- [x] Fix any confirmed functional, responsive, accessibility, or release-configuration defects discovered in the audit and add regression coverage.
+- [x] Verify the final game on phone, tablet, and laptop views, with Reduce Motion, public policy access, parental gating, and parent contact validation.
+- [x] Run the complete test suite, TypeScript check, production build, and final source review.
+- [ ] Save a deployable checkpoint and synchronize the verified beta-ready build to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

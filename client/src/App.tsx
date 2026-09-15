@@ -668,9 +668,9 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'activityGuide' && <ActivityLibraryGuideScreen onBack={handleCloseActivityGuide} onOpenCreativeBuilder={handleOpenCreativeBlocks} />}
           {scene === 'creativeBlocks' && <CreativeBlockBuilderScreen onBack={handleCloseActivityGuide} />}
           {scene === 'parentBuildPrompts' && <ParentBuildPromptsScreen onBack={handleCloseParentBuildPrompts} />}
-          {scene === 'parentPrivacy' && <ParentLegalScreen page="privacy" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
-          {scene === 'parentTerms' && <ParentLegalScreen page="terms" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
-          {scene === 'parentFaq' && <ParentLegalScreen page="faq" onBack={handleCloseParentSettings} onNavigate={handleNavigateParentInformation} />}
+          {scene === 'parentPrivacy' && <ParentLegalScreen page="privacy" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
+          {scene === 'parentTerms' && <ParentLegalScreen page="terms" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
+          {scene === 'parentFaq' && <ParentLegalScreen page="faq" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
           {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onCompleteDuo={handleCompleteFriendshipDuo} onBack={handleCloseCarePlay} />}
