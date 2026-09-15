@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-import { submitBetaFeedback, validateBetaFeedback } from "./server/betaFeedback";
+import { submitParentContact, validateParentContact } from "./server/betaFeedback";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -204,28 +204,28 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-function vitePluginBetaFeedback(): Plugin {
+function vitePluginParentContact(): Plugin {
   return {
-    name: "critter-rescue-beta-feedback",
+    name: "critter-rescue-parent-contact",
     configureServer(server: ViteDevServer) {
       server.middlewares.use((req, res, next) => {
-        if (!req.url?.startsWith("/api/beta-feedback") || req.method !== "POST") return next();
+        if (!req.url?.startsWith("/api/parent-contact") || req.method !== "POST") return next();
         const respond = (payload: unknown) => {
           void (async () => {
             try {
-              const validated = validateBetaFeedback(payload);
-              if (!validated.feedback) {
+              const validated = validateParentContact(payload);
+              if (!validated.contact) {
                 res.writeHead(400, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ ok: false, message: validated.error }));
                 return;
               }
-              await submitBetaFeedback(validated.feedback);
+              await submitParentContact(validated.contact);
               res.writeHead(201, { "Content-Type": "application/json" });
               res.end(JSON.stringify({ ok: true }));
             } catch (error) {
-              console.error("[Beta feedback] development submission failed", error);
+              console.error("[Parent contact] development submission failed", error);
               res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ ok: false, message: "Feedback is resting for a moment. Please try again soon." }));
+              res.end(JSON.stringify({ ok: false, message: "Parent contact is resting for a moment. Please try again soon." }));
             }
           })();
         };
@@ -247,7 +247,7 @@ function vitePluginBetaFeedback(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginBetaFeedback(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginParentContact(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
 export default defineConfig({
   plugins,

@@ -434,6 +434,14 @@
 - [x] Integrate clearly labelled adult-facing access from Parent Settings and add direct preview routes without changing child game flow.
 - [x] Add deterministic coverage, validate responsive accessibility and the production build, then checkpoint and synchronize GitHub.
 
+## Parental Gate and Secure Parent Contact
+
+- [x] Add an accessible math-based parental gate before entering Parent Settings, adult prompt controls, feedback, or support actions while retaining direct public access to `/privacy`.
+- [x] Make adult-only navigation expire safely in the local session and provide clear, non-punitive retry and back paths.
+- [x] Replace the beta-only feedback surface with a parent contact form that validates content on the client and server, collects only the minimum adult contact details, and warns parents not to include child information.
+- [x] Add deterministic coverage and verify the parental gate and contact form on phone, tablet, laptop, and Reduce Motion views.
+- [ ] Save a deployable checkpoint and synchronize the verified safety update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

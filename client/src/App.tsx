@@ -30,6 +30,7 @@ import ActivityLibraryGuideScreen from './screens/ActivityLibraryGuideScreen';
 import CreativeBlockBuilderScreen from './screens/CreativeBlockBuilderScreen';
 import ParentBuildPromptsScreen from './screens/ParentBuildPromptsScreen';
 import ParentLegalScreen, { type ParentLegalPage } from './screens/ParentLegalScreen';
+import ParentalGateScreen from './screens/ParentalGateScreen';
 
 import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
@@ -45,6 +46,7 @@ import type { NatureDiscoveryKey } from './game/natureDiscoveries';
 import { getLearningFocusLaunch } from './game/learningFocus';
 import type { TeamRescue } from './game/teamRescue';
 import { getCelebrationPath } from './game/celebrationPaths';
+import { getParentGateExpiry, grantParentGateAccess, hasParentGateAccess, revokeParentGateAccess } from './game/parentalGate';
 
 type Scene =
   | 'loading'
@@ -58,6 +60,7 @@ type Scene =
   | 'match3'
   | 'nursery'
   | 'parentSettings'
+  | 'parentGate'
   | 'parentProgress'
   | 'storybook'
   | 'carePlay'
@@ -121,6 +124,7 @@ export default function App() {
   const { showSuggestion: showPlaytimeSuggestion, dismissSuggestion: dismissPlaytimeSuggestion } = useGentlePlaytimeSuggestion(audioPreferences.playtimeDurationMinutes, previewPlaytimeSuggestion);
   const [state, setState] = useState<GameState | null>(null);
   const [scene, setScene] = useState<Scene>(getInitialScene);
+  const [pendingParentScene, setPendingParentScene] = useState<Scene>('parentSettings');
 const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
 const [currentZoneBg, setCurrentZoneBg] = useState<string[]>(['#87CEEB', '#7EC8A0', '#3E6B2F']);
 const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
@@ -128,6 +132,18 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [careCelebration, setCareCelebration] = useState<CareCelebration | null>(null);
   const fadeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const gatedScenes: Scene[] = ['parentSettings', 'parentProgress', 'gallery', 'activityGuide', 'parentBuildPrompts'];
+    if (!gatedScenes.includes(scene)) return;
+    const expiry = getParentGateExpiry();
+    if (!expiry) {
+      setScene('camp');
+      return;
+    }
+    const timeout = window.setTimeout(() => { revokeParentGateAccess(); setScene('camp'); }, Math.max(0, expiry - Date.now()));
+    return () => window.clearTimeout(timeout);
+  }, [scene]);
 
   // Load state on mount
   useEffect(() => {
@@ -175,6 +191,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewActivityGuide = previewMode === 'activityguide';
     const previewCreativeBlocks = previewMode === 'creativeblocks';
     const previewParentBuildPrompts = previewMode === 'parentbuildprompts';
+    const previewParentGate = previewMode === 'parentgate';
     const previewParentPrivacy = previewMode === 'privacy';
     const previewParentTerms = previewMode === 'terms';
     const previewParentFaq = previewMode === 'parentfaq';
@@ -184,7 +201,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentGate || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -287,6 +304,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('creativeBlocks');
       } else if (previewParentBuildPrompts) {
         setScene('parentBuildPrompts');
+      } else if (previewParentGate) {
+        setScene('parentGate');
       } else if (previewParentPrivacy || publicInformationPath === 'privacy') {
         setScene('parentPrivacy');
       } else if (previewParentTerms || publicInformationPath === 'terms') {
@@ -430,8 +449,16 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseMatch3 = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenNursery = useCallback(() => { playButton(); transition('nursery', 100); }, [transition]);
   const handleCloseNursery = useCallback(() => transition('camp', 100), [transition]);
-  const handleOpenParentSettings = useCallback(() => { playButton(); transition('parentSettings', 100); }, [transition]);
-  const handleCloseParentSettings = useCallback(() => transition('camp', 100), [transition]);
+  const requestParentAccess = useCallback((destination: Scene) => {
+    playButton();
+    if (hasParentGateAccess()) { transition(destination, 100); return; }
+    setPendingParentScene(destination);
+    transition('parentGate', 100);
+  }, [transition]);
+  const handleOpenParentSettings = useCallback(() => requestParentAccess('parentSettings'), [requestParentAccess]);
+  const handleParentGateContinue = useCallback(() => transition(pendingParentScene, 100), [pendingParentScene, transition]);
+  const handleLockParentArea = useCallback(() => { revokeParentGateAccess(); transition('camp', 100); }, [transition]);
+  const handleCloseParentSettings = useCallback(() => { revokeParentGateAccess(); transition('camp', 100); }, [transition]);
   const handleOpenActivityGuide = useCallback(() => { playButton(); transition('activityGuide', 100); }, [transition]);
   const handleCloseActivityGuide = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenCreativeBlocks = useCallback(() => { playButton(); transition('creativeBlocks', 100); }, [transition]);
@@ -439,7 +466,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseParentBuildPrompts = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenParentInformation = useCallback(() => { playButton(); transition('parentPrivacy', 100); }, [transition]);
   const handleNavigateParentInformation = useCallback((page: ParentLegalPage) => transition(page === 'privacy' ? 'parentPrivacy' : page === 'terms' ? 'parentTerms' : 'parentFaq', 100), [transition]);
-  const handleOpenParentProgress = useCallback(() => { playButton(); transition('parentProgress', 100); }, [transition]);
+  const handleOpenParentProgress = useCallback(() => requestParentAccess('parentProgress'), [requestParentAccess]);
   const handleCloseParentProgress = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenStorybook = useCallback(() => { playButton(); transition('storybook', 100); }, [transition]);
   const handleCloseStorybook = useCallback(() => transition('camp', 100), [transition]);
@@ -447,7 +474,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleCloseCarePlay = useCallback(() => transition('camp', 100), [transition]);
   const handleOpenBedtime = useCallback(() => { playButton(); transition('bedtime', 100); }, [transition]);
   const handleCloseBedtime = useCallback(() => transition('camp', 100), [transition]);
-  const handleOpenGallery = useCallback(() => { playButton(); transition('gallery', 100); }, [transition]);
+  const handleOpenGallery = useCallback(() => requestParentAccess('gallery'), [requestParentAccess]);
   const handleCloseGallery = useCallback(() => transition('parentSettings', 100), [transition]);
   const handleOpenLearning = useCallback(() => { playButton(); transition('learning', 100); }, [transition]);
   const handleCloseLearning = useCallback(() => transition('camp', 100), [transition]);
@@ -636,7 +663,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               reduceMotion={audioPreferences.reduceMotion}
             />
           )}
-          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} onOpenParentInformation={handleOpenParentInformation} />}
+          {scene === 'parentGate' && <ParentalGateScreen onContinue={handleParentGateContinue} onBack={() => transition('camp', 100)} onGrant={grantParentGateAccess} />}
+          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onLock={handleLockParentArea} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} onOpenParentInformation={handleOpenParentInformation} />}
           {scene === 'activityGuide' && <ActivityLibraryGuideScreen onBack={handleCloseActivityGuide} onOpenCreativeBuilder={handleOpenCreativeBlocks} />}
           {scene === 'creativeBlocks' && <CreativeBlockBuilderScreen onBack={handleCloseActivityGuide} />}
           {scene === 'parentBuildPrompts' && <ParentBuildPromptsScreen onBack={handleCloseParentBuildPrompts} />}

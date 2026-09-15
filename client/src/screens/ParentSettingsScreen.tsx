@@ -6,15 +6,13 @@ import { CAMP_THEME_DETAILS, resolveCampTheme } from '../game/campThemes';
 import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
 import { CELEBRATION_PATH_OPTIONS } from '../game/celebrationPaths';
 import { playButton } from '../game/sounds';
-import BetaFeedbackModal from '../components/BetaFeedbackModal';
-import { isNativeRuntime, parentFeedbackEnabled } from '../lib/nativeRuntime';
+import ParentContactModal from '../components/ParentContactModal';
 
-interface Props { onBack: () => void; onOpenProgress: () => void; onOpenGallery: () => void; onOpenActivityGuide: () => void; onOpenBuildPrompts: () => void; onOpenParentInformation: () => void; }
+interface Props { onBack: () => void; onLock: () => void; onOpenProgress: () => void; onOpenGallery: () => void; onOpenActivityGuide: () => void; onOpenBuildPrompts: () => void; onOpenParentInformation: () => void; }
 
-export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGallery, onOpenActivityGuide, onOpenBuildPrompts, onOpenParentInformation }: Props) {
+export default function ParentSettingsScreen({ onBack, onLock, onOpenProgress, onOpenGallery, onOpenActivityGuide, onOpenBuildPrompts, onOpenParentInformation }: Props) {
   const [preferences, savePreferences] = useAudioPreferences();
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const canUseParentFeedback = !isNativeRuntime() || parentFeedbackEnabled();
+  const [contactOpen, setContactOpen] = useState(false);
   const volume = Math.round(preferences.voiceVolume * 100);
   const soundscapeVolume = Math.round(preferences.soundscapeVolume * 100);
   const saveSoundscape = (next: typeof preferences) => { savePreferences(next); if (next.soundscapeEnabled) startParentSelectedSoundscape(next, resolveCampTheme(next.campTheme)); else syncSeasonalSoundscape(next, resolveCampTheme(next.campTheme)); };
@@ -22,7 +20,7 @@ export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGal
   return <div className="game-screen forest-bg overflow-y-auto px-4 pb-8">
     <header className="flex items-center justify-between pb-3 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="flex items-center gap-2"><CritterAvatar type="owl" size={44} expression="happy" /><div><p className="font-body text-[10px] uppercase tracking-[.14em] text-white/65">Grown-up space</p><h1 className="font-display text-xl font-bold text-white">Parent Settings</h1></div></div>
-      <button onClick={() => { playButton(); onBack(); }} className="paper-card px-3 py-1.5 text-sm font-body text-[#2D2418] active:scale-95">Back to camp</button>
+      <div className="flex gap-2"><button onClick={() => { playButton(); onLock(); }} className="rounded-xl border border-white/35 bg-white/15 px-3 py-1.5 text-sm font-body text-white active:scale-95">Lock</button><button onClick={() => { playButton(); onBack(); }} className="paper-card px-3 py-1.5 text-sm font-body text-[#2D2418] active:scale-95">Back to camp</button></div>
     </header>
     <main className="mx-auto w-full max-w-md space-y-3">
       <section className="rounded-2xl border border-[#E2C9AB] bg-[#FFF8E8] p-4 shadow-sm" aria-labelledby="first-play-tip-title"><div className="flex items-start gap-3"><div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F8E8D8] text-lg">🤝</div><div><p className="font-body text-[10px] font-bold uppercase tracking-[.14em] text-[#A85C41]">Grown-up first-play tip</p><h2 id="first-play-tip-title" className="font-display text-lg font-bold text-[#2D2418]">Follow their lead, then name one kind thing.</h2><p className="mt-1 font-body text-xs leading-relaxed text-[#49392C]">Start one rescue together. Let your child choose a big trail card, then try: “You helped a friend feel safe.” There is no right pace and no need to finish everything.</p></div></div></section>
@@ -42,10 +40,10 @@ export default function ParentSettingsScreen({ onBack, onOpenProgress, onOpenGal
       <button onClick={() => { playButton(); onOpenParentInformation(); }} className="w-full rounded-xl border border-[#C9D4E3] bg-[#F1F6FB] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#4F6682] font-bold">Grown-up information</p><p className="font-display mt-0.5 text-base font-bold text-[#2D2418]">Privacy, terms & parent FAQs →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">Read the current beta privacy details, family-use terms, and common support answers.</p></button>
       <button onClick={() => { playButton(); onOpenProgress(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#F8E8D8', border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open learning & activity summary →</p></button>
       <button onClick={() => { playButton(); onOpenGallery(); }} className="w-full rounded-xl px-4 py-3 text-left active:scale-[.98]" style={{ background: '#EAF4EF', border: '1px solid #B9D9C2' }}><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#3D7A58] font-bold">Grown-up view</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Open family keepsake gallery →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">Illustrated in-game memories only — no child photos, voice, sharing, or uploads.</p></button>
-      {canUseParentFeedback && <button onClick={() => { playButton(); setFeedbackOpen(true); }} className="w-full rounded-xl border border-[#D9B199] bg-[#FFF0E7] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Beta helper</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Send bug report or suggestion →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">For grown-ups only. Please share no child names, photos, voices, or private details.</p></button>}
+      <button onClick={() => { playButton(); setContactOpen(true); }} className="w-full rounded-xl border border-[#D9B199] bg-[#FFF0E7] px-4 py-3 text-left active:scale-[.98]"><p className="font-body text-[10px] uppercase tracking-[.14em] text-[#A85C41] font-bold">Grown-up support</p><p className="font-display text-[#2D2418] font-bold text-base mt-0.5">Contact support or send feedback →</p><p className="mt-1 font-body text-[10px] text-[#5C4D3C]">For grown-ups only. Please share no child names, photos, voices, or private details.</p></button>
       <button onClick={() => savePreferences(DEFAULT_PREFERENCES)} className="w-full rounded-xl py-2 font-body text-sm text-white/85 active:scale-95" style={{ background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.22)' }}>Reset to game defaults</button>
       <p className="font-body text-center text-[10px] text-white/55 px-5">These settings are saved on this device. They change how the game looks and sounds, not the rescue progress.</p>
     </main>
-    {canUseParentFeedback && <BetaFeedbackModal open={feedbackOpen} onOpenChange={setFeedbackOpen} />}
+    <ParentContactModal open={contactOpen} onOpenChange={setContactOpen} />
   </div>;
 }
