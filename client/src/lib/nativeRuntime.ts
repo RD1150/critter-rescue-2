@@ -25,7 +25,3 @@ export function resolveNativeNetworkUrl(path: string): string {
   if (!isNativeRuntime() || !path.startsWith('/')) return path;
   return `${getNativeAppOrigin()}${path}`;
 }
-
-export function parentFeedbackEnabled(): boolean {
-  return import.meta.env.VITE_NATIVE_ENABLE_PARENT_FEEDBACK === 'true';
-}

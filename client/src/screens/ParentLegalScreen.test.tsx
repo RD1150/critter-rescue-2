@@ -13,6 +13,7 @@ describe('ParentLegalScreen', () => {
     render(<ParentLegalScreen page="privacy" onBack={vi.fn()} onNavigate={vi.fn()} />);
     expect(screen.getByRole('heading', { name: 'Privacy Policy' })).toBeTruthy();
     expect(screen.getByText(/does not ask children for names/i)).toBeTruthy();
+    expect(screen.getByText(/does not include third-party analytics, advertising tags, or external web-font requests/i)).toBeTruthy();
     expect(screen.getByText(/qualified attorney review/i)).toBeTruthy();
   });
 

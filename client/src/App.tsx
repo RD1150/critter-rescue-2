@@ -188,6 +188,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewGardenSort = previewMode === 'gardensort';
     const previewBrickBuild = previewMode === 'brickbuild';
     const previewAnimalHomeMatch = previewMode === 'animalhomematch';
+    const previewCarePairs = previewMode === 'carepairs';
     const previewActivityGuide = previewMode === 'activityguide';
     const previewCreativeBlocks = previewMode === 'creativeblocks';
     const previewParentBuildPrompts = previewMode === 'parentbuildprompts';
@@ -201,7 +202,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentGate || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewCarePairs || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentGate || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -298,6 +299,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setCurrentMission(getZoneTask('meadow', 12));
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
+      } else if (previewCarePairs) {
+        setScene('match3');
       } else if (previewActivityGuide) {
         setScene('activityGuide');
       } else if (previewCreativeBlocks) {
@@ -548,7 +551,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const isPublicInformationScene = scene === 'parentPrivacy' || scene === 'parentTerms' || scene === 'parentFaq';
   if (!state && isPublicInformationScene) {
     const page: ParentLegalPage = scene === 'parentPrivacy' ? 'privacy' : scene === 'parentTerms' ? 'terms' : 'faq';
-    return <ParentLegalScreen page={page} onBack={() => setScene('loading')} onNavigate={(nextPage) => setScene(nextPage === 'privacy' ? 'parentPrivacy' : nextPage === 'terms' ? 'parentTerms' : 'parentFaq')} />;
+    return <ParentLegalScreen page={page} onBack={() => requestParentAccess('parentSettings')} onNavigate={(nextPage) => setScene(nextPage === 'privacy' ? 'parentPrivacy' : nextPage === 'terms' ? 'parentTerms' : 'parentFaq')} />;
   }
   if (scene === 'loading' || !state) return <LoadingScreen online={online} reduceMotion={audioPreferences.reduceMotion} />;
 

@@ -434,7 +434,7 @@ export default function CampScreen({
             <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🤝 Team up</button>
             <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
             <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
-            <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🎮 Match-3</button>
+            <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧩 Care Pairs</button>
             {!allComplete ? (
               <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
                 {rescueCount === 0 ? 'Follow Trail' : 'Find a Friend'}
@@ -450,7 +450,7 @@ export default function CampScreen({
               {celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5" aria-label={`Open ${celebrationPath.childTitle}`}>{celebrationPath.icon} Trail</button>}
               <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button>
               <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5">🌙 Rest</button>
-              <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🎮 Match-3</button>
+              <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🧩 Care Pairs</button>
             </div>}
             <div className="flex w-full flex-wrap justify-end gap-2">
               <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>

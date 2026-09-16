@@ -453,6 +453,25 @@
 - [x] Run the complete test suite, TypeScript check, production build, and final source review.
 - [x] Save a deployable checkpoint and synchronize the verified beta-ready build to GitHub.
 
+## Final Pre-Signing Code Review and Automated Bug Check
+
+- [x] Resolve the native local-shell mismatch caused by externally loaded Babylon and Phaser engines, without restoring large root engine imports to the web deployment build.
+- [x] Replace the legacy Phaser Match-3 experience, which exposes scores, move limits, and failure language, with a calm local picture-matching play path that meets the preschool no-score, no-timer, no-failure rules.
+- [x] Refine the Care Pair Picnic handset header so its full activity title remains compact and readable beside the Back control.
+- [x] Audit client, server, database-contact flow, configuration, and native wrapper code for release-blocking defects, insecure data handling, stale references, and dead or contradictory configuration.
+- [x] Retire the unused legacy beta-feedback component and its duplicate unprotected endpoint contract so only the gated parent contact path remains.
+- [x] Repair the direct public legal-route loading-state return so “Back to Parent Settings” consistently opens the math gate before saved game state loads.
+- [x] Align development parent-contact throttling with production and remove obsolete native feedback flags no longer used by the gated contact flow.
+- [x] Remove unreferenced direct dependencies and unused template code that introduce avoidable production audit findings.
+- [x] Apply compatible package-manager overrides for the remaining audited Express transitive dependencies and verify a clean production audit.
+- [x] Confirm and document the legacy no-account beta architecture so inactive upgrade-template routes do not affect the signed runtime.
+- [x] Verify production and native `/manus-storage` delivery, parent-contact database availability, proxy-aware rate limiting, and Capacitor navigation configuration.
+- [ ] Run online and offline native-smoke readiness checks for child entry, audio/media, parental gate, contact validation, and public information routes.
+- [x] Run dependency, TypeScript, unit, production-web, native-bundle, Capacitor, route, and source-control checks; log any warnings with their release impact.
+- [x] Fix confirmed pre-signing defects and add regression coverage where applicable.
+- [x] Revalidate all release checks and document whether the build is ready for external signing, including any steps that require Apple or Google credentials.
+- [ ] Save a deployable checkpoint and synchronize the verified pre-signing review to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

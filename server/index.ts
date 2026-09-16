@@ -12,6 +12,9 @@ async function startServer() {
   const server = createServer(app);
   const recentContact = new Map<string, number>();
 
+  // The managed deployment sits behind one reverse proxy. Trusting that single
+  // hop lets req.ip identify the originating parent for the contact throttle.
+  app.set("trust proxy", 1);
   app.use(express.json({ limit: "10kb" }));
   app.post("/api/parent-contact", async (req, res) => {
     const requestKey = req.ip || "parent-contact";

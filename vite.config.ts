@@ -1,4 +1,3 @@
-import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
@@ -205,14 +204,23 @@ function vitePluginStorageProxy(): Plugin {
 }
 
 function vitePluginParentContact(): Plugin {
+  const recentContact = new Map<string, number>();
   return {
     name: "critter-rescue-parent-contact",
     configureServer(server: ViteDevServer) {
       server.middlewares.use((req, res, next) => {
         if (!req.url?.startsWith("/api/parent-contact") || req.method !== "POST") return next();
+        const requestKey = req.socket.remoteAddress || "parent-contact";
         const respond = (payload: unknown) => {
           void (async () => {
             try {
+              const now = Date.now();
+              const lastSubmitted = recentContact.get(requestKey) ?? 0;
+              if (now - lastSubmitted < 60_000) {
+                res.writeHead(429, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ ok: false, message: "Thank you. Please wait a minute before sending another parent message." }));
+                return;
+              }
               const validated = validateParentContact(payload);
               if (!validated.contact) {
                 res.writeHead(400, { "Content-Type": "application/json" });
@@ -220,6 +228,7 @@ function vitePluginParentContact(): Plugin {
                 return;
               }
               await submitParentContact(validated.contact);
+              recentContact.set(requestKey, now);
               res.writeHead(201, { "Content-Type": "application/json" });
               res.end(JSON.stringify({ ok: true }));
             } catch (error) {
@@ -247,9 +256,9 @@ function vitePluginParentContact(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginParentContact(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+const plugins = [react(), tailwindcss(), vitePluginParentContact(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins,
   test: {
     include: [
@@ -259,6 +268,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@/lib/babylonEngineLoader": path.resolve(import.meta.dirname, "client", "src", "lib", mode === 'native' ? "babylonEngineLoader.native.ts" : "babylonEngineLoader.ts"),
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
@@ -288,4 +298,4 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
-});
+}));

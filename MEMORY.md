@@ -27,7 +27,7 @@
 - Foxglove Coral: #E66B5B (primary action, brand)
 - Forest dark: oklch(0.26 0.07 145)
 - Parchment: oklch(0.97 0.02 80)
-- Fonts: Fraunces (display), Nunito Sans (body)
+- Fonts: device serif display and device rounded body fallbacks; no external web-font request
 
 ## Game Data
 - 4 zones: meadow (0 harmony), riverside (15), deepwoods (40), mountain (75)
@@ -289,3 +289,15 @@
 - Fixed a verified adult-navigation defect: the Privacy, Terms, and FAQ pages previously used a close-to-camp callback despite their “Back to Parent Settings” label. Their return action now invokes the existing parental-gate request, and direct browser testing from `/privacy` confirms the math question opens before protected Parent Settings.
 - Fixed the adult-page header spacing, preserving title visibility at desktop, phone, and tablet viewports. Also upgraded the compact Today’s Tiny Trail action from a small text link to a full-width 44px child-sized coral control, visibly separated from the bottom camp rail on phone and tablet.
 - Final validation passed with **68 Vitest files / 118 tests**, TypeScript, production web build, native Vite bundle, live published start/policy checks, direct parent-gate navigation, and desktop/phone/tablet Reduce Motion captures. The only remaining build output is the established non-blocking chunk-size warning.
+
+## Final Pre-Signing Code Review
+- Retired the unused legacy Beta Feedback component and its duplicate unprotected contract; the math-gated, minimum-data Parent Contact flow is now the only active contact path. Public Privacy, Terms, and FAQ returns consistently request the existing parental gate before opening protected parent settings.
+- The Express deployment now trusts one proxy for parent-contact throttling. The development middleware mirrors the production success-only contact throttling behavior. Deprecated native-feedback configuration was removed from the runtime, environment example, and release guide.
+- Removed unreferenced direct dependencies and an unused chart wrapper, upgraded Express inside its existing major version, and applied compatible transitive dependency resolutions. The final `pnpm audit --prod` reports no known vulnerabilities.
+- Removed both the injected analytics tag and external Google Font requests. The policy now discloses the no-analytics, no-advertising, and no-external-font posture; native and web clients use device-available typography instead. Desktop and phone screenshot checks retained readable child entry, adult Privacy, and math-gate layouts.
+- Final automated release matrix passed: 67 Vitest files / 117 tests, `pnpm check`, production web build, native-mode bundle build, Capacitor Doctor 8.5.2, `pnpm audit --prod`, and `git diff --check`. The production build keeps only the non-blocking approximately 1.14 MB pre-gzip JavaScript chunk advisory.
+- Pre-signing source/configuration review is complete. Before external signing, the release owner must generate the native projects on the release machine, test a real iOS/Android build online and in airplane mode, configure Apple/Google signing credentials outside the repository, confirm production parent-contact operations, and complete final legal/operator/store-console declarations.
+- The legacy remote Phaser Match-3 route was replaced in place with local Care Pair Picnic, a four-pair visual matching activity with gentle mismatch feedback and no score, timer, move limit, or failure state. Camp labels and the parent Activity Library now use the Care Pairs name; the historical callback/route remains for compatibility.
+- Babylon loading is intentionally split by Vite mode. The ordinary web build retains the lazy jsDelivr runtime to avoid the prior deployment-timeout regression, while `build:native` aliases a local `@babylonjs/core` loader so Capacitor bundles the camp engine for offline startup. The largest native JavaScript asset is approximately 8.85 MB pre-gzip by design and still needs real-device startup/install testing.
+- The final source review passed **68 Vitest files / 119 tests**, TypeScript, production web and native builds, Capacitor Doctor 8.5.2, clean production dependency audit, source-output scans, and responsive normal/Reduce Motion Care Pair Picnic checks. Web production output remains approximately 1.13 MB pre-gzip with only the established non-blocking chunk-size advisory.
+- No signed IPA or AAB, TestFlight upload, Play closed-beta upload, or complete offline-media claim has been made. The release owner must still generate native projects and signed builds, smoke-test iOS and Android online and in airplane mode, verify remote `/manus-storage` media behavior and parent-contact operations, and finish signing, store, and legal declarations.

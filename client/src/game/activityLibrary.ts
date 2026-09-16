@@ -14,4 +14,5 @@ export const ACTIVITY_LIBRARY: readonly ActivityLibraryEntry[] = [
   { title: 'Lodge Builder', icon: '🏡', learningFocus: 'Building in a helpful order', findIt: 'At the end of the Deep Woods trail.', coPlayPrompt: 'Try: “What makes a cozy home?”' },
   { title: 'Cozy Block Builder', icon: '🧱', learningFocus: 'Sequencing and creative construction', findIt: 'Later in the Misty Mountain trail.', coPlayPrompt: 'Try: “Tell me about what you built.”' },
   { title: 'Animal Home & Care Match', icon: '🏡', learningFocus: 'Matching animals with familiar homes and care places', findIt: 'At the end of the Sunny Meadow trail.', coPlayPrompt: 'Try: “Which cozy place goes with this animal?”' },
+  { title: 'Care Pair Picnic', icon: '🧩', learningFocus: 'Visual matching and careful observation', findIt: 'Choose Care Pairs from the camp play controls.', coPlayPrompt: 'Try: “Can you find the picture’s friend?”' },
 ];

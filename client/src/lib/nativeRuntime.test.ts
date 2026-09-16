@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
-import { getNativeAppOrigin, isNativeRuntime, parentFeedbackEnabled, resolveNativeNetworkUrl } from './nativeRuntime';
+import { getNativeAppOrigin, isNativeRuntime, resolveNativeNetworkUrl } from './nativeRuntime';
 
 const nativeWindow = window as Window & { Capacitor?: { isNativePlatform?: () => boolean } };
 
@@ -16,9 +16,5 @@ describe('native release runtime helpers', () => {
     nativeWindow.Capacitor = { isNativePlatform: () => true };
     expect(isNativeRuntime()).toBe(true);
     expect(resolveNativeNetworkUrl('/manus-storage/direction.mp3')).toBe(`${getNativeAppOrigin()}/manus-storage/direction.mp3`);
-  });
-
-  it('keeps parent beta feedback disabled unless a native release explicitly enables it', () => {
-    expect(parentFeedbackEnabled()).toBe(false);
   });
 });

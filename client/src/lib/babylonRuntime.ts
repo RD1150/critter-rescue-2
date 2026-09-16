@@ -1,4 +1,5 @@
 import type * as Babylon from '@babylonjs/core';
+import { loadBundledBabylon } from '@/lib/babylonEngineLoader';
 
 declare global {
   interface Window {
@@ -15,6 +16,14 @@ let runtimePromise: Promise<typeof Babylon> | null = null;
 export function loadBabylon(): Promise<typeof Babylon> {
   if (window.BABYLON) return Promise.resolve(window.BABYLON);
   if (runtimePromise) return runtimePromise;
+
+  if (import.meta.env.MODE === 'native') {
+    runtimePromise = loadBundledBabylon().then((runtime) => {
+      window.BABYLON = runtime;
+      return runtime;
+    });
+    return runtimePromise;
+  }
 
   runtimePromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');

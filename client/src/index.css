@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────
    Critter Rescue — Hearthlight Field Journal
    Design: warm parchment, mossy forest, Foxglove Coral accents
-   Fonts: Fraunces (display) + Nunito Sans (body)
+   Fonts: device serif display + device rounded body fallbacks
 ───────────────────────────────────────────── */
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -32,8 +32,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Nunito Sans', system-ui, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-body: ui-rounded, 'Avenir Next', 'Trebuchet MS', system-ui, sans-serif;
 }
 
 :root {

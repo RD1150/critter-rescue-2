@@ -1,6 +1,6 @@
 # Critter Rescue: TestFlight and Google Play Closed-Beta Release Guide
 
-> **Scope:** This project is configured to package the existing React/Vite game as a local Capacitor native application. It does not ship as a remote website wrapper. The native shell bundles `dist/public` and uses the reviewed HTTPS production origin only for durable media and, when explicitly enabled, the adult beta-feedback endpoint.
+> **Scope:** This project is configured to package the existing React/Vite game as a local Capacitor native application. It does not ship as a remote website wrapper. The native shell bundles `dist/public` and uses the reviewed HTTPS production origin only for durable media and the math-gated adult parent-contact endpoint.
 
 ## Before creating a native build
 
@@ -12,7 +12,7 @@ The first beta build should be created only after the launch gates in `APP_STORE
 | Bundle / application ID | `com.critterrescue.game` | Confirm it is unused in Apple Developer and Play Console; changing it after tester distribution creates a different app record. |
 | Web asset source | `dist/public` | Run `pnpm native:sync` after every approved game change. |
 | Default production origin | `https://crittergame-jtesdgpd.manus.space` | If moving hosting, set `VITE_NATIVE_APP_ORIGIN` in a local `.env.native` before `pnpm build:native`. |
-| Parent feedback | Disabled in native builds by default | Do not enable until a genuine parental gate and privacy/support pages are in place. |
+| Parent contact | Available only after the in-app math gate | Confirm the production contact endpoint and privacy disclosure remain accurate before upload. |
 | Permissions | No camera, microphone, location, contacts, advertising ID, Bluetooth, or photo-library permission is requested by this configuration. | Audit the generated Xcode and Android projects after every dependency change. |
 
 ## One-time local setup

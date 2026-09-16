@@ -157,3 +157,11 @@ This original reference keeps each pair visually clear and safe for preschool ma
 | Expanded matching and clock reference | Wordless storybook direction for adding a duck-and-pond and frog-and-leafy-shelter picture pair alongside clear 3 o’clock and 10 o’clock analog clock cues. | `/manus-storage/critter-rescue-expanded-matching-clock-reference_d03192e4.png` |
 
 This authoring reference keeps the additional matching and time-reading rounds calm, picture-led, and non-competitive. Existing optional direction controls remain tap-only; no new audio autoplays.
+
+## Calm Care Pair Picnic visual direction
+
+| Asset | Purpose | Project storage URL |
+|---|---|---|
+| Care Pair Picnic reference | Wordless visual direction for a local preschool picture-pair activity with apple, water-drop, leaf, and heart cards. | `/manus-storage/critter-rescue-calm-care-pairs-reference_570a850c.png` |
+
+This reference supports the replacement of the legacy high-pressure Match-3 game with a calm local activity. The production interaction uses simple built-in picture symbols rather than an external game-engine script, and it has no score, move limit, timer, or failure state.
