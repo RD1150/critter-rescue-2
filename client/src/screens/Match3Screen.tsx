@@ -5,6 +5,7 @@ interface Props {
   onClose: () => void;
   critterName: string;
   critterEmoji: string;
+  reduceMotion?: boolean;
 }
 
 export type CarePairCard = {
@@ -36,10 +37,11 @@ function cardState(card: CarePairCard, selectedId: string | null, matchedIds: re
  * Kept at the legacy route so old camp callbacks remain compatible. It is now
  * a local, no-score picture-pair activity with no external game-engine script.
  */
-export default function Match3Screen({ onClose, critterName, critterEmoji }: Props) {
+export default function Match3Screen({ onClose, critterName, critterEmoji, reduceMotion = false }: Props) {
+  const celebrationPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('carePairsCelebration') === '1';
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [matchedIds, setMatchedIds] = useState<string[]>([]);
-  const [message, setMessage] = useState('Choose two pictures that belong together.');
+  const [matchedIds, setMatchedIds] = useState<string[]>(() => celebrationPreview ? CARE_PAIR_CARDS.map((card) => card.id) : []);
+  const [message, setMessage] = useState(celebrationPreview ? 'All the care pairs are together. You made a kind picture garden!' : 'Choose two pictures that belong together.');
 
   const selected = CARE_PAIR_CARDS.find((card) => card.id === selectedId) ?? null;
   const complete = matchedIds.length === CARE_PAIR_CARDS.length;
@@ -89,7 +91,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji }: Pro
 
   return (
     <main className="game-screen overflow-y-auto bg-[#F6E9D6] px-4 py-7 text-[#3A271B] sm:px-8" aria-label="Care Pair Picnic">
-      <section className="mx-auto flex w-full max-w-2xl flex-col items-center rounded-[2rem] border-2 border-[#D9C3A4] bg-[#FFF9F0] p-5 shadow-[0_12px_0_rgba(121,82,50,0.12)] sm:p-8">
+      <section className="relative mx-auto flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[2rem] border-2 border-[#D9C3A4] bg-[#FFF9F0] p-5 shadow-[0_12px_0_rgba(121,82,50,0.12)] sm:p-8">
         <div className="flex w-full items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <span aria-hidden="true" className="rounded-full bg-[#F9D9B4] p-3 text-3xl shadow-sm">{critterEmoji}</span>
@@ -129,9 +131,28 @@ export default function Match3Screen({ onClose, critterName, critterEmoji }: Pro
         </div>
 
         {complete && (
-          <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
-            <button onClick={startAgain} className="btn-coral min-h-12 px-6 text-base shadow-lg">Play with the pictures again</button>
-            <button onClick={() => { playButton(); onClose(); }} className="btn-parchment min-h-12 px-6 text-base shadow-lg">Back to Camp</button>
+          <div className="mt-6 w-full">
+            <div
+              aria-label="A gentle picture-garden celebration"
+              className={`care-pair-celebration ${reduceMotion ? 'care-pair-celebration--still' : 'care-pair-celebration--animated'}`}
+              data-testid="care-pair-celebration"
+              role="status"
+            >
+              <div aria-hidden="true" className="care-pair-celebration-sprigs">
+                {['✦', '❀', '✦', '❀', '✦'].map((mark, index) => (
+                  <span key={`${mark}-${index}`} className="care-pair-celebration-sprig" style={{ '--sprig-delay': `${index * 100}ms`, '--sprig-x': `${(index - 2) * 44}px` } as React.CSSProperties}>{mark}</span>
+                ))}
+              </div>
+              <span aria-hidden="true" className="relative z-10 text-3xl">🌼</span>
+              <div className="relative z-10">
+                <p className="font-display text-lg font-bold text-[#3A6A39]">A little picture garden is blooming!</p>
+                <p className="mt-1 font-body text-sm text-[#537145]">You found every caring pair.</p>
+              </div>
+            </div>
+            <div className="mt-4 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+              <button onClick={startAgain} className="btn-coral min-h-12 px-6 text-base shadow-lg">Play with the pictures again</button>
+              <button onClick={() => { playButton(); onClose(); }} className="btn-parchment min-h-12 px-6 text-base shadow-lg">Back to Camp</button>
+            </div>
           </div>
         )}
 

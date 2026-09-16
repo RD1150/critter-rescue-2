@@ -472,6 +472,13 @@
 - [x] Revalidate all release checks and document whether the build is ready for external signing, including any steps that require Apple or Google credentials.
 - [x] Save a deployable checkpoint and synchronize the verified pre-signing review to GitHub.
 
+## Care Pair Picnic Completion Celebration
+
+- [x] Add a gentle success animation when all four Care Pair Picnic visual pairs are matched.
+- [x] Preserve a clear, calm static completion state when Reduce Motion is enabled.
+- [x] Add regression coverage and verify the celebration on a child-sized responsive view.
+- [ ] Save a deployable checkpoint and synchronize the verified Care Pair Picnic celebration update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.
