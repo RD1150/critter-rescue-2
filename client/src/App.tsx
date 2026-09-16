@@ -36,6 +36,7 @@ import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, ca
 import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
+import type { CarePairCelebrationTheme } from './game/audioPreferences';
 import { useSeasonalSoundscape } from './game/seasonalSoundscape';
 import { getKindnessMoments } from './game/sanctuaryGrowth';
 import { getCareCelebration, type CareCelebration } from './game/critterCelebrations';
@@ -118,6 +119,8 @@ export default function App() {
   const activeLearningTheme = ['all', 'phonics', 'numbers', 'rhymes', 'nature'].includes(previewLearningTheme ?? '') ? previewLearningTheme as typeof audioPreferences.learningTheme : audioPreferences.learningTheme;
   const previewCelebrationPath = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('celebrationPath') : null;
   const activeCelebrationPath = getCelebrationPath(['pumpkinLantern', 'harvestKindness', 'winterSparkle', 'lightsKindness'].includes(previewCelebrationPath ?? '') ? previewCelebrationPath as typeof audioPreferences.celebrationPath : audioPreferences.celebrationPath);
+  const previewCarePairTheme = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('carePairsTheme') : null;
+  const activeCarePairTheme = ['garden', 'stars', 'ocean'].includes(previewCarePairTheme ?? '') ? previewCarePairTheme as CarePairCelebrationTheme : audioPreferences.carePairCelebrationTheme;
   useSeasonalSoundscape(audioPreferences, activeCampTheme);
   const online = useOnlineStatus();
   const previewPlaytimeSuggestion = import.meta.env.DEV && new URLSearchParams(window.location.search).get('playtimeSuggestion') === '1';
@@ -655,6 +658,8 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               critterName={STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.name || 'Clover'}
               critterEmoji={STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'fox' ? '🦊' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'owl' ? '🦉' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'squirrel' ? '🐿️' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'hedgehog' ? '🦔' : STARTER_COMPANIONS.find((companion) => companion.type === state.selectedCompanion)?.type === 'bear' ? '🐻' : '🐰'}
               reduceMotion={audioPreferences.reduceMotion}
+              completionSoundEnabled={audioPreferences.carePairCelebrationSoundEnabled}
+              celebrationTheme={activeCarePairTheme}
             />
           )}
           {scene === 'nursery' && (

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { playButton, playComplete, playError, playMatch } from '../game/sounds';
+import type { CarePairCelebrationTheme } from '../game/audioPreferences';
+import { playButton, playCarePairCelebrationSound, playComplete, playError, playMatch } from '../game/sounds';
 
 interface Props {
   onClose: () => void;
   critterName: string;
   critterEmoji: string;
   reduceMotion?: boolean;
+  completionSoundEnabled?: boolean;
+  celebrationTheme?: CarePairCelebrationTheme;
 }
 
 export type CarePairCard = {
@@ -37,7 +40,13 @@ function cardState(card: CarePairCard, selectedId: string | null, matchedIds: re
  * Kept at the legacy route so old camp callbacks remain compatible. It is now
  * a local, no-score picture-pair activity with no external game-engine script.
  */
-export default function Match3Screen({ onClose, critterName, critterEmoji, reduceMotion = false }: Props) {
+const CELEBRATION_DETAILS: Record<CarePairCelebrationTheme, { icon: string; title: string; detail: string; sprigs: readonly string[] }> = {
+  garden: { icon: '🌼', title: 'A little picture garden is blooming!', detail: 'You found every caring pair.', sprigs: ['✦', '❀', '✦', '❀', '✦'] },
+  stars: { icon: '🌙', title: 'A little starry sky is twinkling!', detail: 'You found every caring pair.', sprigs: ['✦', '✧', '⋆', '✧', '✦'] },
+  ocean: { icon: '🐚', title: 'A calm ocean wave is saying hello!', detail: 'You found every caring pair.', sprigs: ['◦', '✦', '◦', '✦', '◦'] },
+};
+
+export default function Match3Screen({ onClose, critterName, critterEmoji, reduceMotion = false, completionSoundEnabled = true, celebrationTheme = 'garden' }: Props) {
   const celebrationPreview = import.meta.env.DEV && new URLSearchParams(window.location.search).get('carePairsCelebration') === '1';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [matchedIds, setMatchedIds] = useState<string[]>(() => celebrationPreview ? CARE_PAIR_CARDS.map((card) => card.id) : []);
@@ -45,6 +54,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
 
   const selected = CARE_PAIR_CARDS.find((card) => card.id === selectedId) ?? null;
   const complete = matchedIds.length === CARE_PAIR_CARDS.length;
+  const celebration = CELEBRATION_DETAILS[celebrationTheme];
 
   const chooseCard = (card: CarePairCard) => {
     if (complete || matchedIds.includes(card.id)) return;
@@ -70,6 +80,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
       setSelectedId(null);
       if (nextMatched.length === CARE_PAIR_CARDS.length) {
         playComplete();
+        if (completionSoundEnabled) playCarePairCelebrationSound();
         setMessage('All the care pairs are together. You made a kind picture garden!');
       } else {
         setMessage(`${selected.label} pictures are together. Choose another pair when you are ready.`);
@@ -134,19 +145,19 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
           <div className="mt-6 w-full">
             <div
               aria-label="A gentle picture-garden celebration"
-              className={`care-pair-celebration ${reduceMotion ? 'care-pair-celebration--still' : 'care-pair-celebration--animated'}`}
+              className={`care-pair-celebration care-pair-celebration--${celebrationTheme} ${reduceMotion ? 'care-pair-celebration--still' : 'care-pair-celebration--animated'}`}
               data-testid="care-pair-celebration"
               role="status"
             >
               <div aria-hidden="true" className="care-pair-celebration-sprigs">
-                {['✦', '❀', '✦', '❀', '✦'].map((mark, index) => (
+                {celebration.sprigs.map((mark, index) => (
                   <span key={`${mark}-${index}`} className="care-pair-celebration-sprig" style={{ '--sprig-delay': `${index * 100}ms`, '--sprig-x': `${(index - 2) * 44}px` } as React.CSSProperties}>{mark}</span>
                 ))}
               </div>
-              <span aria-hidden="true" className="relative z-10 text-3xl">🌼</span>
+              <span aria-hidden="true" className="relative z-10 text-3xl">{celebration.icon}</span>
               <div className="relative z-10">
-                <p className="font-display text-lg font-bold text-[#3A6A39]">A little picture garden is blooming!</p>
-                <p className="mt-1 font-body text-sm text-[#537145]">You found every caring pair.</p>
+                <p className="care-pair-celebration-title font-display text-lg font-bold">{celebration.title}</p>
+                <p className="care-pair-celebration-detail mt-1 font-body text-sm">{celebration.detail}</p>
               </div>
             </div>
             <div className="mt-4 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">

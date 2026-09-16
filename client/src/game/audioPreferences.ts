@@ -6,11 +6,12 @@ export type CampThemePreference = 'auto' | SanctuarySeason;
 export type PlaytimeDuration = 0 | 10 | 20 | 30;
 export type SoundscapeStyle = 'seasonal' | 'ritual';
 export type CelebrationPathPreference = 'none' | 'pumpkinLantern' | 'harvestKindness' | 'winterSparkle' | 'lightsKindness';
-export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean; spokenDirectionsEnabled: boolean; directionVolumeCheckComplete: boolean; soundscapeEnabled: boolean; soundscapeVolume: number; soundscapeStyle: SoundscapeStyle; celebrationPath: CelebrationPathPreference; holidayEditionEnabled: boolean; campTheme: CampThemePreference; learningTheme: LearningTheme; bedtimeReminderEnabled: boolean; playtimeDurationMinutes: PlaytimeDuration; largeIconMode: boolean; reduceMotion: boolean };
+export type CarePairCelebrationTheme = 'garden' | 'stars' | 'ocean';
+export type AudioPreferences = { voiceVolume: number; captionsEnabled: boolean; spokenDirectionsEnabled: boolean; directionVolumeCheckComplete: boolean; soundscapeEnabled: boolean; soundscapeVolume: number; soundscapeStyle: SoundscapeStyle; celebrationPath: CelebrationPathPreference; holidayEditionEnabled: boolean; campTheme: CampThemePreference; learningTheme: LearningTheme; bedtimeReminderEnabled: boolean; playtimeDurationMinutes: PlaytimeDuration; largeIconMode: boolean; reduceMotion: boolean; carePairCelebrationSoundEnabled: boolean; carePairCelebrationTheme: CarePairCelebrationTheme };
 
 const STORAGE_KEY = 'critter-rescue-audio-preferences';
 const EVENT_NAME = 'critter-rescue-audio-preferences-changed';
-export const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true, spokenDirectionsEnabled: true, directionVolumeCheckComplete: false, soundscapeEnabled: false, soundscapeVolume: 0.22, soundscapeStyle: 'seasonal', celebrationPath: 'none', holidayEditionEnabled: false, campTheme: 'auto', learningTheme: 'all', bedtimeReminderEnabled: false, playtimeDurationMinutes: 0, largeIconMode: false, reduceMotion: false };
+export const DEFAULT_PREFERENCES: AudioPreferences = { voiceVolume: 0.92, captionsEnabled: true, spokenDirectionsEnabled: true, directionVolumeCheckComplete: false, soundscapeEnabled: false, soundscapeVolume: 0.22, soundscapeStyle: 'seasonal', celebrationPath: 'none', holidayEditionEnabled: false, campTheme: 'auto', learningTheme: 'all', bedtimeReminderEnabled: false, playtimeDurationMinutes: 0, largeIconMode: false, reduceMotion: false, carePairCelebrationSoundEnabled: true, carePairCelebrationTheme: 'garden' };
 
 export function getAudioPreferences(): AudioPreferences {
   if (typeof window === 'undefined') return DEFAULT_PREFERENCES;
@@ -32,6 +33,8 @@ export function getAudioPreferences(): AudioPreferences {
       playtimeDurationMinutes: [0, 10, 20, 30].includes(stored.playtimeDurationMinutes) ? stored.playtimeDurationMinutes as PlaytimeDuration : DEFAULT_PREFERENCES.playtimeDurationMinutes,
       largeIconMode: typeof stored.largeIconMode === 'boolean' ? stored.largeIconMode : DEFAULT_PREFERENCES.largeIconMode,
       reduceMotion: typeof stored.reduceMotion === 'boolean' ? stored.reduceMotion : DEFAULT_PREFERENCES.reduceMotion,
+      carePairCelebrationSoundEnabled: typeof stored.carePairCelebrationSoundEnabled === 'boolean' ? stored.carePairCelebrationSoundEnabled : DEFAULT_PREFERENCES.carePairCelebrationSoundEnabled,
+      carePairCelebrationTheme: ['garden', 'stars', 'ocean'].includes(stored.carePairCelebrationTheme) ? stored.carePairCelebrationTheme as CarePairCelebrationTheme : DEFAULT_PREFERENCES.carePairCelebrationTheme,
     };
   } catch { return DEFAULT_PREFERENCES; }
 }

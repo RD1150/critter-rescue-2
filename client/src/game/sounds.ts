@@ -29,6 +29,10 @@ export function playError() { tone(220, 0.18, 0.15, 'sawtooth'); }
 export function playComplete() {
   [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.35, 0.15, 'sine', i * 0.12));
 }
+export function playCarePairCelebrationSound() {
+  tone(659, 0.42, 0.045, 'sine');
+  tone(784, 0.52, 0.04, 'sine', 0.13);
+}
 export function playButton() { tone(660, 0.08, 0.10, 'sine'); }
 export function playFlip() { tone(440, 0.10, 0.10, 'triangle'); }
 export function playMatch() { tone(784, 0.15, 0.15, 'sine'); tone(1047, 0.15, 0.12, 'sine', 0.08); }

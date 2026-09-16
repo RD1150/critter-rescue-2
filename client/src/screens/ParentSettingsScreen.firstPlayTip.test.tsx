@@ -17,6 +17,9 @@ describe('ParentSettingsScreen first-play tip', () => {
     expect(screen.getByRole('button', { name: /Open activity library guide/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Choose Cozy Block Studio ideas/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Privacy, terms & parent FAQs/i })).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: 'Play Care Pairs celebration sound' })).toBeTruthy();
+    const themeControl = screen.getByRole('combobox', { name: 'Choose Care Pairs celebration theme' }) as HTMLSelectElement;
+    expect(themeControl.value).toBe('garden');
     expect(screen.getByRole('button', { name: 'Lock' })).toBeTruthy();
   });
 });

@@ -479,6 +479,14 @@
 - [x] Add regression coverage and verify the celebration on a child-sized responsive view.
 - [x] Save a deployable checkpoint and synchronize the verified Care Pair Picnic celebration update to GitHub.
 
+## Care Pair Picnic Sound and Celebration Themes
+
+- [x] Add a soft, calming completion sound that plays once in sync with the Care Pair Picnic celebration.
+- [x] Add a parent-controlled mute option for the Care Pair Picnic completion sound.
+- [x] Add parent-selected picture garden, starry night, and ocean visual themes for the Care Pair Picnic celebration.
+- [x] Add regression coverage and verify themed normal and Reduce Motion completion views.
+- [ ] Save a deployable checkpoint and synchronize the verified sound-and-theme update to GitHub.
+
 ## GitHub Connector Verification
 
 - [x] Test authenticated GitHub access, retrieve a small repository data sample, and confirm whether the River Rescue checkpoint can be synchronized.

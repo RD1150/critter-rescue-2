@@ -277,6 +277,16 @@
   .care-pair-celebration { position: relative; display: flex; min-height: 84px; align-items: center; justify-content: center; gap: 12px; overflow: hidden; border: 2px solid #A8C88E; border-radius: 22px; padding: 16px 18px; text-align: left; background: linear-gradient(135deg, #F1F8E9 0%, #FFF6DB 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
   .care-pair-celebration-sprigs { position: absolute; inset: 0; left: 50%; pointer-events: none; }
   .care-pair-celebration-sprig { position: absolute; left: 0; bottom: 23px; color: #E49764; font-size: 20px; line-height: 1; opacity: .78; transform: translate(var(--sprig-x), -5px); }
+  .care-pair-celebration-title { color: #3A6A39; }
+  .care-pair-celebration-detail { color: #537145; }
+  .care-pair-celebration--stars { border-color: #91A8D1; background: linear-gradient(135deg, #EAF0FC 0%, #F7F2FF 100%); }
+  .care-pair-celebration--stars .care-pair-celebration-sprig { color: #7D78B8; }
+  .care-pair-celebration--stars .care-pair-celebration-title { color: #45457F; }
+  .care-pair-celebration--stars .care-pair-celebration-detail { color: #66638E; }
+  .care-pair-celebration--ocean { border-color: #83BEC6; background: linear-gradient(135deg, #E2F7F5 0%, #EEF8FF 100%); }
+  .care-pair-celebration--ocean .care-pair-celebration-sprig { color: #4E9CAF; }
+  .care-pair-celebration--ocean .care-pair-celebration-title { color: #266B7B; }
+  .care-pair-celebration--ocean .care-pair-celebration-detail { color: #4C7781; }
   .care-pair-celebration--animated .care-pair-celebration-sprig { animation: care-pair-sprig 1.5s ease-out var(--sprig-delay) both; }
   @media (prefers-reduced-motion: reduce) { .care-pair-celebration--animated .care-pair-celebration-sprig { animation: none; } }
 
