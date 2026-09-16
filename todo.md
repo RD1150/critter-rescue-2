@@ -470,7 +470,7 @@
 - [x] Run dependency, TypeScript, unit, production-web, native-bundle, Capacitor, route, and source-control checks; log any warnings with their release impact.
 - [x] Fix confirmed pre-signing defects and add regression coverage where applicable.
 - [x] Revalidate all release checks and document whether the build is ready for external signing, including any steps that require Apple or Google credentials.
-- [ ] Save a deployable checkpoint and synchronize the verified pre-signing review to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified pre-signing review to GitHub.
 
 ## GitHub Connector Verification
 
