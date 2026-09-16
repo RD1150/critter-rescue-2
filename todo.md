@@ -485,7 +485,7 @@
 - [x] Add a parent-controlled mute option for the Care Pair Picnic completion sound.
 - [x] Add parent-selected picture garden, starry night, and ocean visual themes for the Care Pair Picnic celebration.
 - [x] Add regression coverage and verify themed normal and Reduce Motion completion views.
-- [ ] Save a deployable checkpoint and synchronize the verified sound-and-theme update to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified sound-and-theme update to GitHub.
 
 ## GitHub Connector Verification
 
