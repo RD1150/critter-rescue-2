@@ -5,6 +5,8 @@ export type ParentContact = { kind: ParentContactKind; email: string; message: s
 
 const MAX_MESSAGE_LENGTH = 1_200;
 const MAX_EMAIL_LENGTH = 254;
+export const PARENT_CONTACT_RETENTION_DAYS = 30;
+export const PARENT_CONTACT_PURGE_QUERY = 'DELETE FROM beta_feedback WHERE created_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 30 DAY)';
 let feedbackPool: Pool | null = null;
 
 function asPlainText(value: unknown, maxLength: number): string {
@@ -44,4 +46,12 @@ export async function submitParentContact(contact: ParentContact): Promise<numbe
     [contact.kind, contact.email, contact.message, contact.context],
   );
   return Number(result.insertId);
+}
+
+/** Deletes adult contact records after the fixed, privacy-minimizing retention window. */
+export async function purgeExpiredParentContacts(): Promise<number> {
+  const db = getFeedbackPool();
+  if (!db) return 0;
+  const [result] = await db.execute<ResultSetHeader>(PARENT_CONTACT_PURGE_QUERY);
+  return Number(result.affectedRows);
 }

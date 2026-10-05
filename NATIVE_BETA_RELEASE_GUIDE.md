@@ -4,7 +4,7 @@
 
 ## Before creating a native build
 
-The first beta build should be created only after the launch gates in `APP_STORE_GOOGLE_PLAY_CHILDREN_COMPLIANCE.md` are reviewed. In particular, a genuine parental gate, public privacy and support pages, and a complete vendor/data-flow audit remain required before broad store submission.
+The first beta build should be created only after the launch gates in `APP_STORE_GOOGLE_PLAY_CHILDREN_COMPLIANCE.md` are reviewed. The current source-backed inventory is in `RELEASE_DATA_FLOW_AND_VENDOR_REGISTER.md`, the conservative store-answer drafts are in `STORE_PRIVACY_DISCLOSURE_WORKSHEETS.md`, and the adult-only test process is in `CLOSED_BETA_OPERATIONS_PACKET.md`. In particular, a genuine parental gate, public privacy and support pages, a complete vendor/data-flow audit, and the signed-device smoke test remain required before broad store submission.
 
 | Release field | Configured value | Owner must verify before upload |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ The first beta build should be created only after the launch gates in `APP_STORE
 | Bundle / application ID | `com.critterrescue.game` | Confirm it is unused in Apple Developer and Play Console; changing it after tester distribution creates a different app record. |
 | Web asset source | `dist/public` | Run `pnpm native:sync` after every approved game change. |
 | Default production origin | `https://crittergame-jtesdgpd.manus.space` | If moving hosting, set `VITE_NATIVE_APP_ORIGIN` in a local `.env.native` before `pnpm build:native`. |
-| Parent contact | Available only after the in-app math gate | Confirm the production contact endpoint and privacy disclosure remain accurate before upload. |
+| Parent contact | Available only after the in-app math gate; records are scheduled for deletion after 30 days | Confirm the deployed cleanup, support/privacy email, deletion-request process, and privacy disclosure before upload. |
 | Permissions | No camera, microphone, location, contacts, advertising ID, Bluetooth, or photo-library permission is requested by this configuration. | Audit the generated Xcode and Android projects after every dependency change. |
 
 ## One-time local setup
@@ -47,6 +47,8 @@ pnpm build
 pnpm native:sync
 pnpm exec cap doctor
 ```
+
+Then complete the physical-device online/airplane-mode smoke script in `CLOSED_BETA_OPERATIONS_PACKET.md`. Native packaging and a successful browser build are not substitutes for a real signed iOS/Android device test.
 
 ## iOS: TestFlight
 

@@ -495,3 +495,13 @@
 
 - [x] Research comparable preschool games, parent trust signals, and ethical word-of-mouth growth patterns.
 - [x] Prioritize a practical product, retention, and launch-marketing roadmap that preserves Critter Rescue’s calm, privacy-first design.
+
+## Privacy-Minimizing Closed-Beta Preparation
+
+- [x] Remove unused identifiers and dormant external-service code that are not required for child play.
+- [x] Create a source-backed data-flow and vendor register covering local storage, hosted media, adult contact, and release dependencies.
+- [x] Add and verify a narrow, automatic retention rule for adult contact records.
+- [x] Update adult-facing privacy wording with truthful local-progress and remote-media limits.
+- [x] Prepare conservative Apple App Privacy and Google Play Data Safety worksheets for the confirmed beta implementation.
+- [x] Create parent-safe beta operations, tester-feedback, and asset-rights materials without collecting child data.
+- [x] Revalidate, checkpoint, and synchronize the verified preparation package to GitHub.

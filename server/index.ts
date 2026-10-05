@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
-import { submitParentContact, validateParentContact } from "./betaFeedback";
+import { PARENT_CONTACT_RETENTION_DAYS, purgeExpiredParentContacts, submitParentContact, validateParentContact } from "./betaFeedback";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +11,20 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   const recentContact = new Map<string, number>();
+  const purgeExpiredContacts = async () => {
+    try {
+      const removed = await purgeExpiredParentContacts();
+      if (removed > 0) console.info(`[Parent contact] removed ${removed} record(s) older than ${PARENT_CONTACT_RETENTION_DAYS} days.`);
+    } catch (error) {
+      console.error("[Parent contact] retention cleanup failed", error);
+    }
+  };
+
+  // Support messages contain only adult-submitted contact details, but are still
+  // automatically removed after 30 days. Run once at startup and daily after.
+  await purgeExpiredContacts();
+  const retentionTimer = setInterval(() => { void purgeExpiredContacts(); }, 24 * 60 * 60 * 1000);
+  retentionTimer.unref();
 
   // The managed deployment sits behind one reverse proxy. Trusting that single
   // hop lets req.ip identify the originating parent for the contact throttle.

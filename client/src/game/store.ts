@@ -58,7 +58,6 @@ export interface ParentProgressSummary {
 }
 
 export interface GameState {
-  deviceId: string;
   selectedCompanion: string | null;
   forestHarmony: number;
   campFlowersCount: number;
@@ -87,10 +86,6 @@ export interface GameState {
 }
 
 const STORAGE_KEY = 'critter_rescue_v1';
-
-function generateId(): string {
-  return 'player_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
-}
 
 export function loadState(): GameState {
   try {
@@ -135,7 +130,6 @@ export function saveState(state: GameState): void {
 
 export function createFreshState(): GameState {
   return {
-    deviceId: generateId(),
     selectedCompanion: null,
     forestHarmony: 0,
     campFlowersCount: 0,

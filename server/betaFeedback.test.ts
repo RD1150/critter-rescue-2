@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateParentContact } from './betaFeedback';
+import { PARENT_CONTACT_PURGE_QUERY, PARENT_CONTACT_RETENTION_DAYS, validateParentContact } from './betaFeedback';
 
 describe('parent contact validation', () => {
   it('accepts a minimum-data adult support request and does not trust caller context', () => {
@@ -11,5 +11,10 @@ describe('parent contact validation', () => {
     expect(validateParentContact({ kind: 'suggestion', email: 'not-an-email', message: 'This is enough detail.', confirmNoChildData: true }).error).toMatch(/email/i);
     expect(validateParentContact({ kind: 'support', email: 'parent@example.com', message: 'Too short', confirmNoChildData: true }).error).toMatch(/detail/i);
     expect(validateParentContact({ kind: 'support', email: 'parent@example.com', message: 'This is enough detail.', confirmNoChildData: true, website: 'spam' }).error).toMatch(/try again/i);
+  });
+
+  it('uses a fixed 30-day maximum retention window for adult contact records', () => {
+    expect(PARENT_CONTACT_RETENTION_DAYS).toBe(30);
+    expect(PARENT_CONTACT_PURGE_QUERY).toContain('DATE_SUB(UTC_TIMESTAMP(), INTERVAL 30 DAY)');
   });
 });

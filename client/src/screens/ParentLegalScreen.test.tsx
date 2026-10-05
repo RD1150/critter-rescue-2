@@ -14,6 +14,8 @@ describe('ParentLegalScreen', () => {
     expect(screen.getByRole('heading', { name: 'Privacy Policy' })).toBeTruthy();
     expect(screen.getByText(/does not ask children for names/i)).toBeTruthy();
     expect(screen.getByText(/does not include third-party analytics, advertising tags, or external web-font requests/i)).toBeTruthy();
+    expect(screen.getByText(/scheduled for automatic deletion after 30 days/i)).toBeTruthy();
+    expect(screen.getByText(/does not promise full airplane-mode media availability/i)).toBeTruthy();
     expect(screen.getByText(/qualified attorney review/i)).toBeTruthy();
   });
 

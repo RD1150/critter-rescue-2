@@ -33,6 +33,8 @@ describe('native beta packaging configuration', () => {
     const indexHtml = fs.readFileSync(projectFile('client/index.html'), 'utf8');
 
     expect(serverSource).toContain('app.set("trust proxy", 1)');
+    expect(serverSource).toContain('purgeExpiredParentContacts');
+    expect(serverSource).toContain('PARENT_CONTACT_RETENTION_DAYS');
     expect(releaseGuide).toContain('local Capacitor native application');
     expect(releaseGuide).toContain('does not ship as a remote website wrapper');
     expect(indexHtml).not.toContain('VITE_ANALYTICS');
@@ -52,5 +54,20 @@ describe('native beta packaging configuration', () => {
     expect(carePairs).not.toContain('phaser.min.js');
     expect(carePairs).not.toContain('<iframe');
     expect(carePairs).not.toMatch(/Score:|moves|Game Over/);
+  });
+
+  it('keeps the beta privacy surface small and ships its release records', () => {
+    const packageJson = JSON.parse(fs.readFileSync(projectFile('package.json'), 'utf8')) as { devDependencies: Record<string, string> };
+    const gameStore = fs.readFileSync(projectFile('client/src/game/store.ts'), 'utf8');
+
+    expect(fs.existsSync(projectFile('client/src/components/Map.tsx'))).toBe(false);
+    expect(fs.existsSync(projectFile('client/src/const.ts'))).toBe(false);
+    expect(fs.existsSync(projectFile('shared/const.ts'))).toBe(false);
+    expect(packageJson.devDependencies['@types/google.maps']).toBeUndefined();
+    expect(gameStore).not.toContain('deviceId');
+    expect(fs.existsSync(projectFile('RELEASE_DATA_FLOW_AND_VENDOR_REGISTER.md'))).toBe(true);
+    expect(fs.existsSync(projectFile('STORE_PRIVACY_DISCLOSURE_WORKSHEETS.md'))).toBe(true);
+    expect(fs.existsSync(projectFile('CLOSED_BETA_OPERATIONS_PACKET.md'))).toBe(true);
+    expect(fs.existsSync(projectFile('ASSET_RIGHTS_REGISTER_TEMPLATE.md'))).toBe(true);
   });
 });
