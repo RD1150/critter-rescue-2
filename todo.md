@@ -483,7 +483,7 @@
 
 - [x] Add a prominent thumbs-up visual beside the returning-child “I’ll help!” rescue action.
 - [x] Add regression coverage and verify the cue at a child-sized responsive view.
-- [ ] Save a deployable checkpoint and synchronize the verified cue update to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified cue update to GitHub.
 
 ## Care Pair Picnic Sound and Celebration Themes
 
