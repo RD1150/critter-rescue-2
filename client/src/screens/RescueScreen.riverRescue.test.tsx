@@ -21,7 +21,9 @@ describe('River Rescue in RescueScreen', () => {
     if (!mission) throw new Error('Expected Riverside River Rescue mission');
     render(<RescueScreen mission={mission} companionType="bunny" bgColors={['#6BAACC', '#5A9E7A', '#2D5A1E']} onComplete={onComplete} onBack={vi.fn()} isFirstMission={false} isEarlyMission={false} />);
 
-    fireEvent.click(screen.getByRole('button', { name: /i’ll help/i }));
+    const helpButton = screen.getByRole('button', { name: /i’ll help/i });
+    expect(screen.getByTestId('rescue-help-thumb').textContent).toBe('👍');
+    fireEvent.click(helpButton);
     expect(screen.getByText(/what makes a steady bridge first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /rescue rope/i }));

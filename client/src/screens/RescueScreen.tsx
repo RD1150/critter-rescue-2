@@ -71,7 +71,9 @@ function IntroOverlay({ mission, companionType, isFirstMission, isEarlyMission, 
           {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
           {coach && <div className="mt-3 rounded-xl bg-[#F8E8D8] px-3 py-2.5 text-left" style={{ border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Three easy steps · {coach.title}</p><ol className="mt-1.5 space-y-1">{coach.steps.map((step, index) => <li key={step} className="flex gap-1.5 font-body text-xs text-[#49392C]"><span className="font-display text-[#E66B5B]">{index + 1}.</span><span>{step}</span></li>)}</ol></div>}
         </div>
-        <button onClick={onStart} className="btn-coral w-full text-base">{isFirstMission ? 'Show Me the Rescue Game!' : 'I’ll help!'}</button>
+        <button onClick={onStart} className="btn-coral flex w-full items-center justify-center gap-2 text-base">
+          {isFirstMission ? 'Show Me the Rescue Game!' : <><span data-testid="rescue-help-thumb" className="text-xl leading-none" aria-hidden="true">👍</span><span>I’ll help!</span></>}
+        </button>
       </div>
     </div>
   );

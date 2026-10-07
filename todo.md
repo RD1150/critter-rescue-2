@@ -479,6 +479,12 @@
 - [x] Add regression coverage and verify the celebration on a child-sized responsive view.
 - [x] Save a deployable checkpoint and synchronize the verified Care Pair Picnic celebration update to GitHub.
 
+## Pre-Reader Rescue Prompt Cue
+
+- [x] Add a prominent thumbs-up visual beside the returning-child “I’ll help!” rescue action.
+- [x] Add regression coverage and verify the cue at a child-sized responsive view.
+- [ ] Save a deployable checkpoint and synchronize the verified cue update to GitHub.
+
 ## Care Pair Picnic Sound and Celebration Themes
 
 - [x] Add a soft, calming completion sound that plays once in sync with the Care Pair Picnic celebration.
