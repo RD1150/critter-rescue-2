@@ -511,3 +511,9 @@
 - [x] Prepare conservative Apple App Privacy and Google Play Data Safety worksheets for the confirmed beta implementation.
 - [x] Create parent-safe beta operations, tester-feedback, and asset-rights materials without collecting child data.
 - [x] Revalidate, checkpoint, and synchronize the verified preparation package to GitHub.
+
+## Monetization Launch Model Clarification
+
+- [x] Confirm the Google Play paid-app conversion and testing-track constraints that affect a free caregiver beta.
+- [x] Update the monetization launch plan with the Android paid-app and required-test sequence.
+- [ ] Save a checkpoint and synchronize the clarified plan to GitHub.
