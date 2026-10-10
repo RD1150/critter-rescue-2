@@ -131,9 +131,10 @@ AI may recommend; it never silently applies consequential coach decisions.
 ## Stripe test mode
 
 1. Configure Stripe test credentials.
-2. Owner billing controls create server-side Checkout Sessions for **VisionRoute Coach ($97/month)** and **Founding Coach White-Label ($499 setup + $97/month)**.
-3. `POST /api/stripe/webhook` receives raw bytes before JSON parsing, verifies the signature, stores the Stripe event ID for de-duplication, then updates the tenant subscription state.
-4. Test with `4242 4242 4242 4242`; do not use live card data in Phase 1.
+2. Owner billing controls create server-side Checkout Sessions for **VisionRoute Coach ($97/month)** and **VisionRoute Coach Annual ($970/year; two months free)**. Self-service portal branding is included with either plan.
+3. Account owners can request cancellation at period end only when at least five days remain before Stripe renewal; the request is audited and retains access through the paid period.
+4. `POST /api/stripe/webhook` receives raw bytes before JSON parsing, verifies the signature, stores the Stripe event ID for de-duplication, then updates the tenant subscription state.
+5. Test with `4242 4242 4242 4242`; do not use live card data in Phase 1.
 
 Live keys/charges remain outside Phase 1. Production launch requires a separate billing review, live-key configuration and webhook delivery verification.
 
@@ -163,7 +164,7 @@ For a new host: provision MySQL, configure OAuth redirect/session secrets, apply
 - Deterministic AI fallback protects reliability but human review remains mandatory.
 - Advanced coach/team assignment administration is deferred, although the authorization model exists.
 - Stripe checkout is test-mode only; live billing is not activated.
-- Advanced white-label/custom domains, annual billing, integrations, richer reports/exports and advanced analytics are Phase 2.
+- Custom domains, branded sender email, integrations, richer reports/exports and advanced analytics are Phase 2. Self-service portal branding and annual Stripe test checkout are included in the current codebase; live billing remains disabled.
 
 ## Transferability
 

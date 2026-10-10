@@ -41,7 +41,7 @@ import {
   submitCheckIn,
   updateWorkspace,
 } from "./services/visionroute";
-import { createCheckoutSession } from "./services/billing";
+import { createCheckoutSession, requestCancellation } from "./services/billing";
 
 const tenantClientInput = z.object({ tenantId: z.string().uuid(), clientId: z.string().uuid() });
 
@@ -93,15 +93,16 @@ export const appRouter = router({
   }),
   billing: router({
     plans: protectedProcedure.query(() => ({
-      coach: { key: "visionroute_coach", name: "VisionRoute Coach", monthlyPrice: 9700, currency: "usd", interval: "month" },
-      founding: { key: "founding_white_label", name: "Founding Coach White-Label Setup", setupPrice: 49900, monthlyPrice: 9700, currency: "usd", interval: "month" },
+      monthly: { key: "visionroute_coach", name: "VisionRoute Coach", price: 9700, currency: "usd", interval: "month" },
+      annual: { key: "visionroute_coach_annual", name: "VisionRoute Coach — Annual", price: 97000, currency: "usd", interval: "year", monthsFree: 2 },
       testMode: true,
     })),
     createCheckout: protectedProcedure.input(z.object({
       tenantId: z.string().uuid(),
-      planKey: z.enum(["visionroute_coach", "founding_white_label"]),
+      planKey: z.enum(["visionroute_coach", "visionroute_coach_annual"]),
       origin: z.string().url(),
     })).mutation(async ({ ctx, input }) => createCheckoutSession(await getTenantScope(ctx.user, input.tenantId), { ...input, requestOrigin: ctx.req.header("origin") ?? undefined })),
+    requestCancellation: protectedProcedure.input(z.object({ tenantId: z.string().uuid() })).mutation(async ({ ctx, input }) => requestCancellation(await getTenantScope(ctx.user, input.tenantId))),
   }),
 });
 

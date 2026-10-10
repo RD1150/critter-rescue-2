@@ -7,7 +7,7 @@
 | Area | Evidence | Status |
 |---|---|---|
 | Type safety | `pnpm check` | **Passed** — no TypeScript diagnostics |
-| Unit/policy tests | `pnpm test` | **Passed** — 5 files, 15 tests |
+| Unit/policy tests | `pnpm test` | **Passed** — 5 files, 16 tests |
 | Production build | `pnpm build` | **Passed** — client and server bundles emitted |
 | Route manifest | `GET /manus-routes.json` on the development server | **Passed** — HTTP 200 and explicit `/`, `/invite/:token` JSON routes |
 | Health endpoint | `GET /api/health` | **Passed** — `{ "status": "ok" }` |
@@ -29,7 +29,8 @@
 | Check-in and AI summary | Client report, source-labelled summary, `ai_summaries`, model/usage records and tenant hourly limit | Implemented and unit/type-checked; real AI response walkthrough pending |
 | Reroute | Missed-action/client-triggered paths; four choices; client selection; coach approval; cloned active route version | Implemented and type-checked; authenticated workflow walkthrough pending |
 | Coach brief | Source-separated system/client/note/AI interpretation brief | Implemented; authenticated walkthrough pending |
-| Stripe test subscription | Central price catalog; `sk_test_` enforcement; origin-bound checkout; raw signature webhook and transactional de-duplication | Implemented; signed webhook and `4242` test checkout pending |
+| Stripe test subscription | Monthly ($97) and annual ($970/year) price catalog; five-day cancellation-window service; `sk_test_` enforcement; origin-bound checkout; raw signature webhook and transactional de-duplication | Unit coverage passes; signed webhook and `4242` test checkout/cancellation walkthrough pending |
+| Public offer clarity | $97/month and $970/year two-months-free pricing; self-service portal branding included; $499 setup path removed; five-day cancellation policy displayed | Desktop/mobile visual review passed; active-client/seat, trial, and card terms remain intentionally unclaimed |
 | Email notifications | Tenant notification outbox with honest `provider_unconfigured` state | Implemented; external delivery intentionally blocked until a provider is configured |
 | CSV export/privacy | Owner/all tenant export; additional coach limited to assigned clients; client no export route | Implemented; manual file download walkthrough pending |
 | Tenant isolation | Tenant scope plus client ID/assignment guards; pure role/assignment tests | Unit coverage passes for the pure predicate; DB/tRPC direct-ID and four-identity validation still pending |
@@ -40,7 +41,7 @@
 - A transactional email provider has not been configured. Notification records are queued/in-app or marked `provider_unconfigured`; the application does not falsely report email sent.
 - Stripe architecture is test-mode only. A real Checkout Session and signed webhook must still be exercised by an owner with Stripe’s `4242 4242 4242 4242` test card before production consideration.
 - Full tenant isolation validation needs distinct Coach A, Coach B, Client A and Client B identities; automated tests currently exercise the pure policy predicate and planning/billing catalog logic, not a multi-user database integration environment.
-- No live payment, live Stripe key, custom domain, advanced team administration, integrations, annual billing, PDF reporting or advanced analytics is enabled.
+- No live payment, live Stripe key, custom domain, branded sender email, advanced team administration, integrations, PDF reporting or advanced analytics is enabled. Annual Stripe test checkout exists; live annual billing does not.
 
 ## Phase 2 recommendations
 
