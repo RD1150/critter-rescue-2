@@ -1,28 +1,108 @@
+import { z } from "zod";
+import {
+  actionInput,
+  capacityInput,
+  checkInInput,
+  coachNoteInput,
+  createTenantInput,
+  generateRouteInput,
+  intakeInput,
+  inviteClientInput,
+  rerouteInput,
+  resolveRerouteInput,
+  selectRerouteOptionInput,
+  updateTenantInput,
+} from "@shared/visionroute";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { getTenantScope } from "./policies/authz";
+import {
+  acceptInvitation,
+  addCoachNote,
+  approveRoute,
+  bootstrap,
+  completeAction,
+  completeIntake,
+  createClientInvitation,
+  createReroute,
+  createWorkspace,
+  exportClientData,
+  generateRoute,
+  getClientDetail,
+  getCoachBrief,
+  getCoachDashboard,
+  getRerouteOptions,
+  listNotifications,
+  resolveReroute,
+  selectRerouteOption,
+  setCapacity,
+  submitCheckIn,
+  updateWorkspace,
+} from "./services/visionroute";
+import { createCheckoutSession } from "./services/billing";
+
+const tenantClientInput = z.object({ tenantId: z.string().uuid(), clientId: z.string().uuid() });
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
   }),
-
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  workspace: router({
+    bootstrap: protectedProcedure.query(({ ctx }) => bootstrap(ctx.user)),
+    create: protectedProcedure.input(createTenantInput).mutation(({ ctx, input }) => createWorkspace(ctx.user, input)),
+    update: protectedProcedure.input(updateTenantInput).mutation(async ({ ctx, input }) => {
+      const scope = await getTenantScope(ctx.user, input.tenantId);
+      return updateWorkspace(scope, input);
+    }),
+    dashboard: protectedProcedure.input(z.object({ tenantId: z.string().uuid() })).query(async ({ ctx, input }) => getCoachDashboard(await getTenantScope(ctx.user, input.tenantId))),
+    notifications: protectedProcedure.input(z.object({ tenantId: z.string().uuid() })).query(async ({ ctx, input }) => listNotifications(await getTenantScope(ctx.user, input.tenantId))),
+    exportCsv: protectedProcedure.input(z.object({ tenantId: z.string().uuid() })).query(async ({ ctx, input }) => exportClientData(await getTenantScope(ctx.user, input.tenantId))),
+  }),
+  clients: router({
+    createInvitation: protectedProcedure.input(inviteClientInput).mutation(async ({ ctx, input }) => createClientInvitation(await getTenantScope(ctx.user, input.tenantId), input)),
+    acceptInvitation: protectedProcedure.input(z.object({ token: z.string().min(12).max(512) })).mutation(({ ctx, input }) => acceptInvitation(ctx.user, input.token)),
+    detail: protectedProcedure.input(tenantClientInput).query(async ({ ctx, input }) => getClientDetail(await getTenantScope(ctx.user, input.tenantId), input.clientId)),
+    completeIntake: protectedProcedure.input(intakeInput).mutation(async ({ ctx, input }) => completeIntake(await getTenantScope(ctx.user, input.tenantId), input)),
+    setCapacity: protectedProcedure.input(capacityInput).mutation(async ({ ctx, input }) => setCapacity(await getTenantScope(ctx.user, input.tenantId), input.clientId, input.capacity)),
+    addCoachNote: protectedProcedure.input(coachNoteInput).mutation(async ({ ctx, input }) => addCoachNote(await getTenantScope(ctx.user, input.tenantId), input.clientId, input.body)),
+  }),
+  planning: router({
+    generateRoute: protectedProcedure.input(generateRouteInput).mutation(async ({ ctx, input }) => generateRoute(await getTenantScope(ctx.user, input.tenantId), input.clientId)),
+    decideRoute: protectedProcedure.input(z.object({ tenantId: z.string().uuid(), routeId: z.string().uuid(), decision: z.enum(["approve", "reject"]) })).mutation(async ({ ctx, input }) => approveRoute(await getTenantScope(ctx.user, input.tenantId), input.routeId, input.decision)),
+    completeAction: protectedProcedure.input(actionInput).mutation(async ({ ctx, input }) => completeAction(await getTenantScope(ctx.user, input.tenantId), input.actionId, input.notes)),
+  }),
+  checkins: router({
+    submit: protectedProcedure.input(checkInInput).mutation(async ({ ctx, input }) => submitCheckIn(await getTenantScope(ctx.user, input.tenantId), input)),
+  }),
+  reroutes: router({
+    create: protectedProcedure.input(rerouteInput).mutation(async ({ ctx, input }) => createReroute(await getTenantScope(ctx.user, input.tenantId), input.clientId, input.whatHappened, input.triggerType)),
+    options: protectedProcedure.input(z.object({ tenantId: z.string().uuid(), rerouteId: z.string().uuid() })).query(async ({ ctx, input }) => getRerouteOptions(await getTenantScope(ctx.user, input.tenantId), input.rerouteId)),
+    select: protectedProcedure.input(selectRerouteOptionInput).mutation(async ({ ctx, input }) => selectRerouteOption(await getTenantScope(ctx.user, input.tenantId), input.rerouteId, input.optionId)),
+    resolve: protectedProcedure.input(resolveRerouteInput).mutation(async ({ ctx, input }) => resolveReroute(await getTenantScope(ctx.user, input.tenantId), input.rerouteId, input.optionId, input.decision)),
+  }),
+  briefs: router({
+    get: protectedProcedure.input(tenantClientInput).query(async ({ ctx, input }) => getCoachBrief(await getTenantScope(ctx.user, input.tenantId), input.clientId)),
+  }),
+  billing: router({
+    plans: protectedProcedure.query(() => ({
+      coach: { key: "visionroute_coach", name: "VisionRoute Coach", monthlyPrice: 9700, currency: "usd", interval: "month" },
+      founding: { key: "founding_white_label", name: "Founding Coach White-Label Setup", setupPrice: 49900, monthlyPrice: 9700, currency: "usd", interval: "month" },
+      testMode: true,
+    })),
+    createCheckout: protectedProcedure.input(z.object({
+      tenantId: z.string().uuid(),
+      planKey: z.enum(["visionroute_coach", "founding_white_label"]),
+      origin: z.string().url(),
+    })).mutation(async ({ ctx, input }) => createCheckoutSession(await getTenantScope(ctx.user, input.tenantId), { ...input, requestOrigin: ctx.req.header("origin") ?? undefined })),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

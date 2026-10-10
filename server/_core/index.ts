@@ -7,10 +7,22 @@ import { publicPlatformScript } from "./publicConfig";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { handleStripeWebhook } from "../services/billing";
 
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // Stripe signature verification requires the exact unparsed request bytes.
+  // This route is intentionally registered before the JSON body parser.
+  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    try {
+      const result = await handleStripeWebhook(req.body as Buffer, req.header("stripe-signature") ?? undefined);
+      res.status(200).json({ received: true, ...result });
+    } catch (error) {
+      console.error("[Stripe] Webhook rejected", error instanceof Error ? error.message : "unknown error");
+      res.status(400).json({ error: "webhook verification failed" });
+    }
+  });
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
