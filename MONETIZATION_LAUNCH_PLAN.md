@@ -5,11 +5,11 @@
 
 ## The recommended first revenue model
 
-Launch Critter Rescue first as a **paid, one-time-purchase app** after a free, caregiver-led beta. Use a provisional **$9.99 “Founding Family” price** for the first commercial test, with the entire current game included and no advertising, in-game currency, locked child-facing prompts, or recurring charge.
+Launch Critter Rescue first as a **paid, one-time-purchase app** after a free, caregiver-led beta. Use a provisional **$4.99 “Founding Family” price** for the first commercial test, with the entire current game included and no advertising, in-game currency, locked child-facing prompts, or recurring charge.
 
 This is the simplest and safest commercial route for the game as it exists today. The current product has no payment or entitlement system, and it does not yet have evidence that families will renew monthly. A paid app lets a parent decide at the store before their child enters the game. It avoids building a paywall into the child play loop and avoids promising monthly content before a realistic content cadence exists.
 
-The $9.99 figure is a **test price, not a forecast or a proven market price**. If Apple Small Business Program eligibility applies, a $9.99 sale leaves about **$8.49 before taxes, refunds, hosting, support, and marketing** after a 15% store commission. If the standard 30% rate applies, it leaves about **$6.99**. Apple’s program provides a 15% commission on paid apps and in-app purchases for eligible developers under its stated proceeds conditions.[1]
+The $4.99 figure is a **test price, not a forecast or a proven market price**. The current five-app US benchmark supports a **$3.99–$5.99** one-time test range for a focused local-first preschool game. It does not establish a market-wide average or a willingness-to-pay result.[15] If Apple Small Business Program eligibility applies, a $4.99 sale leaves about **$4.24 before taxes, refunds, hosting, support, and marketing** after a 15% store commission. If the standard 30% rate applies, it leaves about **$3.49**. Apple’s program provides a 15% commission on paid apps and in-app purchases for eligible developers under its stated proceeds conditions.[1]
 
 Do **not** start with ads, rewarded ads, loot boxes, or a child-facing store. Apple’s Kids Category rules require purchases to sit in a designated area behind a parental gate. Google’s Families policy restricts aggressive and manipulative commercial tactics in child-directed apps.[2] [3]
 
@@ -20,7 +20,7 @@ Do **not** start with ads, rewarded ads, loot boxes, or a child-facing store. Ap
 Approve this initial offer:
 
 > **Critter Rescue — Founding Family Edition**
-> One-time purchase: **$9.99**
+> One-time purchase: **$4.99**
 > Includes: the current plushie sanctuary, rescues, Care Pair Picnic, learning activities, local progress, accessibility settings, seasonal paths, and future bug-fix updates.
 > Excludes: ads, child accounts, cloud progress, physical goods, and any promise of a monthly content drop.
 
@@ -40,7 +40,7 @@ You already have an Apple Developer account. For Android, complete Google Play C
 
 ### 4. Preserve the paid Android release option from the beginning
 
-If you choose the $9.99 paid-app path, create the Google Play app record as **paid** before any testing release is published. Google allows an app to change from paid to free, but once it has been offered free it cannot become paid again under the same package name.[6]
+If you choose the $4.99 paid-app path, create the Google Play app record as **paid** before any testing release is published. Google allows an app to change from paid to free, but once it has been offered free it cannot become paid again under the same package name.[6]
 
 Use Google Play **internal testing** for the first no-cost Android quality and caregiver beta. Google permits internal testers to install a paid app for free. Open and closed testers must purchase a paid app.[7] This lets the early beta remain free while preserving the eventual paid listing. If you later need a Google closed test for production access, plan its tester access and reimbursement or promotion process before inviting anyone.
 
@@ -86,7 +86,7 @@ Do not add a subscription until the beta supports two facts: families return, an
 
 ## A practical sequence
 
-1. **You:** Approve the initial commercial model: paid app at $9.99, or free app plus a parent-gated one-time unlock.
+1. **You:** Approve the initial commercial model: paid app at $4.99, or free app plus a parent-gated one-time unlock.
 2. **You:** Finalize the publisher name, a monitored support/privacy email, and Google Play Console ownership. Enroll and pay the Google registration fee if Android distribution is desired.
 3. **You:** If selecting the paid-app path, set the new Google Play app record to **paid** before its first testing release. Use iOS TestFlight and Android internal testing for the no-cost initial beta.
 4. **Us on the release machine:** Generate and sign iOS and Android builds, then complete the required real-device online/offline smoke test.
@@ -99,7 +99,7 @@ Do not add a subscription until the beta supports two facts: families return, an
 
 The next three actions are yours:
 
-1. Reply with either **“Paid app at $9.99”** or **“Free starter plus one-time unlock.”**
+1. Reply with either **“Paid app at $4.99”** or **“Free starter plus one-time unlock.”**
 2. Confirm the final publisher name and the adult support/privacy email you want visible in the store and privacy materials.
 3. Enroll the chosen Google account in Play Console if you want Android at launch. Use the long-term owner account and complete its payment and verification steps.
 4. If you choose the paid-app option, tell me before the first Android testing release so the Play Console record is configured as paid from the start.
@@ -135,3 +135,5 @@ Once you choose the offer, I can prepare the matching store configuration, listi
 [13]: https://support.google.com/googleplay/android-developer/answer/140504?hl=en "Create and manage subscriptions"
 
 [14]: ./research/viability/critter-rescue-viability-assessment.md "Critter Rescue Viability and Revenue Assessment"
+
+[15]: ./research/price-benchmark/preschool-app-price-benchmark.md "Critter Rescue US Preschool-App Price Benchmark"
