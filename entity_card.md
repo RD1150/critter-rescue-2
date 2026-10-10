@@ -10,10 +10,10 @@
 | Industry | Preschool educational / calm-play mobile game |
 | Primary audience | Parents/caregivers choosing play for children ages 3–6 |
 | Current product state | Beta-preparation source candidate; no verified paid acquisition, installs, retention, or revenue data |
-| Reference date | 2026-09-26 |
+| Reference date | 2026-10-09 |
 
 ## Decision question
-Is Critter Rescue viable enough to run a low-risk, privacy-first launch test, and what evidence would be required before forecasting meaningful revenue?
+Is Critter Rescue viable enough to run a low-risk, privacy-first launch test, and what evidence would be required before forecasting meaningful revenue from a proposed $9.99 base game plus $0.99 permanent modules?
 
 ## Constraints
 - Do not assume sales, rankings, or profitability without observed acquisition and retention data.
