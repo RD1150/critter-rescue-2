@@ -15,13 +15,12 @@ describe('CampScreen child-first trail selector', () => {
     const onStartRescue = vi.fn();
     const { container } = render(<CampScreen forestHarmony={20} campFlowersCount={0} rescueCount={2} companionType="fox" unlockedZones={['meadow', 'riverside']} zoneTaskProgress={{ meadow: 2, riverside: 0, deepwoods: 0, mountain: 0 }} onStartRescue={onStartRescue} dailyTrail={{ dayKey: '2026-08-29', missions: [], completedKeys: [], rewardEarned: false }} lastDailyReward={null} onStartDailyTrail={vi.fn()} onAcknowledgeDailyReward={vi.fn()} homeCare={{}} onCareHome={vi.fn()} onOpenJournal={vi.fn()} onOpenMatch3={vi.fn()} onOpenNursery={vi.fn()} onOpenParentSettings={vi.fn()} onOpenLearning={vi.fn()} onOpenNatureJournal={vi.fn()} onOpenWeatherWonder={vi.fn()} celebrationPath={null} onOpenCelebrationPath={vi.fn()} onOpenTeamRescue={vi.fn()} learningTheme="all" onStartLearningFocus={vi.fn()} onOpenStorybook={vi.fn()} onOpenCarePlay={vi.fn()} onOpenBedtime={vi.fn()} homeDecor={{}} kindnessMoments={0} season="spring" celebration={null} onClearCelebration={vi.fn()} bedtimeReminderEnabled={false} showPlaytimeSuggestion={false} onDismissPlaytimeSuggestion={vi.fn()} lastNurseryGraduate={null} onAcknowledgeGraduate={vi.fn()} reduceMotion />);
 
-    fireEvent.click(within(container).getAllByRole('button', { name: 'Find a Friend' })[0]);
+    fireEvent.click(within(container).getByRole('button', { name: '⋯ More play' }));
+    fireEvent.click(within(container).getByRole('button', { name: '🗺️ Choose a trail' }));
     const picker = within(container).getByRole('dialog', { name: 'Pick a rescue trail' });
-    expect(within(container).getByRole('button', { name: 'Start 3 tiny rescues' }).className).toContain('min-h-11');
     expect(within(picker).getByText(/Start with the card that says/i)).toBeTruthy();
     expect(within(picker).getByRole('button', { name: /Sunny Meadow: Ready now/i })).toBeTruthy();
-    expect(within(picker).getByText('2 of 13 rescues')).toBeTruthy();
-    expect(within(picker).getByText('0 of 11 rescues')).toBeTruthy();
+    expect(within(picker).getAllByText('Cozy trail notes')).toHaveLength(2);
     expect(within(picker).getByRole('button', { name: /Deep Woods: Not ready yet/i })).toBeTruthy();
     fireEvent.click(within(picker).getByRole('button', { name: /Sunny Meadow: Ready now/i }));
     vi.advanceTimersByTime(180);

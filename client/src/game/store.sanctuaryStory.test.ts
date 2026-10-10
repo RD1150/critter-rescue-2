@@ -4,10 +4,10 @@ import { chooseHomeDecoration, createFreshState, getSanctuarySeason, rememberSea
 describe('sanctuary story state', () => {
   it('persists a home decoration per rescued friend', () => {
     const fresh = createFreshState();
-    const decorated = chooseHomeDecoration(fresh, 'Nutty', 'acorn-lantern');
-    const changed = chooseHomeDecoration(decorated, 'Nutty', 'cloud-pillow');
+    const decorated = chooseHomeDecoration(fresh, 'squirrel-nutty', 'acorn-lantern');
+    const changed = chooseHomeDecoration(decorated, 'squirrel-nutty', 'cloud-pillow');
 
-    expect(changed.homeDecor.Nutty).toBe('cloud-pillow');
+    expect(changed.homeDecor['squirrel-nutty']).toBe('cloud-pillow');
   });
 
   it('stores each seasonal keepsake once and chooses seasons by local month', () => {

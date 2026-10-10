@@ -5,8 +5,8 @@ export type CareCelebration = { name: string; type: CritterType; icon: string; l
 type CelebrationDetail = Omit<CareCelebration, 'name' | 'type' | 'variation'>;
 
 const BURROW_TYPES: CritterType[] = ['squirrel', 'fox', 'hedgehog', 'bear', 'beaver'];
-const WING_TYPES: CritterType[] = ['owl', 'bird', 'eagle', 'bee', 'ladybug'];
-const WATER_TYPES: CritterType[] = ['frog', 'otter', 'turtle', 'fish', 'duck'];
+const WING_TYPES: CritterType[] = ['owl', 'bird', 'eagle', 'bee', 'ladybug', 'butterfly', 'cricket'];
+const WATER_TYPES: CritterType[] = ['frog', 'otter', 'turtle', 'fish', 'duck', 'octopus'];
 
 const FAMILY_VARIATIONS: Record<'burrow' | 'wing' | 'water' | 'meadow', CelebrationDetail[]> = {
   burrow: [

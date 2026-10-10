@@ -7,27 +7,16 @@ import { NurseryGraduate } from '../game/store';
 import { playButton, playChime, playComplete } from '../game/sounds';
 
 type NurseryFriend = CritterData & { careKey: string; isCompanion?: boolean };
+type CompanionDetail = Pick<CritterData, 'id' | 'name' | 'emoji' | 'personality' | 'thanksLine' | 'secondLine' | 'encourageLine' | 'stuckLine' | 'type'>;
 
-const COMPANION_DETAILS: Record<CritterType, Pick<CritterData, 'name' | 'emoji' | 'personality' | 'thanksLine' | 'secondLine' | 'encourageLine' | 'stuckLine' | 'type'>> = {
-  bunny: { name: 'Clover', emoji: '🐰', personality: 'gentle and curious', thanksLine: '"I feel so cozy now!"', secondLine: '"Thank you for looking after me."', encourageLine: '"A kind heart makes the best home."', stuckLine: '"We can take it slow."', type: 'bunny' },
-  fox: { name: 'Ember', emoji: '🦊', personality: 'clever and bold', thanksLine: '"This is the coziest corner in the forest!"', secondLine: '"You always know how to help."', encourageLine: '"Let’s make this nursery shine!"', stuckLine: '"A little care goes a long way."', type: 'fox' },
-  owl: { name: 'Sage', emoji: '🦉', personality: 'wise and calm', thanksLine: '"The moonlight feels safe here."', secondLine: '"Your kindness is a quiet magic."', encourageLine: '"Every gentle action matters."', stuckLine: '"We can listen for the next step."', type: 'owl' },
-  squirrel: { name: 'Nutty', emoji: '🐿️', personality: 'shy but brave', thanksLine: '"I saved a little acorn for you!"', secondLine: '"This cozy place feels like home."', encourageLine: '"We make a good rescue team!"', stuckLine: '"I believe in you."', type: 'squirrel' },
-  hedgehog: { name: 'Shadow', emoji: '🦔', personality: 'quiet and gentle', thanksLine: '"I feel safe enough to uncurl."', secondLine: '"Thank you for being patient."', encourageLine: '"Gentle is strong."', stuckLine: '"No rush. I am right here."', type: 'hedgehog' },
-  bear: { name: 'Summit', emoji: '🐻', personality: 'big-hearted and gentle', thanksLine: '"What a warm place to rest."', secondLine: '"You have a mighty kind heart."', encourageLine: '"Small care makes a big difference."', stuckLine: '"We can try together."', type: 'bear' },
-  bird: { name: 'Pip', emoji: '🐦', personality: 'cheerful and tiny', thanksLine: '"My feathers feel fluffy again!"', secondLine: '"You are such a good friend."', encourageLine: '"Chirp chirp — wonderful!"', stuckLine: '"I know you can do it."', type: 'bird' },
-  ladybug: { name: 'Daisy', emoji: '🐛', personality: 'curious and small', thanksLine: '"I am ready to explore again!"', secondLine: '"This nursery is so soft."', encourageLine: '"Look at us go!"', stuckLine: '"One small step is enough."', type: 'ladybug' },
-  frog: { name: 'Clover', emoji: '🐸', personality: 'giggly and warm', thanksLine: '"Ribbit! I feel refreshed!"', secondLine: '"You are my favorite helper."', encourageLine: '"Let’s make a splash of kindness!"', stuckLine: '"Deep breath, little friend."', type: 'frog' },
-  otter: { name: 'Splash', emoji: '🦦', personality: 'playful and loyal', thanksLine: '"I cannot wait to play in camp!"', secondLine: '"Thank you, thank you!"', encourageLine: '"You are doing brilliantly!"', stuckLine: '"We will figure it out."', type: 'otter' },
-  turtle: { name: 'Brook', emoji: '🐢', personality: 'wise and patient', thanksLine: '"I feel steady and strong again."', secondLine: '"Care is worth taking slowly."', encourageLine: '"One kind step at a time."', stuckLine: '"There is no need to hurry."', type: 'turtle' },
-  fish: { name: 'Finn', emoji: '🐟', personality: 'sparkly and quick', thanksLine: '"The nursery makes me shimmer!"', secondLine: '"You are the best friend ever."', encourageLine: '"Let’s keep glowing!"', stuckLine: '"Try a different ripple."', type: 'fish' },
-  duck: { name: 'Reed', emoji: '🦆', personality: 'motherly and warm', thanksLine: '"My little ones will love this story."', secondLine: '"Thank you for your warm care."', encourageLine: '"You are doing beautifully."', stuckLine: '"You can do this."', type: 'duck' },
-  snail: { name: 'Mossy', emoji: '🐌', personality: 'slow and thoughtful', thanksLine: '"This is the perfect resting place."', secondLine: '"Thank you for going gently."', encourageLine: '"Slow and steady care!"', stuckLine: '"No rush — we have time."', type: 'snail' },
-  lizard: { name: 'Ember', emoji: '🦎', personality: 'curious and bold', thanksLine: '"I am warm and ready!"', secondLine: '"You made a clever little home."', encourageLine: '"You are so brave!"', stuckLine: '"A fresh idea will help."', type: 'lizard' },
-  bee: { name: 'Thistle', emoji: '🐝', personality: 'busy and grateful', thanksLine: '"Buzz buzz — I am recharged!"', secondLine: '"The hive will be so glad."', encourageLine: '"A little more care!"', stuckLine: '"Take a tiny pause."', type: 'bee' },
-  eagle: { name: 'Rocky', emoji: '🦅', personality: 'proud and kind', thanksLine: '"My wings feel strong again."', secondLine: '"You helped me soar."', encourageLine: '"You can do it!"', stuckLine: '"Keep your eyes on the trail."', type: 'eagle' },
-  goat: { name: 'Pebble', emoji: '🐐', personality: 'stubborn and sweet', thanksLine: '"I am ready for the trail!"', secondLine: '"You made the path feel safe."', encourageLine: '"One step at a time!"', stuckLine: '"We will get there."', type: 'goat' },
-  beaver: { name: 'Flint', emoji: '🦫', personality: 'hardworking and humble', thanksLine: '"I feel fit to build again."', secondLine: '"Thanks for helping me rest."', encourageLine: '"We are making progress!"', stuckLine: '"Keep building gently."', type: 'beaver' },
+// Only the six player-selectable companions need a nursery placeholder. Rescued friends always use their source-of-truth CritterData.
+const COMPANION_DETAILS: Partial<Record<CritterType, CompanionDetail>> = {
+  bunny: { id: 'bunny-clover', name: 'Clover', emoji: '🐰', personality: 'gentle and curious', thanksLine: '"I feel so cozy now!"', secondLine: '"Thank you for looking after me."', encourageLine: '"A kind heart makes the best home."', stuckLine: '"We can take it slow."', type: 'bunny' },
+  fox: { id: 'fox-ember', name: 'Ember', emoji: '🦊', personality: 'clever and bold', thanksLine: '"This is the coziest corner in the forest!"', secondLine: '"You always know how to help."', encourageLine: '"Let’s make this nursery shine!"', stuckLine: '"A little care goes a long way."', type: 'fox' },
+  owl: { id: 'owl-sage', name: 'Sage', emoji: '🦉', personality: 'wise and calm', thanksLine: '"The moonlight feels safe here."', secondLine: '"Your kindness is a quiet magic."', encourageLine: '"Every gentle action matters."', stuckLine: '"We can listen for the next step."', type: 'owl' },
+  squirrel: { id: 'squirrel-nutty', name: 'Nutty', emoji: '🐿️', personality: 'shy but brave', thanksLine: '"I saved a little acorn for you!"', secondLine: '"This cozy place feels like home."', encourageLine: '"We make a good rescue team!"', stuckLine: '"I believe in you."', type: 'squirrel' },
+  hedgehog: { id: 'hedgehog-shadow', name: 'Shadow', emoji: '🦔', personality: 'quiet and gentle', thanksLine: '"I feel safe enough to uncurl."', secondLine: '"Thank you for being patient."', encourageLine: '"Gentle is strong."', stuckLine: '"No rush. I am right here."', type: 'hedgehog' },
+  bear: { id: 'bear-summit', name: 'Summit', emoji: '🐻', personality: 'big-hearted and gentle', thanksLine: '"What a warm place to rest."', secondLine: '"You have a mighty kind heart."', encourageLine: '"Small care makes a big difference."', stuckLine: '"We can try together."', type: 'bear' },
 };
 
 interface Props {
@@ -41,7 +30,7 @@ interface Props {
 
 export default function NurseryScreen({ companionType, rescuedCritters, nurseryCare, onCare, onBack, reduceMotion }: Props) {
   const companions = useMemo<NurseryFriend[]>(() => {
-    const companion = COMPANION_DETAILS[companionType];
+    const companion = COMPANION_DETAILS[companionType] ?? COMPANION_DETAILS.bunny!;
     return [{ ...companion, introLine: `Hi! I’m ${companion.name}.`, helpLine: companion.stuckLine, careKey: `companion-${companionType}`, isCompanion: true }];
   }, [companionType]);
   const friends = useMemo<NurseryFriend[]>(() => rescuedCritters.map((critter, index) => ({ ...critter, careKey: `rescued-${critter.name}-${index}` })), [rescuedCritters]);

@@ -517,3 +517,15 @@
 - [x] Confirm the Google Play paid-app conversion and testing-track constraints that affect a free caregiver beta.
 - [x] Update the monetization launch plan with the Android paid-app and required-test sequence.
 - [x] Save a checkpoint and synchronize the clarified plan to GitHub.
+
+## Core Loop, Character Consistency, and Beta Validation Pass
+
+- [x] Give each rescue friend a stable ID, one permanent species, and matching plush artwork across rescue, care, home, and story experiences.
+- [x] Make the child-facing camp lead with one clear “Help a friend” path while grouping optional play into simpler destinations.
+- [x] Replace the three-identical-taps care loop with visibly distinct brush, nest, and garden interactions, retaining a large tap alternative and a static Reduce Motion result.
+- [x] Replace child-facing Forest Harmony and daily numeric reward language with visible sanctuary changes while retaining local progression safely behind the scenes.
+- [x] Keep a persistent picture-led “Show me” cue available alongside every core rescue direction, whether or not optional audio is enabled.
+- [x] Prepare an adult-only, no-child-data caregiver playtest protocol covering first play, parent-gate usability, sound/captions, Reduce Motion, and comfort with the core loop.
+- [x] Prepare a signed iOS and Android physical-device smoke-test record for online and airplane-mode validation.
+- [ ] Execute and record actual signed iOS and Android physical-device online/airplane-mode smoke tests; do not mark complete until real signed devices are tested.
+- [x] Add focused regression coverage, visually verify normal and Reduce Motion phone/tablet/desktop routes, run complete release validation, checkpoint, and synchronize GitHub.

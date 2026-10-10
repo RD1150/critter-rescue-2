@@ -6,8 +6,8 @@ describe('parent progress summary', () => {
     const fresh = createFreshState();
     const rescued = completeRescue(fresh, 'meadow', 0, 1).newState;
     const learned = recordLearningRound(rescued, 'color');
-    const cared = careForHome(learned, 'Nutty').newState;
-    const played = completeCarePlay(cared, 'Nutty', 'squirrel', 'acorn-tidy').newState;
+    const cared = careForHome(learned, 'squirrel-nutty').newState;
+    const played = completeCarePlay(cared, { id: 'squirrel-nutty', name: 'Nutty', type: 'squirrel' }, 'acorn-tidy').newState;
     const summary = buildParentProgressSummary(played);
 
     expect(summary.today.rescueCount).toBe(1);

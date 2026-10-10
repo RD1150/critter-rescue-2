@@ -11,6 +11,8 @@ export type MissionType =
   | 'colorMatch' | 'sizeOrdering' | 'critterPath' | 'quietCount' | 'pictureRhyme' | 'letterSound' | 'alliteration' | 'habitatMatch' | 'syllableClap' | 'riverRescue' | 'nestRescue' | 'lodgeRescue' | 'tellingTime' | 'gardenSort' | 'brickBuild' | 'animalHomeMatch';
 
 export interface CritterData {
+  /** A durable in-game identity used for homes, care, decorations, and local saves. */
+  id: string;
   name: string;
   emoji: string;
   personality: string;
@@ -26,7 +28,8 @@ export interface CritterData {
 export type CritterType =
   | 'bunny' | 'fox' | 'owl' | 'squirrel' | 'bird' | 'ladybug' | 'frog'
   | 'otter' | 'turtle' | 'fish' | 'duck' | 'hedgehog' | 'snail'
-  | 'lizard' | 'bee' | 'eagle' | 'goat' | 'beaver' | 'bear';
+  | 'lizard' | 'bee' | 'eagle' | 'goat' | 'beaver' | 'bear'
+  | 'butterfly' | 'cricket' | 'octopus';
 
 export interface StarterCompanion {
   type: CritterType;
@@ -54,11 +57,11 @@ export function getStarterCompanion(type: string): StarterCompanion {
 
 export const EMOJI_TO_TYPE: Record<string, CritterType> = {
   '🐰': 'bunny', '🦊': 'fox', '🦉': 'owl', '🐿️': 'squirrel',
-  '🐦': 'bird', '🐛': 'ladybug', '🐸': 'frog', '🦦': 'otter',
+  '🐦': 'bird', '🐞': 'ladybug', '🐸': 'frog', '🦦': 'otter',
   '🐢': 'turtle', '🐟': 'fish', '🦆': 'duck', '🦔': 'hedgehog',
   '🐌': 'snail', '🦎': 'lizard', '🐝': 'bee', '🦅': 'eagle',
-  '🐐': 'goat', '🦫': 'beaver', '🐻': 'bear', '🦢': 'owl',
-  '🐙': 'frog', '🦙': 'goat', '🐦‍⬛': 'eagle', '🌊': 'fish', '⛰️': 'eagle',
+  '🐐': 'goat', '🦫': 'beaver', '🐻': 'bear', '🦋': 'butterfly',
+  '🦗': 'cricket', '🐙': 'octopus', '🌊': 'fish', '⛰️': 'eagle',
 };
 
 export interface MissionData {
@@ -89,15 +92,19 @@ function c(
   name: string, emoji: string, personality: string,
   thanksLine: string, secondLine: string, encourageLine: string, stuckLine: string
 ): CritterData {
-  return { name, emoji, personality, introLine: `Hi! I’m ${name}.`, helpLine: stuckLine, thanksLine, secondLine, encourageLine, stuckLine,
-    type: EMOJI_TO_TYPE[emoji] || 'bunny' };
+  const type = EMOJI_TO_TYPE[emoji] || 'bunny';
+  return {
+    id: `${type}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    name, emoji, personality, introLine: `Hi! I’m ${name}.`, helpLine: stuckLine, thanksLine, secondLine, encourageLine, stuckLine,
+    type,
+  };
 }
 
 const MEADOW_CRITTERS: CritterData[] = [
   c('Nutty','🐿️','shy but brave','"You built that just for me..."','"I\'ll remember this forever."','"You\'re doing so well!"','"Take your time — I believe in you."'),
   c('Pip','🐦','cheerful and tiny','"My babies can sleep safe tonight!"','"You have the gentlest hands."','"Almost there! I can feel it!"','"Don\'t worry, you\'ve got this!"'),
-  c('Daisy','🐛','curious and small','"I can see my home from here!"','"You made the whole world feel bigger."','"Wow, look at you go!"','"It\'s tricky, but you\'re smart."'),
-  c('Clover','🐸','giggly and warm','"Ribbit! You\'re my favorite person!"','"The pond is singing because of you."','"You make everything look easy!"','"Even tricky things get solved with patience."'),
+  c('Daisy','🐞','curious and small','"I can see my home from here!"','"You made the whole world feel bigger."','"Wow, look at you go!"','"It\'s tricky, but you\'re smart."'),
+  c('Puddle','🐸','giggly and warm','"Ribbit! You\'re my favorite person!"','"The pond is singing because of you."','"You make everything look easy!"','"Even tricky things get solved with patience."'),
   c('Buttercup','🦋','delicate and graceful','"My wings are healing because of you!"','"Thank you for being so gentle."','"You\'re so careful and kind!"','"Take a deep breath. You\'ve got this!"'),
   c('Cricket','🦗','chirpy and helpful','"The whole meadow is singing today!"','"You\'re the best friend ever!"','"Chirp chirp — keep going!"','"Try listening to your heart!"'),
 ];
@@ -108,17 +115,17 @@ const RIVERSIDE_CRITTERS: CritterData[] = [
   c('Finn','🐟','sparkly and quick','"The water is happy again!"','"You\'re my best friend!"','"Wow, you\'re so fast!"','"Try a different way!"'),
   c('Reed','🦆','motherly and warm','"My babies are safe!"','"You\'re so kind!"','"Almost done! Keep going!"','"You can do it!"'),
   c('Bubbles','🐙','playful and artistic','"I can paint again! Thank you!"','"You made me smile so big!"','"You\'re so creative!"','"Try imagining it differently!"'),
-  c('Piper','🦢','graceful and peaceful','"The river flows gently again."','"Your kindness ripples everywhere."','"You move through this so gracefully."','"Stillness brings clarity."'),
+  c('Piper','🐦','graceful and peaceful','"The river flows gently again."','"Your kindness ripples everywhere."','"You move through this so gracefully."','"Stillness brings clarity."'),
   c('Clover','🐰','soft and brave','"I knew I could cross with you close by."','"The riverbank feels cozy again."','"One calm helper at a time!"','"Let’s look at which helper comes first."'),
 ];
 
 const DEEPWOODS_CRITTERS: CritterData[] = [
   c('Shadow','🦔','quiet and gentle','"You came to help me!"','"Now I feel safe."','"You\'re doing great!"','"I believe in you."'),
   c('Mossy','🐌','slow and thoughtful','"Thank you so much!"','"You\'re so nice."','"You\'re halfway there!"','"No rush — keep trying!"'),
-  c('Ember','🦎','curious and bold','"My home is safe again!"','"You\'re the best!"','"You\'re so brave!"','"Look at it a new way!"'),
+  c('Ridge','🦎','curious and bold','"My home is safe again!"','"You\'re the best!"','"You\'re so brave!"','"Look at it a new way!"'),
   c('Thistle','🐝','busy and grateful','"The whole hive says thank you!"','"We\'ll be friends forever!"','"Buzz buzz — keep going!"','"You\'re doing awesome!"'),
   c('Bark','🦊','clever and playful','"The forest feels like home again!"','"You outsmarted the dark!"','"I knew you could do it!"','"Think outside the box!"'),
-  c('Ferns','🦢','small but mighty','"You made the forest bigger for me!"','"Big heart, you have!"','"Courage is what matters, not size!"','"One step at a time, friend."'),
+  c('Ferns','🐦','small but mighty','"You made the forest bigger for me!"','"Big heart, you have!"','"Courage is what matters, not size!"','"One step at a time, friend."'),
   c('Wren','🐦','bright and careful','"My little nest feels safe again!"','"You made each step so gentle."','"One helpful picture at a time!"','"Let’s look for the first cozy helper."'),
 ];
 
@@ -127,8 +134,8 @@ const MOUNTAIN_CRITTERS: CritterData[] = [
   c('Pebble','🐐','stubborn and sweet','"The path is open!"','"You\'re amazing!"','"One step at a time!"','"Don\'t give up!"'),
   c('Flint','🦫','hardworking and humble','"My dam is fixed!"','"You helped so much!"','"Just like me — good job!"','"Keep building!"'),
   c('Summit','🐻','big-hearted and gentle','"Thank you so much!"','"Come visit me anytime!"','"You\'re super strong!"','"You can do it!"'),
-  c('Zephyr','🐦‍⬛','free-spirited and wise','"The mountain winds are clear again!"','"Freedom tastes like kindness."','"Soar with confidence!"','"See from a higher perspective."'),
-  c('Alpaca','🦙','calm and steadfast','"My herd is together again."','"You have a noble heart."','"Steady, strong, and true!"','"Patience brings victory."'),
+  c('Zephyr','🦅','free-spirited and wise','"The mountain winds are clear again!"','"Freedom tastes like kindness."','"Soar with confidence!"','"See from a higher perspective."'),
+  c('Tundra','🐐','calm and steadfast','"My herd is together again."','"You have a noble heart."','"Steady, strong, and true!"','"Patience brings victory."'),
 ];
 
 const EVERYONE_RIVER: CritterData = c('Everyone','🌊','all your river friends',
@@ -169,7 +176,7 @@ const RIVERSIDE_TASKS: TaskDef[] = [
   { type:'spotDifference', critter:RIVERSIDE_CRITTERS[3], scenarioText:"Reed's pond changed overnight! What's different?", hintText:'Find the differences between the two pictures', objectCount:3, difficulty:2, requiresOrder:false, introText:"Something changed at Reed's pond! Can you spot what's different?" },
   { type:'pictureRhyme', critter:RIVERSIDE_CRITTERS[2], scenarioText:'Finn needs a picture rhyme to find a tall safe tree!', hintText:'Listen for the word that sounds like bee, then tap its picture rhyme.', objectCount:3, difficulty:2, requiresOrder:false, introText:'Finn heard a tiny bee beside a tall tree. Can you find the picture that rhymes with bee?' },
   { type:'habitatMatch', critter:RIVERSIDE_CRITTERS[3], scenarioText:'Reed needs help finding the cozy pond home!', hintText:'Tap the home where a duck can rest.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Reed is looking for a cozy home beside the water. Can you choose the right habitat together?' },
-  { type:'guidePath', critter:EVERYONE_RIVER, scenarioText:'Light the whole riverside for everyone!', hintText:'Place 5 lanterns in order along the path!', objectCount:5, difficulty:4, requiresOrder:true, introText:"It's getting dark on the river. Every friend needs to find their way home safely." },
+  { type:'guidePath', critter:RIVERSIDE_CRITTERS[4], scenarioText:'Bubbles needs a glowing river path for a new painting spot!', hintText:'Place the lanterns in a calm, helpful order.', objectCount:5, difficulty:4, requiresOrder:true, introText:"Bubbles found a quiet water-side painting spot, but the river fog makes the path hard to see. Can you place gentle lanterns to guide the way?" },
   { type:'riverRescue', critter:RIVERSIDE_CRITTERS[6], scenarioText:'Clover is waiting safely on a river rock!', hintText:'Choose the helpers in a calm, safe order.', objectCount:3, difficulty:2, requiresOrder:true, introText:'Clover found a quiet river rock, but the cozy bank is just out of reach. Can you choose the helpers in order?' },
   { type:'tellingTime', critter:RIVERSIDE_CRITTERS[1], scenarioText:'Brook is practicing three gentle full-hour plans!', hintText:'Find each clock with its short hand on the matching hour and its long hand on twelve.', objectCount:3, difficulty:2, requiresOrder:false, introText:'Brook has three gentle full-hour plans. Can you find each matching clock together?' },
 ];
@@ -179,8 +186,8 @@ const DEEPWOODS_TASKS: TaskDef[] = [
   { type:'clearPath', critter:DEEPWOODS_CRITTERS[0], scenarioText:"Shadow's burrow is buried under branches!", hintText:'Clear the branches gently', objectCount:3, difficulty:2, requiresOrder:false, introText:'Shadow is scared and cold. Their home is hidden under a pile of branches.' },
   { type:'findTools', critter:DEEPWOODS_CRITTERS[1], scenarioText:'Mossy lost the rescue tools in the deep woods!', hintText:'Search the drawing carefully for hidden tools!', objectCount:4, difficulty:3, requiresOrder:false, introText:'The tools scattered in the dark forest! Look closely at the trees and bushes to find them.' },
   { type:'guidePath', critter:DEEPWOODS_CRITTERS[1], scenarioText:'Mossy is lost in the dark woods.', hintText:'Place lanterns to show the way home', objectCount:3, difficulty:3, requiresOrder:false, introText:'The deep woods are very dark. Mossy has been wandering for hours...' },
-  { type:'shelter', critter:DEEPWOODS_CRITTERS[2], scenarioText:'Ember needs shelter from the cold rain!', hintText:'Stack the branches to build a cozy shelter', objectCount:4, difficulty:3, requiresOrder:false, introText:"Rain is falling and Ember's log is soaked. They need somewhere warm and dry." },
-  { type:'spotDifference', critter:DEEPWOODS_CRITTERS[2], scenarioText:"Ember's forest looks different today!", hintText:'Find the differences between the two pictures', objectCount:4, difficulty:3, requiresOrder:false, introText:'Something changed in the deep woods! Can you find what\'s different?' },
+  { type:'shelter', critter:DEEPWOODS_CRITTERS[2], scenarioText:'Ridge needs shelter from the cold rain!', hintText:'Stack the branches to build a cozy shelter', objectCount:4, difficulty:3, requiresOrder:false, introText:"Rain is falling and Ridge's warm rock is soaked. They need somewhere warm and dry." },
+  { type:'spotDifference', critter:DEEPWOODS_CRITTERS[2], scenarioText:"Ridge's forest looks different today!", hintText:'Find the differences between the two pictures', objectCount:4, difficulty:3, requiresOrder:false, introText:'Something changed in the deep woods! Can you find what\'s different?' },
   { type:'pattern', critter:DEEPWOODS_CRITTERS[3], scenarioText:"Thistle's hive entrance has a secret code!", hintText:'Watch the pattern and repeat it!', objectCount:4, difficulty:4, requiresOrder:true, introText:'The hive door only opens with the right pattern. Watch carefully!' },
   { type:'maze', critter:DEEPWOODS_CRITTERS[0], scenarioText:'Shadow is lost deep in the winding forest paths!', hintText:'Trace through the dark forest maze carefully', objectCount:5, difficulty:4, requiresOrder:false, introText:'The deep woods twist and turn in every direction. Shadow needs you to find the way out.' },
   { type:'nestRescue', critter:DEEPWOODS_CRITTERS[6], scenarioText:'Wren needs a gentle route to a cozy willow nest!', hintText:'Choose the nest helpers in a calm, helpful order.', objectCount:3, difficulty:3, requiresOrder:true, introText:'Wren found a quiet willow branch, but their nest needs a safe, soft way to come together. Can you choose the helpers in order?' },
@@ -234,11 +241,15 @@ export function isZoneComplete(zone: string, completed: number): boolean {
 
 export function getRescuedCritters(zoneTaskProgress: Record<string, number>): CritterData[] {
   const rescued: CritterData[] = [];
+  const seen = new Set<string>();
   for (const [zone, progress] of Object.entries(zoneTaskProgress)) {
     const tasks = ZONE_TASKS[zone];
     if (!tasks) continue;
     for (let i = 0; i < Math.min(progress, tasks.length); i++) {
-      if (tasks[i].critter.name !== 'Everyone') rescued.push(tasks[i].critter);
+      if (tasks[i].critter.name !== 'Everyone' && !seen.has(tasks[i].critter.id)) {
+        seen.add(tasks[i].critter.id);
+        rescued.push(tasks[i].critter);
+      }
     }
   }
   return rescued;

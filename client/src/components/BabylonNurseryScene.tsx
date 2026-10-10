@@ -48,6 +48,7 @@ const PLUSH_COLORS: Record<CritterType, string> = {
   ladybug: '#D65642', frog: '#6FAE5B', otter: '#A97043', turtle: '#5E9A62', fish: '#4F9EC0',
   duck: '#F1CA54', hedgehog: '#B27749', snail: '#A981B4', lizard: '#5FA49B', bee: '#E9B93D',
   eagle: '#835B3E', goat: '#E9E4D7', beaver: '#865B3C', bear: '#A8754F',
+  butterfly: '#B99BD9', cricket: '#7E9D59', octopus: '#7EC3D3',
 };
 
 function mat(scene: Scene, id: string, color: string, glow = 0) {

@@ -5,8 +5,8 @@ import { PRE_READER_DIRECTIONS } from './preReaderDirections';
 describe('friendship duos', () => {
   it('only offers a duo after both friends are rescued', () => {
     const nuttyPip = FRIENDSHIP_DUOS[0];
-    expect(getAvailableFriendshipDuos([{ name: 'Nutty' } as any])).toEqual([]);
-    expect(getAvailableFriendshipDuos([{ name: 'Nutty' } as any, { name: 'Pip' } as any])).toEqual([nuttyPip]);
+    expect(getAvailableFriendshipDuos([{ id: 'squirrel-nutty' } as any])).toEqual([]);
+    expect(getAvailableFriendshipDuos([{ id: 'squirrel-nutty' } as any, { id: 'bird-pip' } as any])).toEqual([nuttyPip]);
   });
 
   it('keeps all duo moments to two calm, ordered care steps', () => {

@@ -17,6 +17,6 @@ describe('daily three-rescue trail', () => {
     for (const mission of state.dailyTrail.missions) state = completeDailyTrailRescue(state, mission.key, dayKey).newState;
     expect(state.dailyTrail.rewardEarned).toBe(true);
     expect(state.dailyTrail.completedKeys).toHaveLength(3);
-    expect(state.lastDailyReward).toContain('Trail Treasure');
+    expect(state.lastDailyReward).toContain('little bloom');
   });
 });

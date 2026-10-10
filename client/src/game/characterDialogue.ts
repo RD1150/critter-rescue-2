@@ -62,6 +62,9 @@ const VOICE_SETTINGS: Record<CritterType, string> = {
   goat: 'Sweet stubborn goat; bouncy, cheerful, slightly determined cartoon voice.',
   beaver: 'Steady little builder; warm lower pitch, industrious, kind, calm.',
   bear: 'Cozy gentle bear; warm, rich, unhurried, safe storybook delivery.',
+  butterfly: 'Gentle plush butterfly; light, careful, warm, and softly encouraging.',
+  cricket: 'Chirpy plush cricket; bright, friendly, playful, and easy to understand.',
+  octopus: 'Playful plush octopus; calm, imaginative, soft, and warmly delighted.',
 };
 
 const INTRO_OVERRIDES: Partial<Record<string, string>> = {

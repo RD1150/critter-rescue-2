@@ -4,8 +4,8 @@ import { chooseHomeDecoration, createFreshState } from './store';
 
 describe('Storybook home decoration render plan', () => {
   it('maps a persisted cloud pillow choice to the Babylon pillow mesh variant', () => {
-    const state = chooseHomeDecoration(createFreshState(), 'Nutty', 'cloud-pillow');
-    const plan = getHomeDecorationRenderPlan(state.homeDecor.Nutty);
+    const state = chooseHomeDecoration(createFreshState(), 'squirrel-nutty', 'cloud-pillow');
+    const plan = getHomeDecorationRenderPlan(state.homeDecor['squirrel-nutty']);
 
     expect(plan).toMatchObject({ key: 'cloud-pillow', label: 'Cloud pillow', meshPrefix: 'home-pillow' });
   });

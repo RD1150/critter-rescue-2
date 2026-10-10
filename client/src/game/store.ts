@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────
 // Critter Rescue — Game State (localStorage)
 // ─────────────────────────────────────────────
-import { CritterType, MissionType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
+import { CritterData, CritterType, MissionType, ZONES, ZONE_UNLOCK_THRESHOLDS, getZoneTask, MissionData } from './data';
 import { getKindnessMoments } from './sanctuaryGrowth';
 import type { FriendshipDuo } from './friendshipDuos';
 import type { NatureDiscoveryKey } from './natureDiscoveries';
@@ -87,6 +87,29 @@ export interface GameState {
 
 const STORAGE_KEY = 'critter_rescue_v1';
 
+// Older saves used display names as keys. These aliases preserve that local progress while
+// ensuring future care, decorations, and memories follow durable character identities.
+const LEGACY_CRITTER_IDS: Record<string, string> = {
+  Nutty: 'squirrel-nutty', Pip: 'bird-pip', Daisy: 'ladybug-daisy', Clover: 'bunny-clover',
+  Buttercup: 'butterfly-buttercup', Cricket: 'cricket-cricket', Splash: 'otter-splash', Brook: 'turtle-brook',
+  Finn: 'fish-finn', Reed: 'duck-reed', Bubbles: 'octopus-bubbles', Piper: 'bird-piper', Shadow: 'hedgehog-shadow',
+  Mossy: 'snail-mossy', Ember: 'lizard-ridge', Ridge: 'lizard-ridge', Thistle: 'bee-thistle', Bark: 'fox-bark',
+  Ferns: 'bird-ferns', Wren: 'bird-wren', Rocky: 'eagle-rocky', Pebble: 'goat-pebble', Flint: 'beaver-flint',
+  Summit: 'bear-summit', Zephyr: 'eagle-zephyr', Alpaca: 'goat-tundra', Tundra: 'goat-tundra',
+};
+
+export function migrateLegacyCritterRecord<T>(record: Record<string, T> | undefined): Record<string, T> {
+  return Object.entries(record ?? {}).reduce<Record<string, T>>((migrated, [key, value]) => {
+    const stableKey = LEGACY_CRITTER_IDS[key] ?? key;
+    if (typeof value === 'number' && typeof migrated[stableKey] === 'number') {
+      migrated[stableKey] = ((migrated[stableKey] as number) + value) as T;
+    } else {
+      migrated[stableKey] = value;
+    }
+    return migrated;
+  }, {});
+}
+
 export function loadState(): GameState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -102,14 +125,14 @@ export function loadState(): GameState {
         nurseryCare: saved.nurseryCare ?? {},
         nurseryVisits: saved.nurseryVisits ?? 0,
         lastNurseryGraduate: saved.lastNurseryGraduate ?? null,
-        homeCare: saved.homeCare ?? {},
+        homeCare: migrateLegacyCritterRecord(saved.homeCare),
         dailyTrail: saved.dailyTrail ?? fresh.dailyTrail,
         lastDailyReward: saved.lastDailyReward ?? null,
         learningMilestones: { ...fresh.learningMilestones, ...(saved.learningMilestones ?? {}) },
         activityLog: saved.activityLog ?? {},
-        homeDecor: saved.homeDecor ?? {},
+        homeDecor: migrateLegacyCritterRecord(saved.homeDecor),
         seasonalKeepsakes: saved.seasonalKeepsakes ?? [],
-        carePlayWins: saved.carePlayWins ?? {},
+        carePlayWins: migrateLegacyCritterRecord(saved.carePlayWins),
         friendshipDuoWins: saved.friendshipDuoWins ?? {},
         teamRescueWins: saved.teamRescueWins ?? {},
         quietLearningRescues: { ...fresh.quietLearningRescues, ...(saved.quietLearningRescues ?? {}) },
@@ -250,7 +273,7 @@ export function completeDailyTrailRescue(state: GameState, missionKey: string, d
   }
   const completedKeys = [...ready.dailyTrail.completedKeys, missionKey];
   const finished = completedKeys.length === ready.dailyTrail.missions.length;
-  const rewardMessage = finished ? 'Trail Treasure earned: 3 camp blossoms and 5 Forest Harmony!' : undefined;
+  const rewardMessage = finished ? 'A new little bloom is resting in the sanctuary.' : undefined;
   const newState = addActivity({
     ...ready,
     forestHarmony: ready.forestHarmony + 2 + (finished ? 5 : 0),
@@ -372,9 +395,9 @@ export function acknowledgeNurseryGraduate(state: GameState): GameState {
   return newState;
 }
 
-export function careForHome(state: GameState, critterName: string): { newState: GameState; careCount: number } {
-  const careCount = (state.homeCare[critterName] ?? 0) + 1;
-  const newState = addActivity({ ...state, homeCare: { ...state.homeCare, [critterName]: careCount } }, { homeCareMoments: 1 });
+export function careForHome(state: GameState, critterId: string): { newState: GameState; careCount: number } {
+  const careCount = (state.homeCare[critterId] ?? 0) + 1;
+  const newState = addActivity({ ...state, homeCare: { ...state.homeCare, [critterId]: careCount } }, { homeCareMoments: 1 });
   saveState(newState);
   return { newState, careCount };
 }
@@ -402,8 +425,8 @@ export function recordWeatherWonder(state: GameState, season: SanctuarySeason): 
   return newState;
 }
 
-export function chooseHomeDecoration(state: GameState, critterName: string, decoration: HomeDecoration): GameState {
-  const newState = { ...state, homeDecor: { ...state.homeDecor, [critterName]: decoration } };
+export function chooseHomeDecoration(state: GameState, critterId: string, decoration: HomeDecoration): GameState {
+  const newState = { ...state, homeDecor: { ...state.homeDecor, [critterId]: decoration } };
   saveState(newState);
   return newState;
 }
@@ -438,20 +461,20 @@ const CARE_PLAY_COPY: Record<CarePlayKind, { title: string; message: string }> =
   'garden-sprinkle': { title: 'A little garden sprinkle', message: 'You helped the soft garden flowers drink.' },
 };
 
-export function completeCarePlay(state: GameState, critterName: string, critterType: CritterType, carePlay: CarePlayKind): { newState: GameState; keepsake: Keepsake } {
+export function completeCarePlay(state: GameState, critter: Pick<CritterData, 'id' | 'name' | 'type'>, carePlay: CarePlayKind): { newState: GameState; keepsake: Keepsake } {
   const copy = CARE_PLAY_COPY[carePlay];
   const keepsake: Keepsake = {
-    id: `care-${Date.now()}-${critterName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+    id: `care-${Date.now()}-${critter.id}`,
     source: 'care-play',
-    critterName,
-    critterType,
-    title: `${critterName}: ${copy.title}`,
+    critterName: critter.name,
+    critterType: critter.type,
+    title: `${critter.name}: ${copy.title}`,
     message: copy.message,
     createdAt: Date.now(),
   };
   const newState = addActivity({
     ...state,
-    carePlayWins: { ...state.carePlayWins, [critterName]: (state.carePlayWins[critterName] ?? 0) + 1 },
+    carePlayWins: { ...state.carePlayWins, [critter.id]: (state.carePlayWins[critter.id] ?? 0) + 1 },
     keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
   }, { carePlayMoments: 1 });
   saveState(newState);
@@ -470,7 +493,7 @@ export function completeFriendshipDuo(state: GameState, duo: FriendshipDuo): { n
   };
   const newState = addActivity({
     ...state,
-    carePlayWins: { ...state.carePlayWins, [duo.names[0]]: (state.carePlayWins[duo.names[0]] ?? 0) + 1, [duo.names[1]]: (state.carePlayWins[duo.names[1]] ?? 0) + 1 },
+    carePlayWins: { ...state.carePlayWins, [duo.critterIds[0]]: (state.carePlayWins[duo.critterIds[0]] ?? 0) + 1, [duo.critterIds[1]]: (state.carePlayWins[duo.critterIds[1]] ?? 0) + 1 },
     friendshipDuoWins: { ...state.friendshipDuoWins, [duo.id]: (state.friendshipDuoWins[duo.id] ?? 0) + 1 },
     keepsakes: [keepsake, ...state.keepsakes].slice(0, 36),
   }, { carePlayMoments: 1 });

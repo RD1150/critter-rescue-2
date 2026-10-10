@@ -8,6 +8,11 @@ describe('critter care play', () => {
     expect(getCarePlayKind('hedgehog')).toBe('brush-bloom');
     expect(getCarePlayKind('otter')).toBe('ripple-refill');
     expect(getCarePlayKind('bee')).toBe('garden-sprinkle');
+    expect(getCarePlayKind('butterfly')).toBe('garden-sprinkle');
+    expect(getCarePlayKind('cricket')).toBe('nest-fluff');
+    expect(getCarePlayKind('octopus')).toBe('ripple-refill');
     expect(Object.keys(CARE_PLAY_DETAILS).sort()).toEqual(['acorn-tidy', 'brush-bloom', 'garden-sprinkle', 'nest-fluff', 'ripple-refill']);
+    expect(CARE_PLAY_DETAILS['brush-bloom'].picture.action).toBe('Brush');
+    expect(CARE_PLAY_DETAILS['nest-fluff'].picture.before).toBe('🪺');
   });
 });

@@ -33,7 +33,7 @@ import ParentLegalScreen, { type ParentLegalPage } from './screens/ParentLegalSc
 import ParentalGateScreen from './screens/ParentalGateScreen';
 
 import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
-import { CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
+import { CritterData, CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
 import type { CarePairCelebrationTheme } from './game/audioPreferences';
@@ -211,12 +211,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       : s;
     const previewTrail = (previewDailyProgress || previewDailyReward) ? buildDailyTrail(basePreviewState, '2026-08-20') : basePreviewState.dailyTrail;
     const previewState = (previewDailyProgress || previewDailyReward)
-      ? { ...basePreviewState, dailyTrail: { ...previewTrail, completedKeys: previewDailyReward ? previewTrail.missions.map((mission) => mission.key) : [previewTrail.missions[0].key], rewardEarned: previewDailyReward }, lastDailyReward: previewDailyReward ? 'Trail Treasure earned: 3 camp blossoms and 5 Forest Harmony!' : null }
+      ? { ...basePreviewState, dailyTrail: { ...previewTrail, completedKeys: previewDailyReward ? previewTrail.missions.map((mission) => mission.key) : [previewTrail.missions[0].key], rewardEarned: previewDailyReward }, lastDailyReward: previewDailyReward ? 'A new little bloom is resting in the sanctuary.' : null }
       : basePreviewState;
-    const datedPreviewState = previewParentProgress ? { ...previewState, rescueCompletedCount: Math.max(previewState.rescueCompletedCount, 8), learningMilestones: { color: 4, shape: 3, pattern: 2 }, nurseryVisits: Math.max(previewState.nurseryVisits, 5), homeCare: { Nutty: 3, Pip: 2 }, activityLog: { ...previewState.activityLog, [new Date().toISOString().slice(0, 10)]: { rescueCount: 2, learningRounds: 3, homeCareMoments: 1, nurseryCareMoments: 1, carePlayMoments: 2, dailyTrailCompleted: false } } } : previewState;
-    const storyPreviewState = previewStorybook ? { ...datedPreviewState, rescueCompletedCount: Math.max(datedPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...datedPreviewState.zoneTaskProgress, meadow: Math.max(datedPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, homeDecor: { Nutty: 'acorn-lantern' as HomeDecoration, Pip: 'cloud-pillow' as HomeDecoration } } : datedPreviewState;
+    const datedPreviewState = previewParentProgress ? { ...previewState, rescueCompletedCount: Math.max(previewState.rescueCompletedCount, 8), learningMilestones: { color: 4, shape: 3, pattern: 2 }, nurseryVisits: Math.max(previewState.nurseryVisits, 5), homeCare: { 'squirrel-nutty': 3, 'bird-pip': 2 }, activityLog: { ...previewState.activityLog, [new Date().toISOString().slice(0, 10)]: { rescueCount: 2, learningRounds: 3, homeCareMoments: 1, nurseryCareMoments: 1, carePlayMoments: 2, dailyTrailCompleted: false } } } : previewState;
+    const storyPreviewState = previewStorybook ? { ...datedPreviewState, rescueCompletedCount: Math.max(datedPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...datedPreviewState.zoneTaskProgress, meadow: Math.max(datedPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, homeDecor: { 'squirrel-nutty': 'acorn-lantern' as HomeDecoration, 'bird-pip': 'cloud-pillow' as HomeDecoration } } : datedPreviewState;
     const carePreviewState = previewCarePlay ? { ...storyPreviewState, rescueCompletedCount: Math.max(storyPreviewState.rescueCompletedCount, 13), unlockedZones: ['meadow', 'riverside', 'deepwoods'], zoneTaskProgress: { ...storyPreviewState.zoneTaskProgress, meadow: Math.max(storyPreviewState.zoneTaskProgress.meadow ?? 0, 4), riverside: Math.max(storyPreviewState.zoneTaskProgress.riverside ?? 0, 3), deepwoods: Math.max(storyPreviewState.zoneTaskProgress.deepwoods ?? 0, 7) } } : storyPreviewState;
-    const growthPreviewState = previewCampGrowth ? { ...carePreviewState, homeCare: { ...carePreviewState.homeCare, Nutty: 5, Splash: 3 }, nurseryVisits: Math.max(carePreviewState.nurseryVisits, 4), carePlayWins: { ...carePreviewState.carePlayWins, Nutty: 3, Splash: 2 } } : carePreviewState;
+    const growthPreviewState = previewCampGrowth ? { ...carePreviewState, homeCare: { ...carePreviewState.homeCare, 'squirrel-nutty': 5, 'otter-splash': 3 }, nurseryVisits: Math.max(carePreviewState.nurseryVisits, 4), carePlayWins: { ...carePreviewState.carePlayWins, 'squirrel-nutty': 3, 'otter-splash': 2 } } : carePreviewState;
     const familyPreviewState = previewGallery ? { ...growthPreviewState, rescueCompletedCount: Math.max(growthPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...growthPreviewState.zoneTaskProgress, meadow: Math.max(growthPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, keepsakes: [{ id: 'preview-nutty', source: 'care-play' as const, critterName: 'Nutty', critterType: 'squirrel' as CritterType, title: 'Nutty: Acorns tucked away', message: 'You helped make a cozy little stash.', createdAt: Date.now() }, { id: 'preview-pip', source: 'care-play' as const, critterName: 'Pip', critterType: 'bird' as CritterType, title: 'Pip: Nest fluffed with care', message: 'You helped make a soft, safe resting place.', createdAt: Date.now() }] } : growthPreviewState;
     setState(familyPreviewState);
     if (previewCelebration) {
@@ -505,9 +505,9 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const handleLearningRound = useCallback((milestone: LearningMilestoneKey) => { if (state) setState(recordLearningRound(state, milestone)); }, [state]);
   const handleNatureDiscovery = useCallback((key: NatureDiscoveryKey) => { if (state) setState(recordNatureDiscovery(state, key)); }, [state]);
   const handleWeatherWonder = useCallback(() => { if (state) setState(recordWeatherWonder(state, activeCampTheme)); }, [activeCampTheme, state]);
-  const handleChooseDecor = useCallback((name: string, decoration: HomeDecoration) => { if (state) setState(chooseHomeDecoration(state, name, decoration)); }, [state]);
+  const handleChooseDecor = useCallback((critter: CritterData, decoration: HomeDecoration) => { if (state) setState(chooseHomeDecoration(state, critter.id, decoration)); }, [state]);
   const handleCelebrateSeason = useCallback(() => { if (state) setState(rememberSeasonalMoment(state, getSanctuarySeason())); }, [state]);
-  const handleCompleteCarePlay = useCallback((name: string, type: CritterType, kind: CarePlayKind) => { if (state) setState(completeCarePlay(state, name, type, kind).newState); }, [state]);
+  const handleCompleteCarePlay = useCallback((critter: CritterData, kind: CarePlayKind) => { if (state) setState(completeCarePlay(state, critter, kind).newState); }, [state]);
   const handleCompleteFriendshipDuo = useCallback((duo: FriendshipDuo) => { if (state) setState(completeFriendshipDuo(state, duo).newState); }, [state]);
   const handleCompleteTeamRescue = useCallback((team: TeamRescue) => { if (state) setState(completeTeamRescue(state, team).newState); }, [state]);
   const handleRemoveKeepsake = useCallback((id: string): Keepsake | null => {
@@ -529,11 +529,11 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setState(result.newState);
     return { careLevel: result.careLevel, graduated: result.graduated };
   }, [state]);
-  const handleCareHome = useCallback((critterName: string, critterType: CritterType) => {
+  const handleCareHome = useCallback((critter: CritterData) => {
     if (!state) return 0;
-    const result = careForHome(state, critterName);
+    const result = careForHome(state, critter.id);
     setState(result.newState);
-    setCareCelebration(getCareCelebration(critterName, critterType, result.careCount));
+    setCareCelebration(getCareCelebration(critter.name, critter.type, result.careCount));
     return result.careCount;
   }, [state]);
   const handleCompleteBedtime = useCallback(() => {

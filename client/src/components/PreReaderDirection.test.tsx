@@ -40,8 +40,15 @@ describe('PreReaderDirection', () => {
     useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: false, captionsEnabled: true, directionVolumeCheckComplete: true, reduceMotion: false }, vi.fn()]);
     const { container } = render(<PreReaderDirection directionKey="nestRescue" />);
     expect(within(container).getByText(/Tap the branch, then moss, then nest/i)).toBeTruthy();
+    expect(within(container).getByRole('img', { name: /Picture clue: branch, feather, then nest/i })).toBeTruthy();
     expect(within(container).queryByRole('button', { name: /Listen/i })).toBeNull();
     expect(playPreReaderDirection).not.toHaveBeenCalled();
+  });
+
+  it('keeps a picture cue present even when captions and spoken directions are both off', () => {
+    useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: false, captionsEnabled: false, directionVolumeCheckComplete: true, reduceMotion: false }, vi.fn()]);
+    render(<PreReaderDirection directionKey="onboarding" minimal />);
+    expect(screen.getAllByRole('img', { name: /Picture clue: tap the big rescue button/i }).length).toBeGreaterThan(0);
   });
 
   it('asks for a grown-up comfort-volume check before first optional audio and offers replay after the clip ends', async () => {

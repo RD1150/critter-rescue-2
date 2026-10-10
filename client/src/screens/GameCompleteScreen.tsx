@@ -17,15 +17,8 @@ export default function GameCompleteScreen({ rescueCount, forestHarmony, compani
           <p className="font-display italic text-[#5C4D3C] mt-2 text-base leading-snug">
             "You've changed everything. Every creature in the forest knows your name."
           </p>
-          <div className="flex justify-center gap-6 mt-4">
-            <div className="text-center">
-              <p className="font-display font-bold text-[#2D2418] text-2xl">{rescueCount}</p>
-              <p className="text-[#5C4D3C] text-xs font-body uppercase tracking-wide">Friends Saved</p>
-            </div>
-            <div className="text-center">
-              <p className="font-display font-bold text-[#2D2418] text-2xl">{forestHarmony}</p>
-              <p className="text-[#5C4D3C] text-xs font-body uppercase tracking-wide">Harmony</p>
-            </div>
+          <div className="mt-4 rounded-2xl bg-[#E2EEDB] px-4 py-3">
+            <p className="font-body text-xs font-bold text-[#394E35]">🌱 The sanctuary is full of cozy homes, gentle paths, and happy friends.</p>
           </div>
         </div>
         <button onClick={onDone} className="btn-coral text-base">Return to Camp</button>

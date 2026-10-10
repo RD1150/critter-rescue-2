@@ -3,8 +3,8 @@ import { clearKeepsakes, completeCarePlay, createFreshState, removeKeepsake, res
 
 describe('parent-safe gallery retention', () => {
   it('removes local illustrated keepsakes and restores them only through an explicit parent action', () => {
-    const first = completeCarePlay(createFreshState(), 'Splash', 'otter', 'ripple-refill').newState;
-    const second = completeCarePlay(first, 'Thistle', 'bee', 'garden-sprinkle').newState;
+    const first = completeCarePlay(createFreshState(), { id: 'otter-splash', name: 'Splash', type: 'otter' }, 'ripple-refill').newState;
+    const second = completeCarePlay(first, { id: 'bee-thistle', name: 'Thistle', type: 'bee' }, 'garden-sprinkle').newState;
     const removed = removeKeepsake(second, second.keepsakes[0].id);
     expect(removed.newState.keepsakes).toHaveLength(1);
     expect(removed.removed?.critterName).toBe('Thistle');

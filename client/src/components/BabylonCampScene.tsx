@@ -63,6 +63,7 @@ const FALLBACK_COLORS: Record<CritterType, string> = {
   snail: '#A981B4', lizard: '#5FA49B', bee: '#E9B93D',
   eagle: '#835B3E', goat: '#E9E4D7', beaver: '#865B3C',
   bear: '#A8754F',
+  butterfly: '#B99BD9', cricket: '#7E9D59', octopus: '#7EC3D3',
 };
 
 function makeMaterial(scene: Scene, name: string, hex: string, emissive = 0): StandardMaterial {
@@ -137,12 +138,15 @@ const HOME_DETAILS: Partial<Record<CritterType, { style: HomeStyle; title: strin
   owl: { style: 'nest-perch', title: 'Moon Nest' },
   bird: { style: 'nest-perch', title: 'Twig Nest' },
   eagle: { style: 'nest-perch', title: 'Sky Perch' },
+  butterfly: { style: 'garden-hideout', title: 'Petal Rest' },
+  cricket: { style: 'garden-hideout', title: 'Leafy Stage' },
   bee: { style: 'honey-hut', title: 'Honey Hut' },
   ladybug: { style: 'garden-hideout', title: 'Petal Home' },
   snail: { style: 'garden-hideout', title: 'Mossy Corner' },
   lizard: { style: 'garden-hideout', title: 'Warm Rock' },
   goat: { style: 'garden-hideout', title: 'Meadow Patch' },
   bunny: { style: 'garden-hideout', title: 'Clover Burrow' },
+  octopus: { style: 'pond-patch', title: 'Bubble Cove' },
 };
 
 function createCritterHome(scene: Scene, critter: CritterData, position: Vector3, shadow: ShadowGenerator, onCare: () => void, decoration: HomeDecoration = 'petal-garland') {
@@ -442,7 +446,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     const friendPlushies = rescuedCritters.slice(0, friendSlots.length).map((critter, index) => {
       const slot = friendSlots[index];
       const homeOffset = new Vector3(slot.x < 0 ? -0.75 : 0.75, 0, slot.z > 0 ? 0.75 : -0.8);
-      const activeDecoration = homeDecor[critter.name] ?? 'petal-garland';
+      const activeDecoration = homeDecor[critter.id] ?? 'petal-garland';
       createCritterHome(scene, critter, slot.add(homeOffset), shadow, () => onHomeClick(critter), activeDecoration);
       onDecorationRendered?.(critter.name, activeDecoration, getHomeDecorationMeshIds(activeDecoration, critter.name));
       return { critter, plush: makePlushie(scene, critter.type, critter.name, friendSlots[index], 1.32, () => onHomeClick(critter), shadow) };

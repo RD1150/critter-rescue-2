@@ -30,7 +30,7 @@ interface Props {
   onStartDailyTrail: () => void;
   onAcknowledgeDailyReward: () => void;
   homeCare: Record<string, number>;
-  onCareHome: (critterName: string, type: CritterType) => number;
+  onCareHome: (critter: CritterData) => number;
   onOpenJournal: () => void;
   onOpenMatch3: () => void;
   onOpenNursery: () => void;
@@ -111,13 +111,11 @@ export default function CampScreen({
   const [homeCareMessage, setHomeCareMessage] = useState('');
   const [campArrival, setCampArrival] = useState<NurseryGraduate | null>(lastNurseryGraduate);
   const [showFirstGuide, setShowFirstGuide] = useState(() => rescueCount === 0);
-  const [renderedDecorations, setRenderedDecorations] = useState<Record<string, { decoration: HomeDecoration; meshIds: string[] }>>({});
   const [logoFailed, setLogoFailed] = useState(false);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dailyRewardVoicePlayed = useRef<string | null>(null);
 
   const rescuedCritters = useMemo(() => getRescuedCritters(zoneTaskProgress), [zoneTaskProgress]);
-  const harmonyPct = Math.min(100, forestHarmony);
   const totalTasks = ZONES.reduce((sum, zone) => sum + zone.totalTasks, 0);
   const completedTasks = Object.values(zoneTaskProgress).reduce((sum, value) => sum + value, 0);
   const allComplete = completedTasks >= totalTasks;
@@ -128,9 +126,6 @@ export default function CampScreen({
   const nextSanctuaryGrowth = getNextSanctuaryGrowth(kindnessMoments);
   const themeNote = getCampThemeFieldNote(season);
   const learningFocus = getLearningFocusLaunch(learningTheme);
-  const handleDecorationRendered = useCallback((critterName: string, decoration: HomeDecoration, meshIds: string[]) => {
-    setRenderedDecorations((previous) => previous[critterName]?.decoration === decoration && previous[critterName]?.meshIds.join('|') === meshIds.join('|') ? previous : { ...previous, [critterName]: { decoration, meshIds } });
-  }, []);
 
   const companionLines = useMemo(() => {
     if (rescueCount === 0) return ['Hi, friend! We help little animals. Tap the big red Follow Trail button, and I will show you where to go!', 'This is our cozy camp. You can move it by dragging, but you do not need to. Let’s help a friend first!', 'A little friend is waiting in Sunny Meadow. Let’s go together!'];
@@ -183,7 +178,7 @@ export default function CampScreen({
   }, [handleHomeClick, rescuedCritters, selectedHomeFriend]);
   const doHomeCare = (kind: 'feed' | 'pet') => {
     if (!selectedHomeFriend) return;
-    const total = onCareHome(selectedHomeFriend.name, selectedHomeFriend.type);
+    const total = onCareHome(selectedHomeFriend);
     if (kind === 'feed') {
       playNibble();
       setHomeCareMessage(`${selectedHomeFriend.name} had a tiny snack. Yum!`);
@@ -197,7 +192,7 @@ export default function CampScreen({
   const getWelcome = () => {
     if (rescueCount === 0) return 'A tiny friend needs you.';
     if (allComplete) return 'Every friend is safe in the sanctuary.';
-    return `${rescueCount} friends are safe. The trail continues.`;
+    return 'A new little friend is waiting on the trail.';
   };
   const companionCard = getStarterCompanion(companionType);
   const beginFirstRescue = () => {
@@ -219,7 +214,6 @@ export default function CampScreen({
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
         onHomeClick={handleHomeClick}
-        onDecorationRendered={handleDecorationRendered}
         homeDecor={homeDecor}
         kindnessMoments={kindnessMoments}
         season={season}
@@ -230,7 +224,6 @@ export default function CampScreen({
       {/* Gentle visual vignette lets the journal controls remain legible without hiding the 3D world. */}
       <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(12,47,34,.34) 0%, transparent 28%, transparent 66%, rgba(12,47,34,.5) 100%)' }} />
 
-      {import.meta.env.DEV && Object.keys(renderedDecorations).length > 0 && <output data-testid="rendered-home-decoration-status" className="absolute z-20 left-3 bottom-[94px] max-w-[68vw] rounded-lg bg-[#FFF9EF]/90 px-2 py-1 font-body text-[9px] text-[#49392C] shadow-sm">3D home accents: {Object.entries(renderedDecorations).map(([name, status]) => `${name}=${status.decoration} (${status.meshIds.join(', ')})`).join(' · ')}</output>}
 
       {/* Top field-journal HUD */}
       <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pointer-events-none">
@@ -241,10 +234,7 @@ export default function CampScreen({
             <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
             <p className="font-body text-[#49392C] text-[10px] mt-0.5"><span className="sm:hidden">{holidayEditionEnabled ? '✨ Cozy celebration' : `${themeNote.icon} Cozy camp`}</span><span className="hidden sm:inline">{holidayEditionEnabled ? '✨ A cozy celebration trail is ready.' : `${themeNote.icon} ${themeNote.campLine}`}</span></p>
           </div>
-          <div className="flex flex-col items-center px-1">
-            <span className="font-display font-bold text-[#E66B5B] leading-none">{rescueCount}</span>
-            <span className="font-body text-[8px] text-[#49392C] uppercase tracking-wide">saved</span>
-          </div>
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-[#E2EEDB] text-sm" aria-label="Cozy sanctuary">🌱</div>
           <button onClick={() => { playButton(); onOpenJournal(); }} className="min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal" title="Critter Journal">
             <BookOpen size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
@@ -305,7 +295,7 @@ export default function CampScreen({
             <p className="font-body text-xs text-[#5C4D3C] mt-2">{homeCareMessage}</p>
             <div className="grid grid-cols-2 gap-2 mt-3"><button onClick={() => doHomeCare('feed')} className="rounded-xl bg-[#F7E6B8] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🍓 Give a snack</button><button onClick={() => doHomeCare('pet')} className="rounded-xl bg-[#F6D9DD] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🖐️ Gentle pet</button></div>
             <button onClick={() => { playButton(); setSelectedHomeFriend(null); onOpenCarePlay(); }} className="mt-3 w-full rounded-xl bg-[#6EB9CE] px-3 py-3 font-body text-sm font-bold text-white active:scale-95">✨ Play a cozy care game</button>
-            <p className="font-body text-[10px] text-[#5C4D3C]/70 mt-2">{homeCare[selectedHomeFriend.name] ?? 0} kind care moments at this home</p>
+            <p className="font-body text-[10px] text-[#5C4D3C]/70 mt-2">{homeCare[selectedHomeFriend.id] ?? 0} kind care moments at this home</p>
           </div>
         </div>
       )}
@@ -331,8 +321,8 @@ export default function CampScreen({
             <div className="text-5xl mt-2">🎒</div>
             <h2 className="font-display text-2xl font-bold text-[#2D2418] mt-2">Trail Treasure!</h2>
             <p className="font-display italic text-[#5C4D3C] text-sm mt-2">{lastDailyReward}</p>
-            <p className="font-body text-xs text-[#5C4D3C] mt-3">Come back tomorrow for three new tiny rescues.</p>
-            <button onClick={() => { playComplete(); onAcknowledgeDailyReward(); }} className="btn-coral mt-4 w-full">Put treasure in camp</button>
+            <p className="font-body text-xs text-[#5C4D3C] mt-3">Whenever you visit again, more little rescues will be ready.</p>
+            <button onClick={() => { playComplete(); onAcknowledgeDailyReward(); }} className="btn-coral mt-4 w-full">Place a new bloom in camp</button>
           </div>
         </div>
       )}
@@ -393,80 +383,15 @@ export default function CampScreen({
         </div>
       </aside>
 
-      {/* Bottom controls float above the dimensional world, like pinned rescue notes. */}
+      {/* One child-facing next step stays large; quieter choices live behind a single "More play" pocket. */}
       <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
         {showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(270px,78vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #E2C9AB', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🍃</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Grown-up time check</p><p className="font-body text-[10px] leading-snug text-[#5C4D3C]">Would a cuddle, stretch, or quiet rest feel good now?</p></div><button onClick={onDismissPlaytimeSuggestion} className="rounded-lg bg-[#EAF4EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#3D7A58] active:scale-95">Not yet</button></div></div>}
         {bedtimeReminderEnabled && rescueCount > 0 && !showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
-        <div className="flex flex-wrap items-end gap-2 md:flex-nowrap">
-          <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[130px]"
-            style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
-            <p className="font-display text-[#2D2418] text-xs leading-tight">Forest Harmony</p>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 h-1.5 rounded-full bg-[#E6D9C5] overflow-hidden">
-                <div className="h-full rounded-full bg-[#E66B5B] transition-all duration-500" style={{ width: `${harmonyPct}%` }} />
-              </div>
-              <span className="font-display text-[#E66B5B] text-xs">{forestHarmony}</span>
-            </div>
-          </div>
-          {rescuedCritters.length > 0 && <div className="pointer-events-auto hidden sm:block rounded-xl px-3 py-2" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
-            <p className="font-display text-[#2D2418] text-xs leading-tight">Critter Homes</p>
-            <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{rescuedCritters.length} cozy corners found</p>
-          </div>}
-          <div className="pointer-events-auto hidden lg:block rounded-xl px-3 py-2 max-w-[175px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
-            <p className="font-display text-[#2D2418] text-xs leading-tight">{sanctuaryGrowth.icon} {sanctuaryGrowth.title}</p>
-            <p className="font-body text-[10px] text-[#5C4D3C] mt-0.5">{nextSanctuaryGrowth ? `${nextSanctuaryGrowth.icon} More gentle care helps the camp grow.` : 'Every gentle care moment helps this place shine.'}</p>
-          </div>
-          {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="pointer-events-auto hidden md:block max-w-[180px] rounded-xl px-3 py-2 text-left active:scale-95 transition-transform" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #D5C3A8', boxShadow: '0 3px 12px rgba(0,0,0,.2)' }}><p className="font-body text-[9px] uppercase tracking-[.12em] text-[#A85C41] font-bold">{LEARNING_THEME_DETAILS[learningTheme].icon} Today’s gentle focus</p><p className="font-display text-xs text-[#2D2418] mt-1">{learningFocus.label}</p><p className="font-body text-[10px] font-bold text-[#3D7A58] mt-1">Try this clue →</p></button>}
-          <div className="pointer-events-auto rounded-xl px-3 py-2 min-w-[210px]" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}>
-            <p className="font-display text-[#2D2418] text-xs leading-tight">Today’s Tiny Trail</p>
-            <div className="flex gap-1 mt-1">{[0, 1, 2].map((step) => <span key={step} className={`w-2.5 h-2.5 rounded-full ${step < dailyCompleted ? 'bg-[#F5C842]' : 'bg-[#E6D9C5]'}`} />)}</div>
-            <PreReaderDirection directionKey="dailyTrail" className="mt-2" />
-            <button onClick={beginDailyTrail} disabled={dailyDone} className="mt-2 min-h-11 w-full rounded-xl bg-[#E66B5B] px-3 py-2 font-body text-xs font-bold text-white shadow-sm active:scale-95 disabled:bg-[#D8C7B2] disabled:text-[#5C4D3C]">{dailyDone ? 'Treasure found today!' : dailyCompleted ? 'Help the next friend' : 'Start 3 tiny rescues'}</button>
-          </div>
-          <div className="hidden flex-1 md:block" />
-          <div className="pointer-events-auto hidden flex-wrap justify-end gap-2 md:flex">
-            <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
-            {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
-            <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
-            <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌦️ Nature</button>
-            <button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">☁️ Weather</button>
-            {celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Open ${celebrationPath.childTitle}`}>{celebrationPath.icon} Trail</button>}
-            <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🤝 Team up</button>
-            <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
-            <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌙 Rest</button>
-            <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧩 Care Pairs</button>
-            {!allComplete ? (
-              <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
-                {rescueCount === 0 ? 'Follow Trail' : 'Find a Friend'}
-              </button>
-            ) : (
-              <div className="pointer-events-auto rounded-xl bg-[#F5C842] px-3 py-2.5 text-[#2D2418] font-display font-bold text-xs shadow-lg">All safe! 🌟</div>
-            )}
-          </div>
-          <div className="pointer-events-auto flex w-full flex-col items-end gap-2 md:hidden">
-            {showMobilePlayMenu && <div id="mobile-camp-play" role="group" aria-label="More camp play" className="flex max-w-full flex-wrap justify-end gap-2 rounded-2xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-2 shadow-lg">
-              <button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5">🌦️ Nature</button>
-              <button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5">☁️ Weather</button>
-              {celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5" aria-label={`Open ${celebrationPath.childTitle}`}>{celebrationPath.icon} Trail</button>}
-              <button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button>
-              <button onClick={() => { playButton(); onOpenBedtime(); }} className="btn-parchment text-xs px-3 py-2.5">🌙 Rest</button>
-              <button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🧩 Care Pairs</button>
-            </div>}
-            <div className="flex w-full flex-wrap justify-end gap-2">
-              <button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🧸 Nursery</button>
-              {learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg" aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`}>{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}
-              <button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">🌈 Learn</button>
-              <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5 shadow-lg">📚 Stories</button>
-              <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="mobile-camp-play" className="btn-parchment text-xs px-3 py-2.5 shadow-lg">{showMobilePlayMenu ? '⌃ Fewer' : '⋯ More'}</button>
-              {!allComplete ? (
-                <button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-coral px-4 py-2.5 shadow-xl text-sm">
-                  {rescueCount === 0 ? 'Follow Trail' : 'Find a Friend'}
-                </button>
-              ) : (
-                <div className="rounded-xl bg-[#F5C842] px-3 py-2.5 text-[#2D2418] font-display font-bold text-xs shadow-lg">All safe! 🌟</div>
-              )}
-            </div>
-          </div>
+        {showMobilePlayMenu && <section id="camp-more-play" aria-label="More gentle play" className="pointer-events-auto mb-2 ml-auto w-full max-w-xl rounded-2xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-2 shadow-lg"><p className="px-2 pt-1 font-body text-[9px] font-bold uppercase tracking-[.12em] text-[#A85C41]">More gentle play</p><div className="mt-2 flex flex-wrap gap-2">{learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`} className="btn-parchment text-xs px-3 py-2.5">{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}<button onClick={beginDailyTrail} disabled={dailyDone} className="btn-parchment text-xs px-3 py-2.5 disabled:opacity-60">🎒 {dailyDone ? 'Little trail resting' : 'Little trail'}</button><button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5">🧸 Nursery</button><button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5">🌈 Learn</button><button onClick={() => { playButton(); onOpenCarePlay(); }} className="btn-parchment text-xs px-3 py-2.5">🫶 Care play</button><button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5">📚 Stories</button><button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5">🌦️ Nature</button><button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5">☁️ Weather</button>{celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5">{celebrationPath.icon} Trail</button>}<button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button><button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🧩 Care pairs</button><button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-parchment text-xs px-3 py-2.5">🗺️ Choose a trail</button></div></section>}
+        <div className="flex items-end gap-2">
+          <div className="pointer-events-auto hidden rounded-xl px-3 py-2 sm:block" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}><p className="font-display text-[#2D2418] text-xs leading-tight">{sanctuaryGrowth.icon} {sanctuaryGrowth.title}</p><p className="mt-0.5 max-w-[175px] font-body text-[10px] text-[#5C4D3C]">{nextSanctuaryGrowth ? 'Gentle care helps a new cozy detail appear.' : 'Every gentle care moment helps this place shine.'}</p></div>
+          <div className="pointer-events-auto flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'oklch(0.97 0.02 80 / 0.96)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.22)', borderTop: '2.5px solid #E66B5B' }}><div className="min-w-0 flex-1"><p className="font-display text-sm text-[#2D2418]">{allComplete ? 'Every friend is cozy at camp.' : 'A little friend is waiting.'}</p><p className="font-body text-[10px] text-[#5C4D3C]">{allComplete ? 'Choose any calm activity you like.' : 'Let’s help together.'}</p></div>{!allComplete && <button onClick={() => { playButton(); setTimeout(() => onStartRescue(nextTrailZone?.id ?? 'meadow'), 180); }} className="btn-coral min-h-12 shrink-0 px-3 py-2.5 text-sm shadow-xl">Help a friend</button>}</div>
+          <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="camp-more-play" className="pointer-events-auto btn-parchment min-h-12 shrink-0 px-3 py-2.5 text-xs shadow-lg">{showMobilePlayMenu ? '⌃ Close' : '⋯ More play'}</button>
         </div>
       </div>
 
@@ -495,7 +420,7 @@ export default function CampScreen({
                     key={zone.id}
                     disabled={!unlocked || done}
                     onClick={() => { playButton(); setShowZoneSelect(false); setTimeout(() => onStartRescue(zone.id), 180); }}
-                    aria-label={`${zone.name}: ${status}. ${completed} of ${zone.totalTasks} rescues complete. ${guidance}`}
+                    aria-label={`${zone.name}: ${status}. ${guidance}`}
                     className={`rounded-2xl overflow-hidden text-left transition-transform active:scale-[0.98] ${!unlocked || done ? 'opacity-55' : 'hover:scale-[1.01]'} ${isNextTrail ? 'ring-2 ring-[#F5C842] ring-offset-2 ring-offset-[#3F2B1B]' : ''}`}
                     style={{ background: `linear-gradient(135deg, ${zone.bgColors[0]}, ${zone.bgColors[2]})`, border: '1px solid rgba(255,255,255,.2)' }}>
                     <div className="px-4 py-3 flex items-center gap-3">
@@ -507,7 +432,7 @@ export default function CampScreen({
                         </div>
                         <p className="mt-0.5 font-body text-xs text-white/90">{guidance}</p>
                         {unlocked && <div className="mt-1.5 flex items-center gap-2">
-                          <span className="whitespace-nowrap font-body text-[10px] font-bold text-white/90">{completed} of {zone.totalTasks} rescues</span>
+                          <span className="whitespace-nowrap font-body text-[10px] font-bold text-white/90">Cozy trail notes</span>
                           <div className="flex gap-1" aria-hidden="true">
                             {Array.from({ length: zone.totalTasks }).map((_, index) => (
                               <div key={index} className={`h-2 w-2 rounded-full ${index < completed ? 'bg-[#F5C842]' : index === completed && !done ? 'bg-white ring-1 ring-[#F5C842]' : 'bg-white/30'}`} />

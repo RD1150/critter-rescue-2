@@ -28,6 +28,9 @@ export const PLUSH_IMAGES: Record<CritterType, string> = {
   lizard:   '/manus-storage/plush-lizard_2eb476c2.png',
   snail:    '/manus-storage/plush-snail_bc5b84d6.png',
   ladybug:  '/manus-storage/plush-ladybug_508df29a.png',
+  butterfly:'/manus-storage/plush-butterfly_33875efe.png',
+  cricket:  '/manus-storage/plush-cricket_222f6330.png',
+  octopus:  '/manus-storage/plush-octopus_740e2aa7.png',
 };
 
 // Expression modifiers via CSS filter
