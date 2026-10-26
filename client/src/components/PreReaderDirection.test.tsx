@@ -51,6 +51,14 @@ describe('PreReaderDirection', () => {
     expect(screen.getAllByRole('img', { name: /Picture clue: tap the big rescue button/i }).length).toBeGreaterThan(0);
   });
 
+  it('stacks the picture cue, wide replay control, and written direction on a narrow phone layout', () => {
+    const { container } = render(<PreReaderDirection directionKey="onboarding" />);
+    expect(within(container).getByTestId('direction-actions').className).toContain('flex-col');
+    expect(within(container).getByTestId('direction-copy').className).toContain('min-w-0');
+    expect(within(container).getByRole('button', { name: /Listen to direction:/ }).className).toContain('w-full');
+    expect(within(container).getByText(/Tap Let’s Help a Friend/i)).toBeTruthy();
+  });
+
   it('asks for a grown-up comfort-volume check before first optional audio and offers replay after the clip ends', async () => {
     const savePreferences = vi.fn();
     useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: true, captionsEnabled: true, directionVolumeCheckComplete: false, reduceMotion: false }, savePreferences]);

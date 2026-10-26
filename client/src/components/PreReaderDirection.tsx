@@ -63,7 +63,7 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
     ? 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3 py-2 font-body text-xs font-bold text-white active:scale-95 transition-transform'
     : compact
       ? 'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-body font-bold text-[#49392C] active:scale-95 transition-transform'
-      : 'inline-flex shrink-0 min-h-11 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-body font-bold text-white active:scale-95 transition-transform';
+      : 'inline-flex w-full sm:w-auto shrink-0 min-h-11 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-body font-bold text-white active:scale-95 transition-transform';
   const buttonStyle = compact ? { background: '#F7EBD8', border: '1px solid #C8A981' } : { background: '#B94F45' };
   const visualCue = <span role="img" aria-label={`Picture clue: ${pictureCue.label}`} className={`inline-flex items-center gap-1 rounded-lg bg-[#FFF9EF] px-2 py-1 text-base ${compactMode ? 'text-sm' : ''}`}><span>{pictureCue.before}</span><span className="text-[#8C4130]">→</span><span>{pictureCue.after}</span></span>;
 
@@ -79,5 +79,5 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
 
   if (minimal) return <div className={`inline-flex flex-col items-center gap-1 ${className}`}>{visualCue}{listeningButton}{comfortCheck}{feedback}</div>;
   if (compact) return <div className={`inline-flex flex-col items-center gap-0.5 ${className}`}>{visualCue}{listeningButton}{comfortCheck}{feedback}</div>;
-  return <div className={`rounded-2xl px-3 py-2.5 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex items-center gap-2">{visualCue}{listeningButton}<div><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Listen, then try</p>{preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p>}{feedback}</div></div>{comfortCheck}</div>;
+  return <div className={`rounded-2xl px-3 py-2.5 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex flex-col gap-2 sm:flex-row sm:items-center"><div data-testid="direction-actions" className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:shrink-0">{visualCue}{listeningButton}</div><div data-testid="direction-copy" className="min-w-0 flex-1"><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Listen, then try</p>{preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p>}{feedback}</div></div>{comfortCheck}</div>;
 }

@@ -529,3 +529,8 @@
 - [x] Prepare a signed iOS and Android physical-device smoke-test record for online and airplane-mode validation.
 - [ ] Execute and record actual signed iOS and Android physical-device online/airplane-mode smoke tests; do not mark complete until real signed devices are tested.
 - [x] Add focused regression coverage, visually verify normal and Reduce Motion phone/tablet/desktop routes, run complete release validation, checkpoint, and synchronize GitHub.
+
+## Phone Direction Card Repair
+
+- [x] Stack picture cue, Listen/Replay control, and written direction at narrow phone widths so none of the rescue directions clip or overflow.
+- [x] Add regression coverage, verify an iPhone-sized rescue introduction, checkpoint, and synchronize GitHub.
