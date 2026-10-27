@@ -541,4 +541,4 @@
 - [x] Replace Pip’s card-heavy tracing introduction with one concise 3D-world prompt, one persistent picture cue, one optional Listen/Replay control, and one contextual “Help Pip” action.
 - [x] Turn Pip’s Meadow tracing into a toy-diorama play moment with a visible friend, a readable glowing path, and a calm world-response completion.
 - [x] Keep the adult math gate, local progress, child-triggered optional audio, captions, large touch targets, and Reduce Motion behavior intact.
-- [ ] Add focused regression coverage, verify normal and Reduce Motion phone/tablet/desktop flows, complete release validation, checkpoint, and synchronize GitHub.
+- [x] Add focused regression coverage, verify normal and Reduce Motion phone/tablet/desktop flows, complete release validation, checkpoint, and synchronize GitHub.
