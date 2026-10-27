@@ -3,19 +3,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
-import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, ZONES } from '../game/data';
+import { CritterData, CritterType, getRescuedCritters, getZoneTask, ZONES } from '../game/data';
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
 import { playDailyTrailVoice } from '../game/characterAudio';
 import { DailyTrailState, HomeDecoration, NurseryGraduate, SanctuarySeason } from '../game/store';
-import { getNextSanctuaryGrowth, getSanctuaryGrowth } from '../game/sanctuaryGrowth';
 import type { CareCelebration } from '../game/critterCelebrations';
 import PreReaderDirection from '../components/PreReaderDirection';
-import { getCampThemeFieldNote } from '../game/campThemeMessaging';
 import type { LearningTheme } from '../game/learningThemes';
 import { LEARNING_THEME_DETAILS } from '../game/learningThemes';
 import { getLearningFocusLaunch } from '../game/learningFocus';
 import type { CelebrationPath } from '../game/celebrationPaths';
-import { BookOpen, Home, Palette, Settings, Sparkles, MapPinned, Puzzle, Volume2 } from 'lucide-react';
+import { BookOpen, MapPinned, Settings } from 'lucide-react';
 
 interface Props {
   forestHarmony: number;
@@ -120,11 +118,9 @@ export default function CampScreen({
   const completedTasks = Object.values(zoneTaskProgress).reduce((sum, value) => sum + value, 0);
   const allComplete = completedTasks >= totalTasks;
   const nextTrailZone = ZONES.find((zone) => unlockedZones.includes(zone.id) && (zoneTaskProgress[zone.id] ?? 0) < zone.totalTasks) ?? null;
+  const nextRescue = nextTrailZone ? getZoneTask(nextTrailZone.id, zoneTaskProgress[nextTrailZone.id] ?? 0) : null;
   const dailyCompleted = dailyTrail.completedKeys.length;
   const dailyDone = dailyTrail.rewardEarned;
-  const sanctuaryGrowth = getSanctuaryGrowth(kindnessMoments);
-  const nextSanctuaryGrowth = getNextSanctuaryGrowth(kindnessMoments);
-  const themeNote = getCampThemeFieldNote(season);
   const learningFocus = getLearningFocusLaunch(learningTheme);
 
   const companionLines = useMemo(() => {
@@ -194,11 +190,15 @@ export default function CampScreen({
     if (allComplete) return 'Every friend is safe in the sanctuary.';
     return 'A new little friend is waiting on the trail.';
   };
-  const companionCard = getStarterCompanion(companionType);
   const beginFirstRescue = () => {
     playButton();
     setShowFirstGuide(false);
     setTimeout(() => onStartRescue('meadow'), 180);
+  };
+  const beginNextRescue = () => {
+    if (allComplete || !nextTrailZone) return;
+    playButton();
+    setTimeout(() => onStartRescue(nextTrailZone.id), 180);
   };
   const beginDailyTrail = () => {
     playTrailStart();
@@ -214,6 +214,8 @@ export default function CampScreen({
         onCompanionClick={handleCompanionClick}
         onCritterClick={handleFriendClick}
         onHomeClick={handleHomeClick}
+        rescueFriend={nextRescue?.critter ?? null}
+        onRescueTrailClick={beginNextRescue}
         homeDecor={homeDecor}
         kindnessMoments={kindnessMoments}
         season={season}
@@ -225,30 +227,20 @@ export default function CampScreen({
       <div className="absolute inset-0 z-[1] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(12,47,34,.34) 0%, transparent 28%, transparent 66%, rgba(12,47,34,.5) 100%)' }} />
 
 
-      {/* Top field-journal HUD */}
+      {/* A deliberately quiet top bar: the sanctuary world is the main screen. */}
       <div className="absolute z-20 top-0 left-0 right-0 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-1.5 rounded-2xl px-3 py-2 sm:gap-2"
+        <div className="pointer-events-auto flex items-center gap-2 rounded-2xl px-3 py-2"
           style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.2)', borderTop: '2.5px solid #E66B5B' }}>
           {logoFailed ? <div role="img" aria-label="Critter Rescue" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#D8B867] bg-[#F7EBD8] font-display text-xs font-bold text-[#5D3D2A]">CR</div> : <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-8 h-8 shrink-0 object-contain" onError={() => setLogoFailed(true)} />}
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Plushie Sanctuary</p>
-            <p className="font-body text-[#49392C] text-[10px] mt-0.5"><span className="sm:hidden">{holidayEditionEnabled ? '✨ Cozy celebration' : `${themeNote.icon} Cozy camp`}</span><span className="hidden sm:inline">{holidayEditionEnabled ? '✨ A cozy celebration trail is ready.' : `${themeNote.icon} ${themeNote.campLine}`}</span></p>
+            <p className="font-display text-[#2D2418] font-bold text-sm leading-none">Critter Rescue</p>
+            <p className="font-body text-[#49392C] text-[10px] mt-0.5">{holidayEditionEnabled ? 'A cozy celebration trail' : 'Plushie sanctuary'}</p>
           </div>
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-[#E2EEDB] text-sm" aria-label="Cozy sanctuary">🌱</div>
-          <button onClick={() => { playButton(); onOpenJournal(); }} className="min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open critter journal" title="Critter Journal">
-            <BookOpen size={19} strokeWidth={2.2} aria-hidden="true" />
-          </button>
-          <button onClick={() => { playButton(); onOpenNursery(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open the Critter Nursery" title="Critter Nursery">
-            <Home size={19} strokeWidth={2.2} aria-hidden="true" />
+          <button onClick={() => { playButton(); onOpenStorybook(); }} className="min-h-11 min-w-11 shrink-0 rounded-xl px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open storybook" title="Storybook">
+            <BookOpen size={20} strokeWidth={2.2} aria-hidden="true" />
           </button>
           <button onClick={() => { playButton(); onOpenParentSettings(); }} className="min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform" aria-label="Open parent settings" title="Parent Settings">
             <Settings size={19} strokeWidth={2.2} aria-hidden="true" />
-          </button>
-          <button onClick={() => { playButton(); onOpenLearning(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open colors shapes and patterns game" title="Learning Play">
-            <Palette size={19} strokeWidth={2.2} aria-hidden="true" />
-          </button>
-          <button onClick={() => { playButton(); onOpenStorybook(); }} className="hidden min-h-11 min-w-11 shrink-0 rounded-lg px-2 py-1 text-[#5D3D2A] hover:bg-[#E66B5B]/10 active:scale-95 transition-transform sm:block" aria-label="Open Critter Storybook" title="Critter Storybook">
-            <Sparkles size={19} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -328,70 +320,26 @@ export default function CampScreen({
       )}
       {showFirstGuide && !campArrival && (
         <div className="absolute inset-0 z-40 flex items-center justify-center bg-[#082419]/75 px-4 backdrop-blur-[3px] sm:px-5">
-          <div role="dialog" aria-modal="true" aria-labelledby="first-rescue-title" aria-describedby="first-rescue-reassurance" className={`paper-card relative w-full max-w-sm px-4 py-4 text-center shadow-2xl sm:max-w-md sm:px-5 ${reduceMotion ? '' : 'animate-pop-in'}`} style={{ borderTop: '4px solid #D75B50' }}>
-            <div className="flex items-center justify-center gap-2.5"><CritterAvatar type={companionType as CritterType} size={52} expression="excited" animate={!reduceMotion} /><div className="text-left"><p className="font-body text-[10px] font-bold uppercase tracking-[.14em] text-[#9A4038]">Sunny Meadow</p><h2 id="first-rescue-title" className="font-display text-xl font-bold leading-tight text-[#2D2418]">A friend needs your help!</h2></div></div>
+          <div role="dialog" aria-modal="true" aria-labelledby="first-rescue-title" aria-describedby="first-rescue-reassurance" className={`paper-card relative w-full max-w-sm px-5 py-5 text-center shadow-2xl ${reduceMotion ? '' : 'animate-pop-in'}`} style={{ borderTop: '4px solid #D75B50' }}>
+            <div className="flex items-center justify-center gap-3"><CritterAvatar type={companionType as CritterType} size={54} expression="excited" animate={!reduceMotion} /><CritterAvatar type="bird" size={66} expression="worried" animate={!reduceMotion} /></div>
+            <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.14em] text-[#9A4038]">Sunny Meadow</p>
+            <h2 id="first-rescue-title" className="font-display mt-1 text-xl font-bold leading-tight text-[#2D2418]">Pip needs a little path.</h2>
             <p id="first-rescue-reassurance" className="font-display mt-2 italic text-sm text-[#49392C]">“We’ll do this together.”</p>
             <PreReaderDirection directionKey="onboarding" minimal className="mt-3" />
-            <div className="mt-3 grid grid-cols-3 gap-1.5 text-left sm:gap-2">
-              <div className="rounded-xl border border-[#E2C9AB] bg-[#F8E8D8] p-2"><MapPinned size={17} className="text-[#8C4130]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#3A2B20]">1. Go to Sunny Meadow</p></div>
-              <div className="rounded-xl border border-[#C8D9BF] bg-[#E2EEDB] p-2"><Puzzle size={17} className="text-[#3D7A58]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#283C2F]">2. Complete the little rescue</p></div>
-              <div className="rounded-xl border border-[#E4C4C9] bg-[#F9DDE0] p-2"><Home size={17} className="text-[#9A4038]" aria-hidden="true" /><p className="mt-1 font-body text-[10px] font-bold leading-snug text-[#4A3022]">3. Bring your friend home</p></div>
-            </div>
-            <button onClick={beginFirstRescue} className="btn-coral mt-3 w-full text-base">Start the Rescue.</button>
-            <button onClick={() => setShowFirstGuide(false)} className="mt-2 w-full rounded-xl border border-[#B99773] bg-[#FFF9EF] px-3 py-2.5 font-body text-sm font-bold text-[#5D3D2A] shadow-sm active:scale-95">Explore First</button>
+            <button onClick={beginFirstRescue} className="btn-coral mt-4 w-full text-base">Help Pip</button>
+            <button onClick={() => setShowFirstGuide(false)} className="mt-2 w-full rounded-xl border border-[#B99773] bg-[#FFF9EF] px-3 py-2.5 font-body text-sm font-bold text-[#5D3D2A] shadow-sm active:scale-95">Explore the sanctuary</button>
           </div>
         </div>
       )}
-
-      {/* 3D interaction cue */}
-      <div className="absolute z-10 left-3 top-[116px] pointer-events-none">
-        <div className="rounded-full px-3 py-1.5 bg-[#173D2C]/75 border border-white/15 backdrop-blur-sm">
-          <span className="font-body text-[10px] text-white/95">Tap a plushie to say hello. The coral button starts a rescue.</span>
-        </div>
-      </div>
-
-      {/* Desktop field-journal satellites: map notes and a physical pocket panel, intentionally asymmetric. */}
-      <aside className="absolute z-10 top-[177px] left-4 hidden md:block w-52 pointer-events-none animate-rise-in">
-        <div className="relative rounded-2xl px-4 py-3 rotate-[-2deg]"
-          style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.84 0.03 75)', boxShadow: '0 8px 18px oklch(0 0 0 / .18)', borderTop: '3px solid #E66B5B' }}>
-          <div className="absolute -top-2 left-7 h-4 w-12 bg-[#E66B5B]/60 rotate-[-5deg]" />
-          <p className="font-body text-[9px] uppercase tracking-[0.14em] text-[#E66B5B] font-bold">{themeNote.icon} {themeNote.label}</p>
-          <p className="font-display text-[#2D2418] font-bold text-base leading-tight mt-1">{getWelcome()}</p>
-          <p className="font-body text-[#5C4D3C] text-[11px] leading-snug mt-1.5"><strong>{companionCard.rescueIcon} {companionCard.rescueAbility}:</strong> {companionCard.rescueHint}</p>
-          <p className="font-body text-[#5C4D3C]/80 text-[10px] italic leading-snug mt-1.5">{themeNote.note}</p>
-          <div className="mt-2 flex items-center gap-1.5 text-[#5C4D3C]/60 text-xs">
-            <span>🐾</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🪶</span><span className="w-5 h-px bg-[#5C4D3C]/25" /><span>🌼</span>
-          </div>
-        </div>
-      </aside>
-
-      <aside className="absolute z-10 top-[184px] right-4 hidden md:block w-44 pointer-events-none animate-rise-in" style={{ animationDelay: '90ms' }}>
-        <div className="relative rounded-2xl px-3 py-3 rotate-[2deg]"
-          style={{ background: 'oklch(0.95 0.02 75 / 0.92)', border: '1px dashed oklch(0.65 0.05 70)', boxShadow: '0 7px 16px oklch(0 0 0 / .16)' }}>
-          <div className="absolute -top-2 right-5 w-5 h-5 rounded-full bg-[#E66B5B] border-2 border-[#F7EBD3] shadow-sm" />
-          <p className="font-display text-[#2D2418] font-bold text-sm">Trail Map</p>
-          <div className="mt-2 flex flex-col gap-1.5">
-            {ZONES.slice(0, 4).map((zone) => (
-              <div key={zone.id} className="flex items-center gap-1.5">
-                <span className="text-xs">{zone.emoji}</span>
-                <span className={`h-1.5 flex-1 rounded-full ${unlockedZones.includes(zone.id) ? 'bg-[#E66B5B]/70' : 'bg-[#B9AD97]/45'}`} />
-                <span className="font-body text-[9px] text-[#5C4D3C]">{unlockedZones.includes(zone.id) ? 'marked' : 'mist'}</span>
-              </div>
-            ))}
-          </div>
-          <p className="font-body text-[9px] italic text-[#5C4D3C]/70 mt-2">Pinned beside the campfire.</p>
-        </div>
-      </aside>
 
       {/* One child-facing next step stays large; quieter choices live behind a single "More play" pocket. */}
       <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
         {showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(270px,78vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #E2C9AB', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🍃</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Grown-up time check</p><p className="font-body text-[10px] leading-snug text-[#5C4D3C]">Would a cuddle, stretch, or quiet rest feel good now?</p></div><button onClick={onDismissPlaytimeSuggestion} className="rounded-lg bg-[#EAF4EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#3D7A58] active:scale-95">Not yet</button></div></div>}
         {bedtimeReminderEnabled && rescueCount > 0 && !showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
-        {showMobilePlayMenu && <section id="camp-more-play" aria-label="More gentle play" className="pointer-events-auto mb-2 ml-auto w-full max-w-xl rounded-2xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-2 shadow-lg"><p className="px-2 pt-1 font-body text-[9px] font-bold uppercase tracking-[.12em] text-[#A85C41]">More gentle play</p><div className="mt-2 flex flex-wrap gap-2">{learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`} className="btn-parchment text-xs px-3 py-2.5">{LEARNING_THEME_DETAILS[learningTheme].icon} Focus</button>}<button onClick={beginDailyTrail} disabled={dailyDone} className="btn-parchment text-xs px-3 py-2.5 disabled:opacity-60">🎒 {dailyDone ? 'Little trail resting' : 'Little trail'}</button><button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment text-xs px-3 py-2.5">🧸 Nursery</button><button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment text-xs px-3 py-2.5">🌈 Learn</button><button onClick={() => { playButton(); onOpenCarePlay(); }} className="btn-parchment text-xs px-3 py-2.5">🫶 Care play</button><button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment text-xs px-3 py-2.5">📚 Stories</button><button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment text-xs px-3 py-2.5">🌦️ Nature</button><button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment text-xs px-3 py-2.5">☁️ Weather</button>{celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment text-xs px-3 py-2.5">{celebrationPath.icon} Trail</button>}<button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment text-xs px-3 py-2.5">🤝 Team up</button><button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment text-xs px-3 py-2.5">🧩 Care pairs</button><button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-parchment text-xs px-3 py-2.5">🗺️ Choose a trail</button></div></section>}
+        {showMobilePlayMenu && <section id="camp-more-play" aria-label="More gentle play" className="pointer-events-auto mb-2 ml-auto w-full max-w-xl rounded-3xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-3 shadow-lg"><p className="font-display text-base font-bold text-[#2D2418]">More play</p><p className="mt-0.5 font-body text-[10px] text-[#5C4D3C]">Choose a little activity when you are ready.</p><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`} className="btn-parchment px-3 py-2.5 text-xs">{LEARNING_THEME_DETAILS[learningTheme].icon} Today’s focus</button>}<button onClick={beginDailyTrail} disabled={dailyDone} className="btn-parchment px-3 py-2.5 text-xs disabled:opacity-60">🎒 {dailyDone ? 'Trail resting' : 'Little trail'}</button><button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment px-3 py-2.5 text-xs">🧸 Cozy homes</button><button onClick={() => { playButton(); onOpenCarePlay(); }} className="btn-parchment px-3 py-2.5 text-xs">🫶 Care time</button><button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment px-3 py-2.5 text-xs">🌈 Little learning</button><button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment px-3 py-2.5 text-xs">🧩 Care pairs</button><button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment px-3 py-2.5 text-xs">📚 Storybook</button><button onClick={() => { playButton(); onOpenJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🍃 Nature journal</button><button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🌦️ Nature play</button><button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment px-3 py-2.5 text-xs">☁️ Weather</button>{celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment px-3 py-2.5 text-xs">{celebrationPath.icon} Celebration trail</button>}<button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment px-3 py-2.5 text-xs">🤝 Help together</button><button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-parchment px-3 py-2.5 text-xs">🗺️ Choose a trail</button></div></section>}
         <div className="flex items-end gap-2">
-          <div className="pointer-events-auto hidden rounded-xl px-3 py-2 sm:block" style={{ background: 'oklch(0.97 0.02 80 / 0.93)', border: '1px solid oklch(0.85 0.03 75)', boxShadow: '0 3px 12px oklch(0 0 0 / 0.2)' }}><p className="font-display text-[#2D2418] text-xs leading-tight">{sanctuaryGrowth.icon} {sanctuaryGrowth.title}</p><p className="mt-0.5 max-w-[175px] font-body text-[10px] text-[#5C4D3C]">{nextSanctuaryGrowth ? 'Gentle care helps a new cozy detail appear.' : 'Every gentle care moment helps this place shine.'}</p></div>
-          <div className="pointer-events-auto flex min-w-0 flex-1 items-center gap-2 rounded-2xl px-3 py-2" style={{ background: 'oklch(0.97 0.02 80 / 0.96)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.22)', borderTop: '2.5px solid #E66B5B' }}><div className="min-w-0 flex-1"><p className="font-display text-sm text-[#2D2418]">{allComplete ? 'Every friend is cozy at camp.' : 'A little friend is waiting.'}</p><p className="font-body text-[10px] text-[#5C4D3C]">{allComplete ? 'Choose any calm activity you like.' : 'Let’s help together.'}</p></div>{!allComplete && <button onClick={() => { playButton(); setTimeout(() => onStartRescue(nextTrailZone?.id ?? 'meadow'), 180); }} className="btn-coral min-h-12 shrink-0 px-3 py-2.5 text-sm shadow-xl">Help a friend</button>}</div>
-          <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="camp-more-play" className="pointer-events-auto btn-parchment min-h-12 shrink-0 px-3 py-2.5 text-xs shadow-lg">{showMobilePlayMenu ? '⌃ Close' : '⋯ More play'}</button>
+          <div className="pointer-events-auto flex min-w-0 flex-1 items-center gap-3 rounded-3xl px-3 py-3" style={{ background: 'oklch(0.97 0.02 80 / 0.96)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.22)', borderTop: '2.5px solid #E66B5B' }}>{!allComplete && nextRescue && <CritterAvatar type={nextRescue.critter.type} size={43} expression="worried" animate={!reduceMotion} />}<div className="min-w-0 flex-1"><p className="font-display text-sm text-[#2D2418]">{allComplete ? 'Every friend is cozy at camp.' : `${nextRescue?.critter.name ?? 'A friend'} needs help.`}</p><p className="font-body text-[10px] text-[#5C4D3C]">{allComplete ? 'Choose any calm activity you like.' : nextRescue?.zone === 'meadow' ? 'Follow the flower path together.' : 'One small kind thing at a time.'}</p></div>{!allComplete && <button onClick={beginNextRescue} className="btn-coral min-h-14 shrink-0 px-4 py-3 text-sm shadow-xl">{nextRescue?.critter.name ? `Help ${nextRescue.critter.name}` : 'Help a friend'}</button>}</div>
+          <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="camp-more-play" className="pointer-events-auto btn-parchment min-h-14 shrink-0 px-3 py-2.5 text-xs shadow-lg">{showMobilePlayMenu ? 'Close' : 'More play'}</button>
         </div>
       </div>
 

@@ -625,6 +625,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               onBack={handleRescueBack}
               isFirstMission={state.rescueCompletedCount === 0}
               isEarlyMission={currentMission.zone === 'meadow' && currentMission.taskIndex < 3}
+              reduceMotion={audioPreferences.reduceMotion}
             />
           )}
           {scene === 'zoneUnlocked' && newZoneUnlocked && (

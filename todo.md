@@ -534,3 +534,11 @@
 
 - [x] Stack picture cue, Listen/Replay control, and written direction at narrow phone widths so none of the rescue directions clip or overflow.
 - [x] Add regression coverage, verify an iPhone-sized rescue introduction, checkpoint, and synchronize GitHub.
+
+## 3D-First Professional Proof Slice — Camp to Pip’s Meadow
+
+- [x] Simplify the sanctuary HUD and rescue launch so the 3D world leads, with one clear child-facing “Help a friend” path and quiet optional play.
+- [x] Replace Pip’s card-heavy tracing introduction with one concise 3D-world prompt, one persistent picture cue, one optional Listen/Replay control, and one contextual “Help Pip” action.
+- [x] Turn Pip’s Meadow tracing into a toy-diorama play moment with a visible friend, a readable glowing path, and a calm world-response completion.
+- [x] Keep the adult math gate, local progress, child-triggered optional audio, captions, large touch targets, and Reduce Motion behavior intact.
+- [ ] Add focused regression coverage, verify normal and Reduce Motion phone/tablet/desktop flows, complete release validation, checkpoint, and synchronize GitHub.

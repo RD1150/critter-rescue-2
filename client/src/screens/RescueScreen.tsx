@@ -7,7 +7,6 @@ import CritterAvatar, { Expression } from '../components/CritterAvatar';
 import { getStarterCompanion, MissionData, MissionType, CritterType } from '../game/data';
 import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
 import { useAudioPreferences } from '../game/audioPreferences';
-import { getRescueDialogue } from '../game/characterDialogue';
 import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
 import { NEST_RESCUE_STEPS, NestRescueToolId } from '../game/nestRescue';
@@ -18,6 +17,7 @@ import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
 import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchChoiceId } from '../game/animalHomeMatch';
 import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
+import BabylonMeadowRescueScene from '../components/BabylonMeadowRescueScene';
 
 interface Props {
   mission: MissionData;
@@ -27,13 +27,8 @@ interface Props {
   onBack: () => void;
   isFirstMission: boolean;
   isEarlyMission: boolean;
+  reduceMotion?: boolean;
 }
-
-const EARLY_RESCUE_COACH: Partial<Record<MissionType, { title: string; steps: string[] }>> = {
-  counting: { title: 'Find all 3 acorns', steps: ['Look for a golden acorn star.', 'Tap one star.', 'Keep going until it says 3 out of 3.'] },
-  tracing: { title: 'Draw Pip a path', steps: ['Put your finger on the starting dot.', 'Move slowly along the dotted line.', 'Try again if your finger slips off.'] },
-  bridge: { title: 'Build Nutty a bridge', steps: ['Pick up one round stone.', 'Drag it onto an empty water circle.', 'Do the same with the other stones.'] },
-};
 
 function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zone: string; moment: CharacterMoment; label: string }) {
   if (!hasCharacterAudio(name, moment, zone)) return null;
@@ -45,48 +40,57 @@ function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zon
 }
 
 // ── Intro overlay ──────────────────────────────
-function IntroOverlay({ mission, companionType, isFirstMission, isEarlyMission, onStart }: { mission: MissionData; companionType: string; isFirstMission: boolean; isEarlyMission: boolean; onStart: () => void }) {
-  const dialogue = getRescueDialogue(mission);
-  const [preferences] = useAudioPreferences();
-  const coach = isEarlyMission ? EARLY_RESCUE_COACH[mission.type] : undefined;
+function IntroOverlay({ mission, onStart }: { mission: MissionData; onStart: () => void }) {
   return (
-    <div className="absolute inset-0 z-50 flex items-end justify-center pb-8 px-4 bg-black/40 animate-rise-in">
-      <div className="paper-card w-full max-w-sm p-5 flex flex-col items-center gap-4">
-        <div className="flex gap-4 items-end">
-          <CritterAvatar type={companionType as CritterType} size={64} expression="happy" />
-          <CritterAvatar type={mission.critter.type} size={80} expression="worried" animate />
-        </div>
-        <div className="text-center">
-          <p className="font-display font-bold text-[#2D2418] text-lg">{mission.critter.name}</p>
-          <p className="text-[#5C4D3C] text-xs font-body italic mb-2">{mission.critter.personality}</p>
-          <p className="font-display italic text-[#2D2418] text-base leading-snug">{mission.introText}</p>
-          <div className="mt-2 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}>
-            <p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">{mission.critter.name} says</p>
-            {preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm mt-0.5">“{dialogue.introduction}”</p>}
-            <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="intro" label="introduction" />
-            {preferences.captionsEnabled && <p className="font-body text-xs font-bold text-[#3F4A35] mt-1">“{dialogue.helpCall}”</p>}
-            <CharacterVoiceButton name={mission.critter.name} zone={mission.zone} moment="help" label="help call" />
-          </div>
-          <PreReaderDirection directionKey={mission.type} className="mt-3" />
-          {isFirstMission && <div className="mt-3 rounded-xl bg-[#EAF1E5] px-3 py-2 text-left" style={{ border: '1px solid #B6CDA8' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#60794D]">How the rescue works</p><p className="font-body text-xs text-[#3F4A35] mt-1">Look at the game. Try one little move. If you need help, tap your buddy’s picture in the top corner.</p></div>}
-          {coach && <div className="mt-3 rounded-xl bg-[#F8E8D8] px-3 py-2.5 text-left" style={{ border: '1px solid #E2C9AB' }}><p className="font-body text-[10px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Three easy steps · {coach.title}</p><ol className="mt-1.5 space-y-1">{coach.steps.map((step, index) => <li key={step} className="flex gap-1.5 font-body text-xs text-[#49392C]"><span className="font-display text-[#E66B5B]">{index + 1}.</span><span>{step}</span></li>)}</ol></div>}
-        </div>
-        <button onClick={onStart} className="btn-coral flex w-full items-center justify-center gap-2 text-base">
-          {isFirstMission ? 'Show Me the Rescue Game!' : <><span data-testid="rescue-help-thumb" className="text-xl leading-none" aria-hidden="true">👍</span><span>I’ll help!</span></>}
-        </button>
-      </div>
+    <div className="absolute inset-0 z-50 flex items-end justify-center bg-[#103B2A]/42 px-4 pb-6 backdrop-blur-[2px] sm:pb-8">
+      <section role="dialog" aria-modal="true" aria-labelledby="rescue-intro-title" className="w-full max-w-sm rounded-[1.75rem] border border-[#DCC49D] bg-[#FFF9EF]/96 px-5 py-5 text-center shadow-2xl">
+        <CritterAvatar type={mission.critter.type} size={84} expression="worried" animate />
+        <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A85C41]">{mission.zone === 'meadow' ? 'Sunny Meadow' : mission.zone}</p>
+        <h1 id="rescue-intro-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">{mission.critter.name} needs your help.</h1>
+        <p className="font-display mt-2 text-sm italic leading-snug text-[#5C4D3C]">{mission.introText}</p>
+        <PreReaderDirection directionKey={mission.type} className="mt-3" />
+        <button autoFocus onClick={onStart} className="btn-coral mt-4 flex w-full items-center justify-center gap-2 text-base"><span data-testid="rescue-help-thumb" className="text-xl leading-none" aria-hidden="true">👍</span><span>I’ll help!</span></button>
+      </section>
+    </div>
+  );
+}
+
+function PipMeadowIntro({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="absolute inset-0 z-40 flex items-end justify-center bg-[#103B2A]/28 px-4 pb-6 sm:pb-8">
+      <section aria-labelledby="pip-meadow-intro-title" className="w-full max-w-sm rounded-[1.75rem] border border-[#DCC49D] bg-[#FFF9EF]/95 px-5 py-5 text-center shadow-2xl backdrop-blur-sm">
+        <CritterAvatar type="bird" size={78} expression="worried" animate />
+        <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A85C41]">Sunny Meadow</p>
+        <h1 id="pip-meadow-intro-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">Pip needs a little path.</h1>
+        <p className="font-display mt-2 text-sm italic text-[#5C4D3C]">“We’ll make it together.”</p>
+        <PreReaderDirection directionKey="tracing" className="mt-3" />
+        <button autoFocus onClick={onStart} className="btn-coral mt-4 w-full text-base">Help Pip</button>
+      </section>
     </div>
   );
 }
 
 // ── Completion overlay ─────────────────────────
-function CompletionOverlay({ mission, onDone }: { mission: MissionData; onDone: () => void }) {
+function CompletionOverlay({ mission, onDone, isPipMeadow = false }: { mission: MissionData; onDone: () => void; isPipMeadow?: boolean }) {
   const [preferences] = useAudioPreferences();
   const [showSecond, setShowSecond] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setShowSecond(true), 2000);
+    const t = setTimeout(() => setShowSecond(true), isPipMeadow ? 450 : 2000);
     return () => clearTimeout(t);
-  }, []);
+  }, [isPipMeadow]);
+  if (isPipMeadow) {
+    return (
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#103B2A]/36 px-5">
+        <section aria-labelledby="pip-meadow-complete-title" className="w-full max-w-sm rounded-[1.75rem] border border-[#E2C9AB] bg-[#FFF9EF] px-6 py-6 text-center shadow-2xl" style={{ borderTop: '4px solid #F5C842' }}>
+          <CritterAvatar type="bird" size={104} expression="grateful" animate />
+          <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A56C20]">Sunny Meadow is glowing</p>
+          <h1 id="pip-meadow-complete-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">You made a path for Pip.</h1>
+          <p className="font-display mt-2 text-sm italic text-[#5C4D3C]">A few little flowers bloom to say thank you.</p>
+          {showSecond && <button onClick={onDone} className="btn-coral mt-5 w-full text-base">Bring Pip home</button>}
+        </section>
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center px-4 bg-black/30 animate-rise-in">
       <div className="paper-card w-full max-w-sm p-6 flex flex-col items-center gap-4 text-center">
@@ -1191,8 +1195,9 @@ function TracingPuzzle({ difficulty, onComplete }: { difficulty: number; onCompl
 }
 
 // ── Main RescueScreen ──────────────────────────
-export default function RescueScreen({ mission, companionType, bgColors, onComplete, onBack, isFirstMission, isEarlyMission }: Props) {
-  const [showIntro, setShowIntro] = useState(true);
+export default function RescueScreen({ mission, companionType, bgColors, onComplete, onBack, isFirstMission, isEarlyMission, reduceMotion = false }: Props) {
+  const pipMeadowPreviewActive = import.meta.env.DEV && new URLSearchParams(window.location.search).get('pipMeadowActive') === '1';
+  const [showIntro, setShowIntro] = useState(!pipMeadowPreviewActive);
   const [completed, setCompleted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [critterExpr, setCritterExpr] = useState<Expression>('worried');
@@ -1200,6 +1205,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
   const [showTrailTip, setShowTrailTip] = useState(false);
   const [tipUsed, setTipUsed] = useState(false);
   const companion = getStarterCompanion(companionType);
+  const isPipMeadow = mission.zone === 'meadow' && mission.type === 'tracing' && mission.critter.name === 'Pip';
 
   const handlePuzzleComplete = useCallback(() => {
     setProgress(1);
@@ -1221,6 +1227,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
 
   const renderPuzzle = () => {
     const { type, objectCount, difficulty } = mission;
+    if (isPipMeadow) return null;
     switch (type) {
       case 'memory':        return <MemoryPuzzle pairCount={objectCount} onComplete={handlePuzzleComplete} />;
       case 'pattern':       return <PatternPuzzle length={objectCount} onComplete={handlePuzzleComplete} />;
@@ -1253,6 +1260,32 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       default:              return <CountingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
     }
   };
+
+  if (isPipMeadow) {
+    return (
+      <div className="game-screen overflow-hidden bg-[#6AAFC0]">
+        <BabylonMeadowRescueScene active={!showIntro && !completed} completed={completed} reduceMotion={reduceMotion} onPathComplete={handlePuzzleComplete} />
+        <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(13,54,48,.34) 0%, transparent 23%, transparent 68%, rgba(13,54,48,.44) 100%)' }} />
+        <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <button onClick={() => { playButton(); setShowExit(true); }} className="pointer-events-auto rounded-full border border-[#E2C9AB] bg-[#FFF9EF]/95 px-4 py-2.5 font-body text-sm font-bold text-[#2D2418] shadow-lg active:scale-95" aria-label="Back to camp">← Camp</button>
+          {!showIntro && !completed && <div className="rounded-full border border-white/20 bg-[#173D2C]/78 px-3 py-2 font-body text-[10px] font-bold uppercase tracking-[.11em] text-white shadow-lg">Pip’s flower path</div>}
+        </header>
+        {!showIntro && !completed && <aside aria-label="Pip rescue direction" className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="pointer-events-auto mx-auto max-w-sm rounded-3xl border border-[#E2C9AB] bg-[#FFF9EF]/95 px-4 py-3 text-center shadow-xl backdrop-blur-sm">
+            <p className="font-display text-base font-bold text-[#2D2418]">Follow Pip’s glowing dots</p>
+            <PreReaderDirection directionKey="tracing" className="mt-1.5" />
+          </div>
+        </aside>}
+        {showIntro && <PipMeadowIntro onStart={() => setShowIntro(false)} />}
+        {completed && <CompletionOverlay mission={mission} onDone={onComplete} isPipMeadow />}
+        {showExit && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 px-6">
+            <div className="paper-card w-full max-w-xs p-5 text-center"><p className="font-display font-bold text-[#2D2418]">Leave Pip’s meadow?</p><p className="mt-2 font-body text-sm text-[#5C4D3C]">Pip’s flower path will wait for you.</p><button onClick={() => { playButton(); setShowExit(false); onBack(); }} className="btn-coral mt-4 w-full">Back to camp</button><button onClick={() => setShowExit(false)} className="btn-parchment mt-2 w-full">Keep helping Pip</button></div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="game-screen overflow-hidden" style={bgStyle}>
@@ -1301,7 +1334,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
 
       {/* Intro overlay */}
       {showIntro && (
-        <IntroOverlay mission={mission} companionType={companionType} isFirstMission={isFirstMission} isEarlyMission={isEarlyMission} onStart={() => setShowIntro(false)} />
+        <IntroOverlay mission={mission} onStart={() => setShowIntro(false)} />
       )}
 
       {/* Completion overlay */}

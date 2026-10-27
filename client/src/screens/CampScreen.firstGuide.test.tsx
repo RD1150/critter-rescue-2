@@ -17,17 +17,16 @@ const renderFirstGuide = () => {
 };
 
 describe('CampScreen first-play rescue guide', () => {
-  it('presents one calm rescue path with the requested wording and a distinct secondary action', () => {
+  it('presents Pip as one calm rescue path with one picture cue, one Listen control, and a distinct secondary action', () => {
     const { container } = renderFirstGuide();
-    const guide = within(container).getByRole('dialog', { name: 'A friend needs your help!' });
-    expect(within(guide).getByRole('heading', { name: 'A friend needs your help!' })).toBeTruthy();
+    const guide = within(container).getByRole('dialog', { name: 'Pip needs a little path.' });
+    expect(within(guide).getByRole('heading', { name: 'Pip needs a little path.' })).toBeTruthy();
     expect(screen.getByText('“We’ll do this together.”')).toBeTruthy();
     expect(within(guide).getByRole('button', { name: /Listen to direction:/ })).toBeTruthy();
-    expect(screen.getByText('1. Go to Sunny Meadow')).toBeTruthy();
-    expect(screen.getByText('2. Complete the little rescue')).toBeTruthy();
-    expect(screen.getByText('3. Bring your friend home')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Start the Rescue.' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Explore First' })).toBeTruthy();
+    expect(within(guide).getByRole('img', { name: /Picture clue:/ })).toBeTruthy();
+    expect(within(guide).getByRole('button', { name: 'Help Pip' })).toBeTruthy();
+    expect(within(guide).getByRole('button', { name: 'Explore the sanctuary' })).toBeTruthy();
+    expect(within(guide).queryByText(/Three easy steps/i)).toBeNull();
   });
 
   it('uses a compact Critter Rescue fallback mark if the sanctuary logo cannot load', () => {
@@ -39,10 +38,10 @@ describe('CampScreen first-play rescue guide', () => {
 
   it('lets a child explore first without starting or removing access to the game', () => {
     const { onStartRescue, container } = renderFirstGuide();
-    fireEvent.click(within(container).getByRole('button', { name: 'Explore First' }));
-    expect(within(container).queryByRole('heading', { name: 'A friend needs your help!' })).toBeNull();
+    fireEvent.click(within(container).getByRole('button', { name: 'Explore the sanctuary' }));
+    expect(within(container).queryByRole('heading', { name: 'Pip needs a little path.' })).toBeNull();
     expect(onStartRescue).not.toHaveBeenCalled();
-    expect(within(container).getByRole('button', { name: 'Open critter journal' })).toBeTruthy();
+    expect(within(container).getByRole('button', { name: 'Open storybook' })).toBeTruthy();
     expect(within(container).getByRole('button', { name: 'Open parent settings' })).toBeTruthy();
   });
 });

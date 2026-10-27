@@ -15,7 +15,7 @@ describe('CampScreen child-first trail selector', () => {
     const onStartRescue = vi.fn();
     const { container } = render(<CampScreen forestHarmony={20} campFlowersCount={0} rescueCount={2} companionType="fox" unlockedZones={['meadow', 'riverside']} zoneTaskProgress={{ meadow: 2, riverside: 0, deepwoods: 0, mountain: 0 }} onStartRescue={onStartRescue} dailyTrail={{ dayKey: '2026-08-29', missions: [], completedKeys: [], rewardEarned: false }} lastDailyReward={null} onStartDailyTrail={vi.fn()} onAcknowledgeDailyReward={vi.fn()} homeCare={{}} onCareHome={vi.fn()} onOpenJournal={vi.fn()} onOpenMatch3={vi.fn()} onOpenNursery={vi.fn()} onOpenParentSettings={vi.fn()} onOpenLearning={vi.fn()} onOpenNatureJournal={vi.fn()} onOpenWeatherWonder={vi.fn()} celebrationPath={null} onOpenCelebrationPath={vi.fn()} onOpenTeamRescue={vi.fn()} learningTheme="all" onStartLearningFocus={vi.fn()} onOpenStorybook={vi.fn()} onOpenCarePlay={vi.fn()} onOpenBedtime={vi.fn()} homeDecor={{}} kindnessMoments={0} season="spring" celebration={null} onClearCelebration={vi.fn()} bedtimeReminderEnabled={false} showPlaytimeSuggestion={false} onDismissPlaytimeSuggestion={vi.fn()} lastNurseryGraduate={null} onAcknowledgeGraduate={vi.fn()} reduceMotion />);
 
-    fireEvent.click(within(container).getByRole('button', { name: '⋯ More play' }));
+    fireEvent.click(within(container).getByRole('button', { name: 'More play' }));
     fireEvent.click(within(container).getByRole('button', { name: '🗺️ Choose a trail' }));
     const picker = within(container).getByRole('dialog', { name: 'Pick a rescue trail' });
     expect(within(picker).getByText(/Start with the card that says/i)).toBeTruthy();

@@ -152,8 +152,8 @@ interface TaskDef {
 }
 
 const MEADOW_TASKS: TaskDef[] = [
-  { type:'counting', critter:MEADOW_CRITTERS[0], scenarioText:'Nutty lost three acorns in the meadow!', hintText:'Tap every golden acorn star.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Nutty dropped three acorns. Can you tap every golden acorn star?' },
   { type:'tracing', critter:MEADOW_CRITTERS[1], scenarioText:'Pip needs a path through the flowers!', hintText:'Put your finger on the dot and follow the dotted line.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Pip wants to fly through the flower garden. Can you slowly follow the dotted path?' },
+  { type:'counting', critter:MEADOW_CRITTERS[0], scenarioText:'Nutty lost three acorns in the meadow!', hintText:'Tap every golden acorn star.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Nutty dropped three acorns. Can you tap every golden acorn star?' },
   { type:'bridge', critter:MEADOW_CRITTERS[0], scenarioText:'Nutty needs stepping stones across the stream.', hintText:'Drag each stone onto an empty water circle.', objectCount:3, difficulty:1, requiresOrder:false, introText:'Nutty is too small to jump across the stream. Can you drag each stepping stone into an empty water circle?' },
   { type:'clearPath', critter:MEADOW_CRITTERS[1], scenarioText:"Pip's babies can't find their way home!", hintText:'Clear the fallen branches from the path', objectCount:3, difficulty:1, requiresOrder:false, introText:"Pip's little ones are chirping for dinner, but branches have fallen across the path." },
   { type:'sequence', critter:MEADOW_CRITTERS[2], scenarioText:'Daisy wants to learn how flowers grow!', hintText:'Put the pictures in the right order', objectCount:3, difficulty:1, requiresOrder:true, introText:'Can you show Daisy the right order? What comes first?' },

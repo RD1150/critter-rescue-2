@@ -46,6 +46,8 @@ type Props = {
   onCompanionClick: () => void;
   onCritterClick: (critter: CritterData) => void;
   onHomeClick: (critter: CritterData) => void;
+  rescueFriend?: CritterData | null;
+  onRescueTrailClick?: () => void;
   onDecorationRendered?: (critterName: string, decoration: HomeDecoration, meshIds: string[]) => void;
   homeDecor?: Record<string, HomeDecoration>;
   kindnessMoments?: number;
@@ -333,7 +335,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', celebration = null, reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend = null, onRescueTrailClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', celebration = null, reduceMotion = false, className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -436,6 +438,16 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     sign.position = new Vector3(-5.5, 2.25, -1.3);
     sign.billboardMode = Mesh.BILLBOARDMODE_ALL;
     sign.material = signMat;
+    if (onRescueTrailClick) {
+      sign.actionManager = new ActionManager(scene);
+      sign.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, onRescueTrailClick));
+    }
+
+    // The next friend waits visibly at the trail edge, turning the camp into a
+    // place to enter a rescue rather than a background behind a button.
+    if (rescueFriend) {
+      makePlushie(scene, rescueFriend.type, `${rescueFriend.name} needs help`, new Vector3(-4.15, 0.02, -1.1), 1.56, () => onRescueTrailClick?.(), shadow);
+    }
 
     const companion = makePlushie(scene, companionType, 'Your Companion', new Vector3(0, 0.02, 2.6), 2.25, onCompanionClick, shadow, true);
 
@@ -520,7 +532,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, onDecorationRendered, homeDecor, kindnessMoments, season, celebration, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend, onRescueTrailClick, onDecorationRendered, homeDecor, kindnessMoments, season, celebration, reduceMotion]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

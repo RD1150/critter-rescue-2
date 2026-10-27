@@ -22,7 +22,9 @@ async function startServer() {
 
   // Support messages contain only adult-submitted contact details, but are still
   // automatically removed after 30 days. Run once at startup and daily after.
-  await purgeExpiredContacts();
+  // Cleanup still runs immediately on startup, but it must not hold the public
+  // server hostage while an optional database connection is waking up.
+  void purgeExpiredContacts();
   const retentionTimer = setInterval(() => { void purgeExpiredContacts(); }, 24 * 60 * 60 * 1000);
   retentionTimer.unref();
 
@@ -63,8 +65,9 @@ async function startServer() {
 
   app.use(express.static(staticPath));
 
-  // Handle client-side routing - serve index.html for all routes
-  app.get("*", (_req, res) => {
+  // Express 5 names wildcards; this form also covers the root route. Keep the
+  // SPA fallback after static files and the parent-contact API.
+  app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(staticPath, "index.html"));
   });
 
