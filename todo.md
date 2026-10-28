@@ -556,4 +556,4 @@
 - [x] Add sweet recorded feedback for picture-choice, planning-tool, Care Pair Picnic, and Camp Learning wrong choices; repeat the question in the matching visible caption.
 - [x] Give the correct answer a calm gold visual glow after a gentle retry, while retaining a non-animated readable state for Reduce Motion.
 - [x] Update parent-facing voice controls, cover audio/caption/highlight behavior with regression tests, and verify phone and desktop interaction flows.
-- [ ] Run complete release validation, checkpoint, and synchronize the verified guidance update to GitHub.
+- [x] Run complete release validation, checkpoint, and synchronize the verified guidance update to GitHub.
