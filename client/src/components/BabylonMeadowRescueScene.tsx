@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type * as Babylon from '@babylonjs/core';
 import { loadBabylon } from '../lib/babylonRuntime';
-import { PLUSH_IMAGES } from './CritterAvatar';
 
 type Props = {
   active: boolean;
@@ -119,6 +118,11 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
       pipRoot.position = new B.Vector3(2.25, 0.06, -1.15);
       pipRoot.scaling = new B.Vector3(0.9, 0.9, 0.9);
       const pipBodyMat = makeMaterial('pip-meadow-body', '#89C8DF');
+      const pipFaceMat = makeMaterial('pip-meadow-face-cream', '#F8E6BE');
+      const pipEyeMat = makeMaterial('pip-meadow-eye', '#2D2418');
+      const pipEyeSparkMat = makeMaterial('pip-meadow-eye-spark', '#FFFFFF', 0.6);
+      const pipBeakMat = makeMaterial('pip-meadow-beak', '#F1A743');
+      const pipFootMat = makeMaterial('pip-meadow-feet', '#E98548');
       const pipBody = B.MeshBuilder.CreateSphere('pip-meadow-body-mesh', { diameter: 1.25, segments: 16 }, scene);
       pipBody.parent = pipRoot;
       pipBody.position.y = 0.88;
@@ -133,22 +137,43 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
         wing.material = pipBodyMat;
         shadow.addShadowCaster(wing);
       });
-      const faceMaterial = new B.StandardMaterial('pip-meadow-face', scene);
-      const faceTexture = new B.Texture(PLUSH_IMAGES.bird, scene, false, false);
-      faceTexture.hasAlpha = true;
-      faceTexture.vScale = -1;
-      faceTexture.vOffset = 1;
-      faceMaterial.diffuseTexture = faceTexture;
-      faceMaterial.opacityTexture = faceTexture;
-      faceMaterial.useAlphaFromDiffuseTexture = true;
-      faceMaterial.backFaceCulling = false;
-      faceMaterial.specularColor = new B.Color3(0, 0, 0);
-      const face = B.MeshBuilder.CreatePlane('pip-meadow-face-mesh', { width: 1.75, height: 1.75 }, scene);
-      face.parent = pipRoot;
-      face.position = new B.Vector3(0, 0.9, -0.7);
-      face.billboardMode = B.Mesh.BILLBOARDMODE_ALL;
-      face.material = faceMaterial;
-      face.isPickable = false;
+      // Pip is fully modelled here instead of using an external image texture.
+      // A WebGL texture that fails after a storage redirect renders Babylon's
+      // red-and-black checkerboard, which is not acceptable in a child scene.
+      const pipHead = B.MeshBuilder.CreateSphere('pip-meadow-head', { diameter: 0.92, segments: 16 }, scene);
+      pipHead.parent = pipRoot;
+      pipHead.position = new B.Vector3(0, 1.31, -0.16);
+      pipHead.scaling = new B.Vector3(0.98, 1.05, 0.78);
+      pipHead.material = pipBodyMat;
+      shadow.addShadowCaster(pipHead);
+      const facePatch = B.MeshBuilder.CreateSphere('pip-meadow-face-patch', { diameter: 0.62, segments: 14 }, scene);
+      facePatch.parent = pipRoot;
+      facePatch.position = new B.Vector3(0, 1.25, -0.61);
+      facePatch.scaling = new B.Vector3(1.05, 1.12, 0.2);
+      facePatch.material = pipFaceMat;
+      [-0.18, 0.18].forEach((x, index) => {
+        const eye = B.MeshBuilder.CreateSphere(`pip-meadow-eye-${index}`, { diameter: 0.125, segments: 10 }, scene);
+        eye.parent = pipRoot;
+        eye.position = new B.Vector3(x, 1.36, -0.75);
+        eye.scaling = new B.Vector3(0.88, 1.08, 0.62);
+        eye.material = pipEyeMat;
+        const sparkle = B.MeshBuilder.CreateSphere(`pip-meadow-eye-spark-${index}`, { diameter: 0.035, segments: 8 }, scene);
+        sparkle.parent = pipRoot;
+        sparkle.position = new B.Vector3(x - 0.018, 1.385, -0.8);
+        sparkle.material = pipEyeSparkMat;
+      });
+      const beak = B.MeshBuilder.CreateSphere('pip-meadow-beak', { diameter: 0.16, segments: 10 }, scene);
+      beak.parent = pipRoot;
+      beak.position = new B.Vector3(0, 1.17, -0.79);
+      beak.scaling = new B.Vector3(1.1, 0.72, 0.55);
+      beak.material = pipBeakMat;
+      [-0.24, 0.24].forEach((x, index) => {
+        const foot = B.MeshBuilder.CreateSphere(`pip-meadow-foot-${index}`, { diameter: 0.18, segments: 10 }, scene);
+        foot.parent = pipRoot;
+        foot.position = new B.Vector3(x, 0.32, -0.28);
+        foot.scaling = new B.Vector3(1.15, 0.44, 0.78);
+        foot.material = pipFootMat;
+      });
 
       const pathPoints = Array.from({ length: 7 }, (_, index) => new B.Vector3(-3.15 + index * 0.91, 0.2, -0.7 + Math.sin(index * 0.92) * 0.78));
       const dotWaiting = makeMaterial('pip-path-waiting', '#F5C842', 0.34);

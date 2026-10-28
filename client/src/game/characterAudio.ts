@@ -188,11 +188,16 @@ export function playDailyTrailVoice(moment: keyof typeof DAILY_TRAIL_AUDIO): voi
   void activeAudio.play().catch(() => {});
 }
 
-export type PreReaderPlaybackCallbacks = { onEnded?: () => void; onUnavailable?: () => void };
+export type PreReaderPlaybackCallbacks = { onEnded?: () => void; onMuted?: () => void; onUnavailable?: () => void };
 
 export async function playPreReaderDirection(key: PreReaderDirectionKey, callbacks: PreReaderPlaybackCallbacks = {}): Promise<boolean> {
   if (typeof Audio === 'undefined') return false;
-  if (!getAudioPreferences().spokenDirectionsEnabled) return false;
+  const preferences = getAudioPreferences();
+  if (!preferences.spokenDirectionsEnabled) return false;
+  if (preferences.voiceVolume <= 0.02) {
+    callbacks.onMuted?.();
+    return false;
+  }
   const source = PRE_READER_AUDIO[key];
   if (!source) return false;
   if (activeAudio) activeAudio.pause();
@@ -210,8 +215,9 @@ export async function playPreReaderDirection(key: PreReaderDirectionKey, callbac
   }, { once: true });
   audio.addEventListener('error', reportUnavailable, { once: true });
   audio.preload = 'auto';
-  audio.volume = getAudioPreferences().voiceVolume;
+  audio.volume = preferences.voiceVolume;
   audio.currentTime = 0;
+  audio.load();
   activeAudio = audio;
   try {
     await audio.play();

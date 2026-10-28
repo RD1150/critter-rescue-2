@@ -6,7 +6,7 @@ import { PRE_READER_DIRECTIONS, type PreReaderDirectionKey } from '../game/preRe
 import CritterAvatar from './CritterAvatar';
 
 interface Props { directionKey: PreReaderDirectionKey; compact?: boolean; minimal?: boolean; className?: string; }
-type ListenState = 'idle' | 'volumeCheck' | 'playing' | 'replay' | 'unavailable';
+type ListenState = 'idle' | 'playing' | 'replay' | 'muted' | 'unavailable';
 
 const PICTURE_CUES: Partial<Record<PreReaderDirectionKey, { before: string; after: string; label: string }>> = {
   onboarding: { before: '👆', after: '🧩', label: 'tap the big rescue button' },
@@ -24,7 +24,7 @@ const PICTURE_CUES: Partial<Record<PreReaderDirectionKey, { before: string; afte
 };
 
 export default function PreReaderDirection({ directionKey, compact = false, minimal = false, className = '' }: Props) {
-  const [preferences, savePreferences] = useAudioPreferences();
+  const [preferences] = useAudioPreferences();
   const [listenState, setListenState] = useState<ListenState>('idle');
   const acknowledgementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const line = PRE_READER_DIRECTIONS[directionKey];
@@ -41,21 +41,20 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
         setListenState('unavailable');
         acknowledgementTimer.current = setTimeout(() => setListenState('idle'), 3200);
       },
+      onMuted: () => setListenState('muted'),
     });
     if (!started) return;
   };
 
-  const handleListen = () => {
-    if (preferences.directionVolumeCheckComplete) { void startDirection(); return; }
-    setListenState('volumeCheck');
-  };
+  const handleListen = () => { void startDirection(); };
 
-  const confirmComfortVolume = () => {
-    savePreferences({ ...preferences, directionVolumeCheckComplete: true });
-    void startDirection();
-  };
-
-  const statusText = listenState === 'playing' ? 'Nutty is speaking.' : listenState === 'replay' ? 'Would you like to hear it again?' : 'The words are here to read together.';
+  const statusText = listenState === 'playing'
+    ? 'Nutty is speaking.'
+    : listenState === 'replay'
+      ? 'Would you like to hear it again?'
+      : listenState === 'muted'
+        ? 'Voice volume is off. Ask a grown-up to turn it up in Parent Settings.'
+        : 'The words are here to read together.';
   const compactMode = compact || minimal;
   const buttonLabel = listenState === 'replay' ? 'Replay directions' : 'Listen';
   const buttonIcon = listenState === 'replay' ? <RotateCcw size={compact ? 12 : 15} aria-hidden="true" /> : <Volume2 size={compact ? 12 : 15} aria-hidden="true" />;
@@ -74,10 +73,9 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
 
   const listeningButton = <button type="button" onClick={handleListen} className={buttonClass} style={buttonStyle} aria-label={`${buttonLabel} to direction: ${line}`}>{buttonIcon}{buttonLabel}</button>;
   const speakingBadge = isSpeaking ? <span className={`inline-flex items-center gap-1.5 rounded-full bg-[#FFF5DC] px-2 py-1 font-body text-[10px] font-bold text-[#5D3D2A] shadow-sm ${preferences.reduceMotion ? '' : 'motion-safe:animate-speaking-pulse'}`}><CritterAvatar type="squirrel" size={18} expression="happy" />Nutty is speaking</span> : null;
-  const comfortCheck = listenState === 'volumeCheck' ? <div role="dialog" aria-label="Comfort volume check" className="mt-2 rounded-xl border border-[#D4B58E] bg-[#FFF9EF] px-3 py-2 text-left shadow-sm"><p className="font-body text-[10px] font-bold uppercase tracking-[.1em] text-[#8C4130]">Ask a grown-up</p><p className="font-display mt-0.5 text-sm text-[#2D2418]">Is this a comfy volume?</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={confirmComfortVolume} className="min-h-9 rounded-lg bg-[#B94F45] px-3 font-body text-[11px] font-bold text-white active:scale-95 transition-transform">Play sound</button><button type="button" onClick={() => setListenState('idle')} className="min-h-9 rounded-lg border border-[#B78E72] bg-white px-3 font-body text-[11px] font-bold text-[#5D3D2A] active:scale-95 transition-transform">Read together</button></div></div> : null;
-  const feedback = listenState === 'playing' || listenState === 'replay' || listenState === 'unavailable' ? <div role="status" className={`mt-1 flex items-center gap-2 font-body ${compactMode ? 'text-[9px]' : 'text-[10px]'} font-bold text-[#5D3D2A]`}>{speakingBadge}{!isSpeaking && <span>{statusText}</span>}</div> : null;
+  const feedback = listenState === 'playing' || listenState === 'replay' || listenState === 'muted' || listenState === 'unavailable' ? <div role="status" className={`mt-1 flex items-center gap-2 font-body ${compactMode ? 'text-[9px]' : 'text-[10px]'} font-bold text-[#5D3D2A]`}>{speakingBadge}{!isSpeaking && <span>{statusText}</span>}</div> : null;
 
-  if (minimal) return <div className={`inline-flex flex-col items-center gap-1 ${className}`}>{visualCue}{listeningButton}{comfortCheck}{feedback}</div>;
-  if (compact) return <div className={`inline-flex flex-col items-center gap-0.5 ${className}`}>{visualCue}{listeningButton}{comfortCheck}{feedback}</div>;
-  return <div className={`rounded-2xl px-3 py-2.5 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex flex-col gap-2 sm:flex-row sm:items-center"><div data-testid="direction-actions" className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:shrink-0">{visualCue}{listeningButton}</div><div data-testid="direction-copy" className="min-w-0 flex-1"><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Listen, then try</p>{preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p>}{feedback}</div></div>{comfortCheck}</div>;
+  if (minimal) return <div className={`inline-flex flex-col items-center gap-1 ${className}`}>{visualCue}{listeningButton}{feedback}</div>;
+  if (compact) return <div className={`inline-flex flex-col items-center gap-0.5 ${className}`}>{visualCue}{listeningButton}{feedback}</div>;
+  return <div className={`rounded-2xl px-3 py-2.5 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex flex-col gap-2 sm:flex-row sm:items-center"><div data-testid="direction-actions" className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:shrink-0">{visualCue}{listeningButton}</div><div data-testid="direction-copy" className="min-w-0 flex-1"><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Listen, then try</p>{preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p>}{feedback}</div></div></div>;
 }

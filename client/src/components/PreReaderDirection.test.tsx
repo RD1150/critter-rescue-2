@@ -59,15 +59,20 @@ describe('PreReaderDirection', () => {
     expect(within(container).getByText(/Tap Let’s Help a Friend/i)).toBeTruthy();
   });
 
-  it('asks for a grown-up comfort-volume check before first optional audio and offers replay after the clip ends', async () => {
-    const savePreferences = vi.fn();
-    useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: true, captionsEnabled: true, directionVolumeCheckComplete: false, reduceMotion: false }, savePreferences]);
+  it('starts the optional direction with one Listen tap and offers replay after the clip ends', async () => {
+    useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: true, captionsEnabled: true, directionVolumeCheckComplete: false, reduceMotion: false }, vi.fn()]);
     playPreReaderDirection.mockImplementationOnce(async (_key: unknown, callbacks: { onEnded?: () => void }) => { callbacks.onEnded?.(); return true; });
     const { container } = render(<PreReaderDirection directionKey="onboarding" minimal />);
     fireEvent.click(within(container).getByRole('button', { name: /Listen to direction:/ }));
-    expect(within(container).getByRole('dialog', { name: 'Comfort volume check' })).toBeTruthy();
-    fireEvent.click(within(container).getByRole('button', { name: 'Play sound' }));
-    await waitFor(() => expect(savePreferences).toHaveBeenCalledWith(expect.objectContaining({ directionVolumeCheckComplete: true })));
+    expect(playPreReaderDirection).toHaveBeenCalledTimes(1);
+    expect(within(container).queryByRole('dialog', { name: 'Comfort volume check' })).toBeNull();
     await waitFor(() => expect(within(container).getByRole('button', { name: /Replay directions to direction:/ })).toBeTruthy());
+  });
+
+  it('explains when a saved parent preference has muted voices', async () => {
+    playPreReaderDirection.mockImplementationOnce(async (_key: unknown, callbacks: { onMuted?: () => void }) => { callbacks.onMuted?.(); return false; });
+    const { container } = render(<PreReaderDirection directionKey="onboarding" minimal />);
+    fireEvent.click(within(container).getByRole('button', { name: /Listen to direction:/ }));
+    await waitFor(() => expect(within(container).getByRole('status').textContent).toMatch(/Voice volume is off/i));
   });
 });
