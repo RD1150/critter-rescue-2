@@ -548,4 +548,4 @@
 - [x] Remove the failed remote plush-face texture fallback from the Pip Meadow diorama and give Pip a polished local 3D face.
 - [x] Diagnose and repair silent Listen/Replay playback, including saved preference behavior and a clear unavailable state.
 - [x] Add regression coverage, verify Pip’s Meadow in-browser at desktop and phone sizes, then complete release validation.
-- [ ] Save a deployable checkpoint and synchronize the verified repair to GitHub.
+- [x] Save a deployable checkpoint and synchronize the verified repair to GitHub.
