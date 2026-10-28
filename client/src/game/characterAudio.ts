@@ -138,6 +138,96 @@ const RECORDED_LINES: Record<string, Partial<Record<CharacterMoment, string>>> =
   }
 };
 
+
+export const GENTLE_RETRY_AUDIO = {
+  'try again': '/manus-storage/critter-retry-try-again_41485398.mp3',
+  'two berry basket': '/manus-storage/critter-retry-two-berry-basket_821f0692.mp3',
+  'four berry basket': '/manus-storage/critter-retry-four-berry-basket_d64e0f42.mp3',
+  fish: '/manus-storage/critter-retry-fish_271c1fc6.mp3',
+  flower: '/manus-storage/critter-retry-flower_e09f897b.mp3',
+  sun: '/manus-storage/critter-retry-sun_911c922e.mp3',
+  moon: '/manus-storage/critter-retry-moon_c0addcf5.mp3',
+  berry: '/manus-storage/critter-retry-berry_94c96b79.mp3',
+  'nest home': '/manus-storage/critter-retry-birdhouse_563e2a6b.mp3',
+  'den home': '/manus-storage/critter-retry-burrow_e48d7ed7.mp3',
+  butterfly: '/manus-storage/critter-retry-butterfly_036b1e2a.mp3',
+  bee: '/manus-storage/critter-retry-bee_f69d704a.mp3',
+  fox: '/manus-storage/critter-retry-fox_176ecb1a.mp3',
+  ladybug: '/manus-storage/critter-retry-ladybug_78987152.mp3',
+  turtle: '/manus-storage/critter-retry-turtle_0393e004.mp3',
+  owl: '/manus-storage/critter-retry-owl_08f1d5bd.mp3',
+  'bridge log': '/manus-storage/critter-retry-bridge-log_f5762a15.mp3',
+  'rescue rope': '/manus-storage/critter-retry-rescue-rope_0701913c.mp3',
+  'safe trail sign': '/manus-storage/critter-retry-safe-trail-sign_c3fac62b.mp3',
+  'sturdy branch path': '/manus-storage/critter-retry-sturdy-branch-path_c398c49c.mp3',
+  'soft moss bundle': '/manus-storage/critter-retry-soft-moss-bundle_ec7be52b.mp3',
+  'cozy nest cup': '/manus-storage/critter-retry-cozy-nest-cup_b45f6574.mp3',
+  'sturdy stick bundle': '/manus-storage/critter-retry-sturdy-stick-bundle_34935e15.mp3',
+  'soft leaf lining': '/manus-storage/critter-retry-soft-leaf-lining_285fe9f2.mp3',
+  'round lodge door': '/manus-storage/critter-retry-round-lodge-door_1bbd220e.mp3',
+  'wide blue base block': '/manus-storage/critter-retry-wide-blue-base-block_dc696774.mp3',
+  'coral wall blocks': '/manus-storage/critter-retry-coral-wall-blocks_8f9da28c.mp3',
+  'moss green roof block': '/manus-storage/critter-retry-moss-roof-block_7de9c82a.mp3',
+  'berry basket': '/manus-storage/critter-retry-berry-basket_728af92c.mp3',
+  'leaf basket': '/manus-storage/critter-retry-leaf-basket_26ad6461.mp3',
+  'dog house': '/manus-storage/critter-retry-dog-house_6e620efd.mp3',
+  birdhouse: '/manus-storage/critter-retry-birdhouse_563e2a6b.mp3',
+  'scratching post': '/manus-storage/critter-retry-scratching-post_0308df45.mp3',
+  'mud bath': '/manus-storage/critter-retry-mud-bath_35f8a8bf.mp3',
+  pond: '/manus-storage/critter-retry-pond_2bf13594.mp3',
+  burrow: '/manus-storage/critter-retry-burrow_e48d7ed7.mp3',
+  apple: '/manus-storage/critter-retry-apple_6959f44d.mp3',
+  'water drop': '/manus-storage/critter-retry-water-drop_b5b93de0.mp3',
+  leaf: '/manus-storage/critter-retry-leaf_8e4afae4.mp3',
+  heart: '/manus-storage/critter-retry-heart_2a649886.mp3',
+  'blue circle': '/manus-storage/critter-retry-blue-circle_e1875a00.mp3',
+  'red circle': '/manus-storage/critter-retry-red-circle_a63eeae3.mp3',
+  'red square': '/manus-storage/critter-retry-red-square_05b7c419.mp3',
+  'yellow triangle': '/manus-storage/critter-retry-yellow-triangle_b6cca34c.mp3',
+  'yellow square': '/manus-storage/critter-retry-yellow-square_9b8dc94b.mp3',
+  'blue square': '/manus-storage/critter-retry-blue-square_9db853d0.mp3',
+  'yellow circle': '/manus-storage/critter-retry-yellow-circle_f775c977.mp3',
+  'green triangle': '/manus-storage/critter-retry-green-triangle_947c6887.mp3',
+  'green circle': '/manus-storage/critter-retry-green-circle_db783da5.mp3',
+  "one o'clock": '/manus-storage/critter-retry-one-oclock_6e7c942a.mp3',
+  "five o'clock": '/manus-storage/critter-retry-five-oclock_faeeb440.mp3',
+  "eight o'clock": '/manus-storage/critter-retry-eight-oclock_af7d7a49.mp3',
+  "nine o'clock": '/manus-storage/critter-retry-nine-oclock_4fc7a5c6.mp3',
+  "twelve o'clock": '/manus-storage/critter-retry-twelve-oclock_70603134.mp3',
+} as const;
+
+export type GentleRetryKey = keyof typeof GENTLE_RETRY_AUDIO;
+
+let lastGentleRetryAt = 0;
+
+/**
+ * Child-triggered, no-failure feedback. It respects the parent voice preference,
+ * avoids interrupting a currently speaking direction, and ignores rapid repeat taps.
+ */
+export function playGentleRetryFeedback(key: GentleRetryKey): boolean {
+  if (typeof Audio === 'undefined') return false;
+  const preferences = getAudioPreferences();
+  if (!preferences.spokenDirectionsEnabled || preferences.voiceVolume <= 0.02) return false;
+  if (activeAudio && !activeAudio.paused && !activeAudio.ended) return false;
+  const source = GENTLE_RETRY_AUDIO[key];
+  if (!source) return false;
+  const now = Date.now();
+  if (now - lastGentleRetryAt < 1200) return false;
+  lastGentleRetryAt = now;
+
+  const audio = new Audio(resolveNativeNetworkUrl(source));
+  audio.preload = 'auto';
+  audio.volume = preferences.voiceVolume;
+  audio.addEventListener('ended', () => { if (activeAudio === audio) activeAudio = null; }, { once: true });
+  audio.addEventListener('error', () => { if (activeAudio === audio) activeAudio = null; }, { once: true });
+  activeAudio = audio;
+  const playback = audio.play();
+  if (playback && typeof playback.catch === 'function') {
+    void playback.catch(() => { if (activeAudio === audio) activeAudio = null; });
+  }
+  return true;
+}
+
 let activeAudio: HTMLAudioElement | null = null;
 
 const DAILY_TRAIL_AUDIO = {

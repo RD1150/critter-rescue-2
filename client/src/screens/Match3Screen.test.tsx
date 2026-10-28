@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Match3Screen from './Match3Screen';
 import { playCarePairCelebrationSound } from '../game/sounds';
+import { playGentleRetryFeedback } from '../game/characterAudio';
 
 vi.mock('../game/sounds', () => ({
   playButton: vi.fn(),
@@ -13,6 +14,8 @@ vi.mock('../game/sounds', () => ({
   playMatch: vi.fn(),
 }));
 
+vi.mock('../game/characterAudio', () => ({ playGentleRetryFeedback: vi.fn() }));
+
 describe('Care Pair Picnic', () => {
   afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
@@ -21,7 +24,8 @@ describe('Care Pair Picnic', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Apple picture, ready' })[0]!);
     fireEvent.click(screen.getAllByRole('button', { name: 'Water drop picture, ready' })[0]!);
-    expect(screen.getByText(/those pictures are different/i)).toBeTruthy();
+    expect(screen.getByText(/that’s the water drop.*find the other apple/i)).toBeTruthy();
+    expect(playGentleRetryFeedback).toHaveBeenCalledWith('water drop');
 
     for (const label of ['Apple', 'Water drop', 'Leaf', 'Heart']) {
       const cards = screen.getAllByRole('button', { name: `${label} picture, ready` });

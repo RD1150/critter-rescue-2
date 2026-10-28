@@ -9,7 +9,7 @@ vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: stri
 vi.mock('../components/PreReaderDirection', () => ({ default: () => <div data-testid="pre-reader-direction" /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playChime: vi.fn(), playMatch: vi.fn(), playSnap: vi.fn(), playPickup: vi.fn(), playError: vi.fn(), playFlip: vi.fn(), playPatternNote: vi.fn(), playCatch: vi.fn(), playMilestone: vi.fn() }));
 vi.mock('../game/audioPreferences', () => ({ useAudioPreferences: () => [{ captionsEnabled: true, spokenDirections: true }] }));
-vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn(), playGentleRetryFeedback: vi.fn() }));
 
 describe('Cozy Block Builder in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
@@ -23,7 +23,7 @@ describe('Cozy Block Builder in RescueScreen', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /i’ll help/i }));
     fireEvent.click(screen.getByRole('button', { name: /two coral wall blocks/i }));
-    expect(screen.getByText(/First, the cottage needs a wide bottom block/i)).toBeTruthy();
+    expect(screen.getByText(/Summit is building a tiny camp cottage.*steady bottom first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /wide blue base block/i }));
     act(() => { vi.advanceTimersByTime(850); });

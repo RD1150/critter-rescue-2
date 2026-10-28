@@ -9,7 +9,7 @@ vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: stri
 vi.mock('../components/PreReaderDirection', () => ({ default: () => <div data-testid="pre-reader-direction" /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playChime: vi.fn(), playMatch: vi.fn(), playSnap: vi.fn(), playPickup: vi.fn(), playError: vi.fn(), playFlip: vi.fn(), playPatternNote: vi.fn(), playCatch: vi.fn(), playMilestone: vi.fn() }));
 vi.mock('../game/audioPreferences', () => ({ useAudioPreferences: () => [{ captionsEnabled: true, spokenDirections: true }] }));
-vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn(), playGentleRetryFeedback: vi.fn() }));
 
 describe('Telling Time in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
@@ -23,7 +23,7 @@ describe('Telling Time in RescueScreen', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /i’ll help/i }));
     fireEvent.click(screen.getByRole('button', { name: /clock showing 9 o’clock/i }));
-    expect(screen.getByText(/That clock shows a different time/i)).toBeTruthy();
+    expect(screen.getByText(/Brook is ready for a seven o’clock pond visit/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /clock showing 7 o’clock/i }));
     expect(screen.getByText(/You found seven o’clock/i)).toBeTruthy();

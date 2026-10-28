@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { playPreReaderDirection, PRE_READER_AUDIO } from './characterAudio';
+import { GENTLE_RETRY_AUDIO, playGentleRetryFeedback, playPreReaderDirection, PRE_READER_AUDIO } from './characterAudio';
 
 const { getAudioPreferences } = vi.hoisted(() => ({ getAudioPreferences: vi.fn() }));
 
@@ -17,6 +17,26 @@ describe('pre-reader direction playback', () => {
 
   afterEach(() => {
     Object.defineProperty(window, 'Audio', { configurable: true, value: previousAudio });
+  });
+
+  it('plays one named gentle retry after a child makes a picture choice', () => {
+    const play = vi.fn().mockResolvedValue(undefined);
+    const pause = vi.fn();
+    const addEventListener = vi.fn();
+    const AudioMock = vi.fn().mockImplementation(function (this: { preload: string; volume: number; paused: boolean; ended: boolean; play: typeof play; pause: typeof pause; addEventListener: typeof addEventListener }) {
+      this.preload = '';
+      this.volume = 1;
+      this.paused = true;
+      this.ended = false;
+      this.play = play;
+      this.pause = pause;
+      this.addEventListener = addEventListener;
+    });
+    Object.defineProperty(window, 'Audio', { configurable: true, value: AudioMock });
+
+    expect(playGentleRetryFeedback('fish')).toBe(true);
+    expect(AudioMock).toHaveBeenCalledWith(GENTLE_RETRY_AUDIO.fish);
+    expect(play).toHaveBeenCalledTimes(1);
   });
 
   it('preloads and starts the Nutty onboarding clip after an explicit Listen request', async () => {

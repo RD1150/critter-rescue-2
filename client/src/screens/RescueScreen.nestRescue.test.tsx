@@ -9,7 +9,7 @@ vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: stri
 vi.mock('../components/PreReaderDirection', () => ({ default: () => <div data-testid="pre-reader-direction" /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playChime: vi.fn(), playMatch: vi.fn(), playSnap: vi.fn(), playPickup: vi.fn(), playError: vi.fn(), playFlip: vi.fn(), playPatternNote: vi.fn(), playCatch: vi.fn(), playMilestone: vi.fn() }));
 vi.mock('../game/audioPreferences', () => ({ useAudioPreferences: () => [{ captionsEnabled: true, spokenDirections: true }] }));
-vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn(), playGentleRetryFeedback: vi.fn() }));
 
 describe('Nest Rescue in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
@@ -25,7 +25,7 @@ describe('Nest Rescue in RescueScreen', () => {
     expect(screen.getByText(/sturdy path first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /soft moss bundle/i }));
-    expect(screen.getByText(/first, Wren needs a sturdy way up/i)).toBeTruthy();
+    expect(screen.getByText(/sturdy path first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /sturdy branch path/i }));
     act(() => { vi.advanceTimersByTime(850); });

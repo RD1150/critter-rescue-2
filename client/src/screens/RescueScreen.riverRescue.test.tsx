@@ -9,7 +9,7 @@ vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: stri
 vi.mock('../components/PreReaderDirection', () => ({ default: () => <div data-testid="pre-reader-direction" /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playChime: vi.fn(), playMatch: vi.fn(), playSnap: vi.fn(), playPickup: vi.fn(), playError: vi.fn(), playFlip: vi.fn(), playPatternNote: vi.fn(), playCatch: vi.fn(), playMilestone: vi.fn() }));
 vi.mock('../game/audioPreferences', () => ({ useAudioPreferences: () => [{ captionsEnabled: true, spokenDirections: true }] }));
-vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ hasCharacterAudio: () => false, playCharacterAudio: vi.fn(), playGentleRetryFeedback: vi.fn() }));
 
 describe('River Rescue in RescueScreen', () => {
   afterEach(() => vi.useRealTimers());
@@ -27,7 +27,7 @@ describe('River Rescue in RescueScreen', () => {
     expect(screen.getByText(/what makes a steady bridge first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /rescue rope/i }));
-    expect(screen.getByText(/first, Clover needs a steady bridge/i)).toBeTruthy();
+    expect(screen.getByText(/what makes a steady bridge first/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: /bridge log/i }));
     act(() => { vi.advanceTimersByTime(850); });

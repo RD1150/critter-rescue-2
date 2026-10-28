@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import CritterAvatar from '../components/CritterAvatar';
-import { playComplete, playError, playMatch } from '../game/sounds';
+import { playComplete, playMatch } from '../game/sounds';
+import { playGentleRetryFeedback, type GentleRetryKey } from '../game/characterAudio';
 import PreReaderDirection from '../components/PreReaderDirection';
 import type { LearningMilestoneKey } from '../game/store';
 import type { LearningTheme } from '../game/learningThemes';
@@ -41,13 +42,14 @@ export default function CampLearningScreen({ onBack, onRoundComplete, learningTh
   const [round, setRound] = useState(Math.max(0, Math.min(LEARNING_ROUNDS.length - 1, previewRound)));
   const [message, setMessage] = useState('Take your time. There is no rush!');
   const [finished, setFinished] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const current = LEARNING_ROUNDS[round];
   const directionKey = (['learningColor', 'learningShape', 'learningPattern'] as const)[round];
   const choices = useMemo(() => current.choices, [current]);
 
   const choose = (tile: Tile) => {
     if (tilesMatch(tile, current.answer)) {
-      playMatch();
+      playMatch(); setShowAnswer(false);
       onRoundComplete((['color', 'shape', 'pattern'] as const)[round]);
       if (round === LEARNING_ROUNDS.length - 1) {
         setFinished(true);
@@ -55,11 +57,12 @@ export default function CampLearningScreen({ onBack, onRoundComplete, learningTh
         playComplete();
       } else {
         setMessage('You found it! Let’s try the next one.');
-        setTimeout(() => { setRound((value) => value + 1); setMessage('Take your time. You can do it!'); }, 500);
+        setTimeout(() => { setRound((value) => value + 1); setShowAnswer(false); setMessage('Take your time. You can do it!'); }, 500);
       }
     } else {
-      playError();
-      setMessage('Nice try! Look at the color and shape one more time.');
+      playGentleRetryFeedback(`${tile.colorName} ${tile.shape}` as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(current.prompt);
     }
   };
 
@@ -67,5 +70,5 @@ export default function CampLearningScreen({ onBack, onRoundComplete, learningTh
 
   return <div className="game-screen forest-bg overflow-y-auto px-4 pb-7"><header className="flex items-center justify-between pt-safe pt-4 pb-3"><div className="flex items-center gap-2"><CritterAvatar type="squirrel" size={48} expression="happy" /><div><p className="font-body text-[10px] uppercase tracking-[.14em] text-white/65">Camp Learning Trail</p><h1 className="font-display text-xl font-bold text-white">Colors, shapes & patterns</h1></div></div><button onClick={onBack} className="paper-card px-3 py-1.5 text-sm font-body text-[#2D2418] active:scale-95">Camp</button></header>
     {learningTheme !== 'all' && <p className="mx-auto mb-3 max-w-md rounded-full bg-white/15 px-3 py-1.5 text-center font-body text-[11px] text-white/90">{LEARNING_THEME_DETAILS[learningTheme].icon} Family focus: {LEARNING_THEME_DETAILS[learningTheme].label}</p>}
-    <main className="mx-auto max-w-md"><div className="flex gap-1.5 justify-center mb-3">{LEARNING_ROUNDS.map((_, index) => <span key={index} className={`w-8 h-2 rounded-full ${index < round ? 'bg-[#F3C94A]' : index === round ? 'bg-[#E66B5B]' : 'bg-white/25'}`} />)}</div><section className="paper-card p-5 text-center" style={{ borderTop: '3px solid #E66B5B' }}><p className="font-body text-[10px] uppercase tracking-[.15em] text-[#E66B5B] font-bold">{current.title} · Game {round + 1} of 3</p><h2 className="font-display text-2xl text-[#2D2418] font-bold mt-2">{current.prompt}</h2><PreReaderDirection directionKey={directionKey} className="mt-4" />{current.sequence && <div className="mt-5 flex items-end justify-center gap-3"><>{current.sequence.map((tile, index) => <ShapeTile key={index} tile={tile} small />)}</><span className="font-display text-4xl text-[#5C4D3C]">?</span></div>}<p className="font-body text-xs text-[#5C4D3C] mt-4">{message}</p><div className="grid grid-cols-2 gap-3 mt-5">{choices.map((tile, index) => <button key={`${tile.color}-${tile.shape}-${index}`} onClick={() => choose(tile)} className="min-h-[108px] rounded-2xl flex items-center justify-center bg-[#FAF3E5] border-2 border-[#E2D2BA] active:scale-95 transition-transform" aria-label={`Choose ${tile.colorName} ${tile.shape}`}><ShapeTile tile={tile} /></button>)}</div></section><p className="font-body text-center text-xs text-white/65 mt-4">Tap the picture that matches the question. Grown-ups can play too!</p></main></div>;
+    <main className="mx-auto max-w-md"><div className="flex gap-1.5 justify-center mb-3">{LEARNING_ROUNDS.map((_, index) => <span key={index} className={`w-8 h-2 rounded-full ${index < round ? 'bg-[#F3C94A]' : index === round ? 'bg-[#E66B5B]' : 'bg-white/25'}`} />)}</div><section className="paper-card p-5 text-center" style={{ borderTop: '3px solid #E66B5B' }}><p className="font-body text-[10px] uppercase tracking-[.15em] text-[#E66B5B] font-bold">{current.title} · Game {round + 1} of 3</p><h2 className="font-display text-2xl text-[#2D2418] font-bold mt-2">{current.prompt}</h2><PreReaderDirection directionKey={directionKey} className="mt-4" />{current.sequence && <div className="mt-5 flex items-end justify-center gap-3"><>{current.sequence.map((tile, index) => <ShapeTile key={index} tile={tile} small />)}</><span className="font-display text-4xl text-[#5C4D3C]">?</span></div>}<p className="font-body text-xs text-[#5C4D3C] mt-4">{message}</p><div className="grid grid-cols-2 gap-3 mt-5">{choices.map((tile, index) => <button key={`${tile.color}-${tile.shape}-${index}`} onClick={() => choose(tile)} className={`min-h-[108px] rounded-2xl flex items-center justify-center bg-[#FAF3E5] border-2 border-[#E2D2BA] active:scale-95 transition-transform ${showAnswer && tilesMatch(tile, current.answer) ? 'ring-4 ring-[#F3C94A]/55' : ''}`} aria-label={`Choose ${tile.colorName} ${tile.shape}`}><ShapeTile tile={tile} /></button>)}</div></section><p className="font-body text-center text-xs text-white/65 mt-4">Tap the picture that matches the question. Grown-ups can play too!</p></main></div>;
 }

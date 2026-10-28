@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import CritterAvatar, { Expression } from '../components/CritterAvatar';
 import { getStarterCompanion, MissionData, MissionType, CritterType } from '../game/data';
-import { hasCharacterAudio, playCharacterAudio, CharacterMoment } from '../game/characterAudio';
+import { hasCharacterAudio, playCharacterAudio, playGentleRetryFeedback, CharacterMoment, type GentleRetryKey } from '../game/characterAudio';
 import { useAudioPreferences } from '../game/audioPreferences';
 import { SYLLABLE_CLAP_PATTERNS } from '../game/syllableClaps';
 import { RIVER_RESCUE_STEPS, RiverRescueToolId } from '../game/riverRescue';
@@ -15,7 +15,7 @@ import { TELLING_TIME_ROUNDS } from '../game/tellingTime';
 import { GARDEN_SORT_BASKETS, GARDEN_SORT_ITEMS, GardenSortCategory } from '../game/gardenSort';
 import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
 import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchChoiceId } from '../game/animalHomeMatch';
-import { playSnap, playPickup, playError, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
+import { playSnap, playPickup, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 import BabylonMeadowRescueScene from '../components/BabylonMeadowRescueScene';
 
@@ -28,6 +28,10 @@ interface Props {
   isFirstMission: boolean;
   isEarlyMission: boolean;
   reduceMotion?: boolean;
+}
+
+function playGentleRetry(label: GentleRetryKey) {
+  playGentleRetryFeedback(label);
 }
 
 function CharacterVoiceButton({ name, zone, moment, label }: { name: string; zone: string; moment: CharacterMoment; label: string }) {
@@ -139,7 +143,7 @@ function MemoryPuzzle({ pairCount, onComplete }: { pairCount: number; onComplete
           if (nm.size === symbols.length) setTimeout(onComplete, 500);
         }, 400);
       } else {
-        setTimeout(() => { playError(); setFlipped([]); setChecking(false); }, 900);
+        setTimeout(() => { playGentleRetry('try again'); setFlipped([]); setChecking(false); }, 900);
       }
     }
   };
@@ -190,7 +194,7 @@ function PatternPuzzle({ length, onComplete }: { length: number; onComplete: () 
     if (phase !== 'input') return;
     playPatternNote(idx); setActive(idx); setTimeout(() => setActive(null), 300);
     const ni = [...input, idx];
-    if (pattern[ni.length-1] !== idx) { setPhase('wrong'); setTimeout(() => showPat(pattern), 1000); return; }
+    if (pattern[ni.length-1] !== idx) { playGentleRetry('try again'); setPhase('wrong'); setTimeout(() => showPat(pattern), 1000); return; }
     setInput(ni);
     if (ni.length === pattern.length) { setPhase('showing'); setTimeout(onComplete, 500); }
   };
@@ -260,7 +264,7 @@ function MazePuzzle({ difficulty, onComplete }: { difficulty: number; onComplete
     const [cr,cc] = path[path.length-1];
     if (path.length>=2) { const [pr,pc]=path[path.length-2]; if (r===pr&&c===pc) { setPath(path.slice(0,-1)); return; } }
     if (Math.abs(r-cr)+Math.abs(c-cc)!==1) return;
-    if (!canMove(cr,cc,r,c)) { playError(); return; }
+    if (!canMove(cr,cc,r,c)) { playGentleRetry('try again'); return; }
     playSnap();
     const np = [...path,[r,c] as [number,number]]; setPath(np);
     if (r===endR&&c===endC) setTimeout(onComplete, 500);
@@ -324,7 +328,7 @@ function GatherPuzzle({ targetCount, difficulty, onComplete }: { targetCount:num
       playCatch();
       const ns = scoreRef.current+1; scoreRef.current=ns; setScore(ns);
       if (ns>=goal) { won.current=true; setTimeout(onComplete,600); }
-    } else { playError(); }
+    } else { playGentleRetry('try again'); }
   };
   return (
     <div className="flex flex-col items-center gap-2 w-full">
@@ -376,78 +380,95 @@ function CountingPuzzle({ count, onComplete }: { count: number; onComplete: () =
 // ── Quiet Counting Rescue ───────────────────────
 function QuietCountPuzzle({ onComplete }: { onComplete: () => void }) {
   const baskets = [{ id: 'two', berries: 2 }, { id: 'three', berries: 3 }, { id: 'four', berries: 4 }];
-  const [message, setMessage] = useState('Count the berries slowly. Which basket has three?');
+  const question = 'Count the berries slowly. Which basket has three?';
+  const [message, setMessage] = useState(question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (id: string) => {
     if (chosen) return;
-    if (id === 'three') { setChosen(id); setMessage('Three berries! Daisy can have a cozy snack.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That basket has a different number. Let’s count together, slowly.'); playChime(); }
+    if (id === 'three') { setChosen(id); setShowAnswer(false); setMessage('Three berries! Daisy can have a cozy snack.'); playMatch(); setTimeout(onComplete, 650); }
+    else {
+      const basket = baskets.find((item) => item.id === id);
+      if (basket) playGentleRetry(basket.berries === 2 ? 'two berry basket' : 'four berry basket');
+      setShowAnswer(true);
+      setMessage(question);
+    }
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-2xl bg-white/10 px-4 py-2 text-center"><p className="font-body text-xs text-white/90">🍓 Find the basket with <strong>three</strong> berries</p></div><div className="grid w-full max-w-md grid-cols-3 gap-3">{baskets.map((basket) => <button key={basket.id} onClick={() => choose(basket.id)} disabled={Boolean(chosen)} aria-label={`Choose the basket with ${basket.berries} berries`} className={`min-h-[150px] rounded-3xl border-2 p-3 text-center shadow-lg transition-transform active:scale-95 ${chosen === basket.id ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="grid grid-cols-2 justify-items-center gap-1 text-4xl">{Array.from({ length: basket.berries }, (_, index) => <span key={index}>🍓</span>)}</span><span className="mt-3 block font-display text-lg text-[#5C4D3C]">{Array.from({ length: basket.berries }, () => '●').join(' ')}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-2xl bg-white/10 px-4 py-2 text-center"><p className="font-body text-xs text-white/90">🍓 Find the basket with <strong>three</strong> berries</p></div><div className="grid w-full max-w-md grid-cols-3 gap-3">{baskets.map((basket) => <button key={basket.id} onClick={() => choose(basket.id)} disabled={Boolean(chosen)} aria-label={`Choose the basket with ${basket.berries} berries`} className={`min-h-[150px] rounded-3xl border-2 p-3 text-center shadow-lg transition-transform active:scale-95 ${chosen === basket.id || (showAnswer && basket.id === 'three') ? 'border-[#F5C842] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="grid grid-cols-2 justify-items-center gap-1 text-4xl">{Array.from({ length: basket.berries }, (_, index) => <span key={index}>🍓</span>)}</span><span className="mt-3 block font-display text-lg text-[#5C4D3C]">{Array.from({ length: basket.berries }, () => '●').join(' ')}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Picture-Rhyme Rescue ─────────────────────────
 function PictureRhymePuzzle({ onComplete }: { onComplete: () => void }) {
   const choices = [{ emoji: '🌳', label: 'tree', correct: true }, { emoji: '🐟', label: 'fish', correct: false }, { emoji: '🌸', label: 'flower', correct: false }];
-  const [message, setMessage] = useState('Listen for “bee.” Which picture sounds like bee?');
+  const question = 'Which picture rhymes with bee?';
+  const [message, setMessage] = useState('Listen for “bee.” ' + question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (choice: typeof choices[number]) => {
     if (chosen) return;
-    if (choice.correct) { setChosen(choice.label); setMessage('Bee and tree! Those words sound alike. Finn found the safe tree.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That picture makes a different sound. Let’s listen for bee one more time.'); playChime(); }
+    if (choice.correct) { setChosen(choice.label); setShowAnswer(false); setMessage('Bee and tree! Those words sound alike. Finn found the safe tree.'); playMatch(); setTimeout(onComplete, 650); }
+    else { playGentleRetry(choice.label as GentleRetryKey); setShowAnswer(true); setMessage(question); }
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🐝</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Bee</p></div><p className="font-body text-sm text-white/90">Which picture rhymes with bee?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🐝</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Bee</p></div><p className="font-body text-sm text-white/90">Which picture rhymes with bee?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label || (showAnswer && choice.correct) ? 'border-[#F5C842] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Picture Letter-Sound Rescue ──────────────────
 function LetterSoundPuzzle({ onComplete }: { onComplete: () => void }) {
   const choices = [{ emoji: '⚽', label: 'ball', correct: true }, { emoji: '☀️', label: 'sun', correct: false }, { emoji: '🌙', label: 'moon', correct: false }];
-  const [message, setMessage] = useState('Ball starts with a bouncy /b/ sound. Which picture starts the same way?');
+  const question = 'Which picture starts like ball?';
+  const [message, setMessage] = useState('Ball starts with a bouncy /b/ sound. ' + question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (choice: typeof choices[number]) => {
     if (chosen) return;
-    if (choice.correct) { setChosen(choice.label); setMessage('Ball begins with /b/! Buttercup found the bouncy ball.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That picture starts with a different sound. Let’s listen for ball one more time.'); playChime(); }
+    if (choice.correct) { setChosen(choice.label); setShowAnswer(false); setMessage('Ball begins with /b/! Buttercup found the bouncy ball.'); playMatch(); setTimeout(onComplete, 650); }
+    else { playGentleRetry(choice.label as GentleRetryKey); setShowAnswer(true); setMessage(question); }
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">⚽</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Ball · /b/</p></div><p className="font-body text-sm text-white/90">Which picture starts like ball?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">⚽</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Ball · /b/</p></div><p className="font-body text-sm text-white/90">Which picture starts like ball?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label || (showAnswer && choice.correct) ? 'border-[#F5C842] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Picture Alliteration Rescue ──────────────────
 function AlliterationPuzzle({ onComplete }: { onComplete: () => void }) {
   const choices = [{ emoji: '☁️', label: 'cloud', correct: true }, { emoji: '🌙', label: 'moon', correct: false }, { emoji: '🍓', label: 'berry', correct: false }];
-  const [message, setMessage] = useState('Cricket and cloud both start with a crisp /c/ sound. Which picture starts like cricket?');
+  const question = 'Which picture starts like cricket?';
+  const [message, setMessage] = useState('Cricket and cloud both start with a crisp /c/ sound. ' + question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (choice: typeof choices[number]) => {
     if (chosen) return;
-    if (choice.correct) { setChosen(choice.label); setMessage('Cricket and cloud! They start with the same sound. Cricket can sing a cozy song.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That picture starts with a different sound. Let’s listen for cricket again.'); playChime(); }
+    if (choice.correct) { setChosen(choice.label); setShowAnswer(false); setMessage('Cricket and cloud! They start with the same sound. Cricket can sing a cozy song.'); playMatch(); setTimeout(onComplete, 650); }
+    else { playGentleRetry(choice.label as GentleRetryKey); setShowAnswer(true); setMessage(question); }
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦗</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Cricket · /c/</p></div><p className="font-body text-sm text-white/90">Which picture starts like cricket?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦗</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">Cricket · /c/</p></div><p className="font-body text-sm text-white/90">Which picture starts like cricket?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 text-5xl shadow-lg transition-transform active:scale-95 ${chosen === choice.label || (showAnswer && choice.correct) ? 'border-[#F5C842] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span>{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Habitat-Matching Rescue ──────────────────────
 function HabitatMatchPuzzle({ onComplete }: { onComplete: () => void }) {
   const choices = [{ emoji: '🌊', label: 'Pond home', correct: true }, { emoji: '🪺', label: 'Nest home', correct: false }, { emoji: '🪵', label: 'Den home', correct: false }];
-  const [message, setMessage] = useState('Reed the duck needs a home by the water. Which cozy place fits?');
+  const question = 'Which home is by the water?';
+  const [message, setMessage] = useState('Reed the duck needs a home by the water. ' + question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (choice: typeof choices[number]) => {
     if (chosen) return;
-    if (choice.correct) { setChosen(choice.label); setMessage('A pond! Reed can splash and rest near the water. You found the right habitat.'); playMatch(); setTimeout(onComplete, 650); }
-    else { setMessage('That home belongs to a different kind of friend. Look for water, slowly.'); playChime(); }
+    if (choice.correct) { setChosen(choice.label); setShowAnswer(false); setMessage('A pond! Reed can splash and rest near the water. You found the right habitat.'); playMatch(); setTimeout(onComplete, 650); }
+    else { playGentleRetry(choice.label.toLowerCase() as GentleRetryKey); setShowAnswer(true); setMessage(question); }
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#6EB9CE] bg-[#EAF6F8] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦆</span><p className="mt-1 font-display text-lg text-[#397C9C]">Reed the duck</p></div><p className="font-body text-sm text-white/90">Which home is by the water?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#6EB9CE] bg-[#EAF4EF]' : 'border-[#C7DCE3] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#6EB9CE] bg-[#EAF6F8] px-6 py-4 text-center shadow-lg"><span className="text-6xl">🦆</span><p className="mt-1 font-display text-lg text-[#397C9C]">Reed the duck</p></div><p className="font-body text-sm text-white/90">Which home is by the water?</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}`} className={`min-h-[132px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label || (showAnswer && choice.correct) ? 'border-[#6EB9CE] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#C7DCE3] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Picture-led Syllable Clap Rescue ─────────────
 function SyllableClapPuzzle({ onComplete }: { onComplete: () => void }) {
   const [patternIndex, setPatternIndex] = useState(0);
   const pattern = SYLLABLE_CLAP_PATTERNS[patternIndex];
-  const [message, setMessage] = useState('Say the names slowly. Which picture has two little claps?');
+  const question = pattern.prompt;
+  const [message, setMessage] = useState('Say the names slowly. ' + question);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [showAnswer, setShowAnswer] = useState(false);
   const choose = (choice: typeof SYLLABLE_CLAP_PATTERNS[number]['choices'][number]) => {
     if (chosen) return;
-    if (!choice.correct) { setMessage('That name has a different number of claps. Let’s say it slowly together.'); playChime(); return; }
-    setChosen(choice.label);
+    if (!choice.correct) { playGentleRetry(choice.label as GentleRetryKey); setShowAnswer(true); setMessage(question); return; }
+    setChosen(choice.label); setShowAnswer(false);
     setMessage(pattern.success);
     playMatch();
     if (patternIndex === SYLLABLE_CLAP_PATTERNS.length - 1) { setTimeout(onComplete, 650); return; }
@@ -455,10 +476,11 @@ function SyllableClapPuzzle({ onComplete }: { onComplete: () => void }) {
       const nextPattern = SYLLABLE_CLAP_PATTERNS[patternIndex + 1];
       setPatternIndex((current) => current + 1);
       setChosen(null);
+      setShowAnswer(false);
       setMessage(`A new gentle pattern: ${nextPattern.prompt}`);
     }, 650);
   };
-  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">{Array.from({ length: pattern.choices.find((choice) => choice.correct)?.claps ?? 2 }, () => '👏').join('')}</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">{pattern.clue}</p></div><p className="font-body text-sm text-white/90">{pattern.prompt}</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{pattern.choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label ? 'border-[#F5C842] bg-[#EAF4EF]' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
+  return <div className="flex w-full flex-col items-center gap-3"><div className="rounded-3xl border-2 border-[#F5C842] bg-[#FFF8E6] px-6 py-4 text-center shadow-lg"><span className="text-6xl">{Array.from({ length: pattern.choices.find((choice) => choice.correct)?.claps ?? 2 }, () => '👏').join('')}</span><p className="mt-1 font-display text-lg text-[#5C4D3C]">{pattern.clue}</p></div><p className="font-body text-sm text-white/90">{pattern.prompt}</p><div className="grid w-full max-w-md grid-cols-3 gap-3">{pattern.choices.map((choice) => <button key={choice.label} onClick={() => choose(choice)} disabled={Boolean(chosen)} aria-label={`Choose ${choice.label}, ${choice.claps} claps`} className={`min-h-[142px] rounded-3xl border-2 p-2 text-center shadow-lg transition-transform active:scale-95 ${chosen === choice.label || (showAnswer && choice.correct) ? 'border-[#F5C842] bg-[#EAF4EF] ring-4 ring-[#F5C842]/45' : 'border-[#E7CFA2] bg-[#FFF8E6]'}`}><span className="text-5xl">{chosen === choice.label ? '✓' : choice.emoji}</span><span className="mt-2 block font-body text-xs font-bold text-[#5C4D3C]">{choice.label}</span><span className="mt-1 block text-sm">{Array.from({ length: choice.claps }, (_, index) => <span key={index}>👏</span>)}</span></button>)}</div><p className="min-h-10 font-body text-center text-sm text-white/90">{message}</p></div>;
 }
 
 // ── Picture-led River Rescue ─────────────────────
@@ -467,17 +489,20 @@ function RiverRescuePuzzle({ onComplete }: { onComplete: () => void }) {
   const [usedTools, setUsedTools] = useState<RiverRescueToolId[]>([]);
   const [message, setMessage] = useState(RIVER_RESCUE_STEPS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const activeStep = RIVER_RESCUE_STEPS[stepIndex];
 
   const chooseTool = (toolId: RiverRescueToolId) => {
     if (isFinishing || usedTools.includes(toolId)) return;
     if (toolId !== activeStep.id) {
-      playChime();
-      setMessage(activeStep.gentleRetry);
+      const selected = RIVER_RESCUE_STEPS.find((step) => step.id === toolId);
+      if (selected) playGentleRetry(selected.tool.toLowerCase() as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(activeStep.prompt);
       return;
     }
 
-    playMatch();
+    playMatch(); setShowAnswer(false);
     setUsedTools((current) => [...current, toolId]);
     setMessage(activeStep.success);
 
@@ -517,7 +542,7 @@ function RiverRescuePuzzle({ onComplete }: { onComplete: () => void }) {
           const isUsed = usedTools.includes(step.id);
           const isActive = step.id === activeStep.id && !isFinishing;
           return (
-            <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#F0B45B] bg-[#FFF8E6] ring-2 ring-[#FBE4B6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+            <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#F0B45B] bg-[#FFF8E6] ring-2 ring-[#FBE4B6]' : 'border-[#D7E6E0] bg-white/90'} ${showAnswer && step.id === activeStep.id ? 'ring-4 ring-[#F5C842]/45' : ''}`}>
               <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
               <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
               {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
@@ -536,16 +561,19 @@ function NestRescuePuzzle({ onComplete }: { onComplete: () => void }) {
   const [usedTools, setUsedTools] = useState<NestRescueToolId[]>([]);
   const [message, setMessage] = useState(NEST_RESCUE_STEPS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const activeStep = NEST_RESCUE_STEPS[stepIndex];
 
   const chooseTool = (toolId: NestRescueToolId) => {
     if (isFinishing || usedTools.includes(toolId)) return;
     if (toolId !== activeStep.id) {
-      playChime();
-      setMessage(activeStep.gentleRetry);
+      const selected = NEST_RESCUE_STEPS.find((step) => step.id === toolId);
+      if (selected) playGentleRetry(selected.tool.toLowerCase() as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(activeStep.prompt);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     setUsedTools((current) => [...current, toolId]);
     setMessage(activeStep.success);
     if (stepIndex === NEST_RESCUE_STEPS.length - 1) {
@@ -586,7 +614,7 @@ function NestRescuePuzzle({ onComplete }: { onComplete: () => void }) {
         {NEST_RESCUE_STEPS.map((step) => {
           const isUsed = usedTools.includes(step.id);
           const isActive = step.id === activeStep.id && !isFinishing;
-          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#E4B770] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#E4B770] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'} ${showAnswer && step.id === activeStep.id ? 'ring-4 ring-[#F5C842]/45' : ''}`}>
             <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
             <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
             {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
@@ -604,16 +632,19 @@ function LodgeRescuePuzzle({ onComplete }: { onComplete: () => void }) {
   const [usedTools, setUsedTools] = useState<LodgeRescueToolId[]>([]);
   const [message, setMessage] = useState(LODGE_RESCUE_STEPS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const activeStep = LODGE_RESCUE_STEPS[stepIndex];
 
   const chooseTool = (toolId: LodgeRescueToolId) => {
     if (isFinishing || usedTools.includes(toolId)) return;
     if (toolId !== activeStep.id) {
-      playChime();
-      setMessage(activeStep.gentleRetry);
+      const selected = LODGE_RESCUE_STEPS.find((step) => step.id === toolId);
+      if (selected) playGentleRetry(selected.tool.toLowerCase() as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(activeStep.prompt);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     setUsedTools((current) => [...current, toolId]);
     setMessage(activeStep.success);
     if (stepIndex === LODGE_RESCUE_STEPS.length - 1) {
@@ -654,7 +685,7 @@ function LodgeRescuePuzzle({ onComplete }: { onComplete: () => void }) {
         {LODGE_RESCUE_STEPS.map((step) => {
           const isUsed = usedTools.includes(step.id);
           const isActive = step.id === activeStep.id && !isFinishing;
-          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}>
+          return <button key={step.id} type="button" onClick={() => chooseTool(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already used' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'} ${showAnswer && step.id === activeStep.id ? 'ring-4 ring-[#F5C842]/45' : ''}`}>
             <span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span>
             <span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>
             {isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}
@@ -685,16 +716,19 @@ function TellingTimePuzzle({ onComplete }: { onComplete: () => void }) {
   const [roundIndex, setRoundIndex] = useState(0);
   const [message, setMessage] = useState(TELLING_TIME_ROUNDS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const round = TELLING_TIME_ROUNDS[roundIndex];
 
   const chooseHour = (hour: number) => {
     if (isFinishing) return;
     if (hour !== round.targetHour) {
-      playChime();
-      setMessage(round.gentleRetry);
+      const names: Record<number, GentleRetryKey> = { 1: "one o'clock", 5: "five o'clock", 8: "eight o'clock", 9: "nine o'clock", 12: "twelve o'clock" };
+      if (names[hour]) playGentleRetry(names[hour]);
+      setShowAnswer(true);
+      setMessage(round.prompt);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     if (roundIndex === TELLING_TIME_ROUNDS.length - 1) {
       setMessage('You found every full hour. Brook has a gentle plan for the day!');
       setIsFinishing(true);
@@ -705,6 +739,7 @@ function TellingTimePuzzle({ onComplete }: { onComplete: () => void }) {
     setTimeout(() => {
       const nextRound = TELLING_TIME_ROUNDS[roundIndex + 1];
       setRoundIndex((current) => current + 1);
+      setShowAnswer(false);
       setMessage(nextRound.prompt);
     }, 700);
   };
@@ -718,7 +753,7 @@ function TellingTimePuzzle({ onComplete }: { onComplete: () => void }) {
       </div>
       <div className="rounded-2xl border border-[#B8D7DD] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#397C9C]">Clock {Math.min(roundIndex + 1, TELLING_TIME_ROUNDS.length)} of {TELLING_TIME_ROUNDS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
       <div className="grid w-full grid-cols-3 gap-3" aria-label="Clock picture choices">
-        {round.choiceHours.map((hour) => <button key={hour} type="button" onClick={() => chooseHour(hour)} disabled={isFinishing} aria-label={`Clock showing ${hour} o’clock`} className={`min-h-[148px] rounded-3xl border-2 bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${hour === round.targetHour ? 'border-[#E4B770]' : 'border-[#D7E6E0]'}`}><HourClock hour={hour} /><span className="mt-2 block font-display text-sm text-[#49392C]">{hour} o’clock</span></button>)}
+        {round.choiceHours.map((hour) => <button key={hour} type="button" onClick={() => chooseHour(hour)} disabled={isFinishing} aria-label={`Clock showing ${hour} o’clock`} className={`min-h-[148px] rounded-3xl border-2 bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${hour === round.targetHour ? 'border-[#E4B770]' : 'border-[#D7E6E0]'} ${showAnswer && hour === round.targetHour ? 'ring-4 ring-[#F5C842]/45' : ''}`}><HourClock hour={hour} /><span className="mt-2 block font-display text-sm text-[#49392C]">{hour} o’clock</span></button>)}
       </div>
       <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one clock picture. There is no rush.</p>
     </div>
@@ -730,16 +765,18 @@ function GardenSortPuzzle({ onComplete }: { onComplete: () => void }) {
   const [itemIndex, setItemIndex] = useState(0);
   const [message, setMessage] = useState(`Daisy found a ${GARDEN_SORT_ITEMS[0].label.toLowerCase()}. Which basket matches?`);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const item = GARDEN_SORT_ITEMS[itemIndex];
 
   const chooseBasket = (category: GardenSortCategory) => {
     if (isFinishing) return;
     if (category !== item.category) {
-      playChime();
-      setMessage(`That basket is for ${category}. This ${item.label.toLowerCase()} goes with the ${item.category}.`);
+      playGentleRetry(category === 'berries' ? 'berry basket' : 'leaf basket');
+      setShowAnswer(true);
+      setMessage(`Daisy found a ${item.label.toLowerCase()}. Which basket matches?`);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     if (itemIndex === GARDEN_SORT_ITEMS.length - 1) {
       setMessage('Every garden treasure has a cozy matching basket. You sorted them with Daisy!');
       setIsFinishing(true);
@@ -750,6 +787,7 @@ function GardenSortPuzzle({ onComplete }: { onComplete: () => void }) {
     setTimeout(() => {
       const nextItem = GARDEN_SORT_ITEMS[itemIndex + 1];
       setItemIndex((current) => current + 1);
+      setShowAnswer(false);
       setMessage(`Daisy found a ${nextItem.label.toLowerCase()}. Which basket matches?`);
     }, 700);
   };
@@ -758,7 +796,7 @@ function GardenSortPuzzle({ onComplete }: { onComplete: () => void }) {
     <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Daisy’s garden sorting activity">
       <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#C2D9A9] bg-[#ECF5E4] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>🌼</span><span className="font-body text-[10px] font-bold text-[#55734A]">GARDEN</span></div><div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#DDEED3]" aria-hidden><span className="text-6xl">{isFinishing ? '✨' : item.icon}</span></div><div className="text-center"><span className="block text-xl" aria-hidden>🐛</span><span className="font-body text-[10px] font-bold text-[#55734A]">DAISY</span></div></div>
       <div className="rounded-2xl border border-[#C2D9A9] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#55734A]">Picture {Math.min(itemIndex + 1, GARDEN_SORT_ITEMS.length)} of {GARDEN_SORT_ITEMS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
-      <div className="grid w-full grid-cols-2 gap-4" aria-label="Garden basket choices">{(['berries', 'leaves'] as const).map((category) => { const basket = GARDEN_SORT_BASKETS[category]; return <button key={category} type="button" onClick={() => chooseBasket(category)} disabled={isFinishing} aria-label={basket.label} className="min-h-[150px] rounded-3xl border-2 border-[#B7D5B0] bg-white/90 px-3 py-4 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60"><span className="block text-5xl" aria-hidden>{basket.icon}</span><span className="mt-2 block text-3xl" aria-hidden>{category === 'berries' ? '🍓' : '🍃'}</span><span className="mt-2 block font-display text-base text-[#49392C]">{basket.label}</span></button>; })}</div>
+      <div className="grid w-full grid-cols-2 gap-4" aria-label="Garden basket choices">{(['berries', 'leaves'] as const).map((category) => { const basket = GARDEN_SORT_BASKETS[category]; return <button key={category} type="button" onClick={() => chooseBasket(category)} disabled={isFinishing} aria-label={basket.label} className={`min-h-[150px] rounded-3xl border-2 border-[#B7D5B0] bg-white/90 px-3 py-4 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${showAnswer && category === item.category ? 'ring-4 ring-[#F5C842]/45' : ''}`}><span className="block text-5xl" aria-hidden>{basket.icon}</span><span className="mt-2 block text-3xl" aria-hidden>{category === 'berries' ? '🍓' : '🍃'}</span><span className="mt-2 block font-display text-base text-[#49392C]">{basket.label}</span></button>; })}</div>
       <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one basket. There is no rush.</p>
     </div>
   );
@@ -769,17 +807,19 @@ function AnimalHomeMatchPuzzle({ onComplete }: { onComplete: () => void }) {
   const [roundIndex, setRoundIndex] = useState(0);
   const [message, setMessage] = useState(`Where does this ${ANIMAL_HOME_MATCH_ROUNDS[0].animal.toLowerCase()} feel cozy?`);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const round = ANIMAL_HOME_MATCH_ROUNDS[roundIndex];
 
   const choosePlace = (choiceId: AnimalHomeMatchChoiceId) => {
     if (isFinishing) return;
     const choice = ANIMAL_HOME_MATCH_CHOICES[choiceId];
     if (choiceId !== round.correctChoice) {
-      playChime();
-      setMessage(`${choice.label} is a cozy place for another animal. Which place goes with the ${round.animal.toLowerCase()}?`);
+      playGentleRetry(choice.label.toLowerCase() as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(`Where does this ${round.animal.toLowerCase()} feel cozy?`);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     if (roundIndex === ANIMAL_HOME_MATCH_ROUNDS.length - 1) {
       setMessage('Every animal found a special cozy place. You helped Daisy make caring matches!');
       setIsFinishing(true);
@@ -790,6 +830,7 @@ function AnimalHomeMatchPuzzle({ onComplete }: { onComplete: () => void }) {
     setTimeout(() => {
       const nextRound = ANIMAL_HOME_MATCH_ROUNDS[roundIndex + 1];
       setRoundIndex((current) => current + 1);
+      setShowAnswer(false);
       setMessage(`Where does this ${nextRound.animal.toLowerCase()} feel cozy?`);
     }, 700);
   };
@@ -797,7 +838,7 @@ function AnimalHomeMatchPuzzle({ onComplete }: { onComplete: () => void }) {
   return <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Animal home and care matching activity">
     <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#E7C9A7] bg-[#FFF1D9] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>🏡</span><span className="font-body text-[10px] font-bold text-[#9A6842]">COZY PLACES</span></div><div className="flex h-20 flex-1 items-center justify-center rounded-2xl bg-[#F9E4C8]" aria-hidden><span className="text-6xl">{isFinishing ? '✨' : round.animalIcon}</span></div><div className="text-center"><span className="block text-xl" aria-hidden>🐛</span><span className="font-body text-[10px] font-bold text-[#9A6842]">DAISY</span></div></div>
     <div className="rounded-2xl border border-[#E7C9A7] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#9A6842]">Animal {Math.min(roundIndex + 1, ANIMAL_HOME_MATCH_ROUNDS.length)} of {ANIMAL_HOME_MATCH_ROUNDS.length}</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
-    <div className="grid w-full grid-cols-3 gap-3" aria-label="Cozy place picture choices">{round.choices.map((choiceId) => { const choice = ANIMAL_HOME_MATCH_CHOICES[choiceId]; return <button key={choiceId} type="button" onClick={() => choosePlace(choiceId)} disabled={isFinishing} aria-label={choice.label} className="min-h-[150px] rounded-3xl border-2 border-[#E7C9A7] bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60"><span aria-hidden="true" className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-4xl shadow-sm" style={{ background: choice.color }}>{choice.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{choice.label}</span></button>; })}</div>
+    <div className="grid w-full grid-cols-3 gap-3" aria-label="Cozy place picture choices">{round.choices.map((choiceId) => { const choice = ANIMAL_HOME_MATCH_CHOICES[choiceId]; return <button key={choiceId} type="button" onClick={() => choosePlace(choiceId)} disabled={isFinishing} aria-label={choice.label} className={`min-h-[150px] rounded-3xl border-2 border-[#E7C9A7] bg-white/90 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${showAnswer && choiceId === round.correctChoice ? 'ring-4 ring-[#F5C842]/45' : ''}`}><span aria-hidden="true" className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl text-4xl shadow-sm" style={{ background: choice.color }}>{choice.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{choice.label}</span></button>; })}</div>
     <p className="min-h-7 text-center font-body text-xs text-white/90">Choose one cozy place. There is no rush.</p>
   </div>;
 }
@@ -808,16 +849,19 @@ function BrickBuildPuzzle({ onComplete }: { onComplete: () => void }) {
   const [usedBlocks, setUsedBlocks] = useState<BrickBuildBlockId[]>([]);
   const [message, setMessage] = useState(BRICK_BUILD_STEPS[0].prompt);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   const activeStep = BRICK_BUILD_STEPS[stepIndex];
 
   const chooseBlock = (blockId: BrickBuildBlockId) => {
     if (isFinishing || usedBlocks.includes(blockId)) return;
     if (blockId !== activeStep.id) {
-      playChime();
-      setMessage(activeStep.gentleRetry);
+      const selected = BRICK_BUILD_STEPS.find((step) => step.id === blockId);
+      if (selected) playGentleRetry(selected.tool.toLowerCase().replace('two ', '') as GentleRetryKey);
+      setShowAnswer(true);
+      setMessage(activeStep.prompt);
       return;
     }
-    playMatch();
+    playMatch(); setShowAnswer(false);
     setUsedBlocks((current) => [...current, blockId]);
     setMessage(activeStep.success);
     if (stepIndex === BRICK_BUILD_STEPS.length - 1) {
@@ -840,7 +884,7 @@ function BrickBuildPuzzle({ onComplete }: { onComplete: () => void }) {
     <div className="flex w-full max-w-lg flex-col items-center gap-3" aria-label="Summit’s Cozy Block Builder">
       <div className="flex w-full items-center justify-between rounded-[28px] border-2 border-[#BCC8D2] bg-[#EEF1F0] px-4 py-3 shadow-lg"><div className="text-center"><span className="block text-xl" aria-hidden>⛰️</span><span className="font-body text-[10px] font-bold text-[#5C6872]">CAMP</span></div><div className="relative mx-2 flex h-24 flex-1 items-end justify-center overflow-hidden rounded-2xl bg-[#D6E0DE]" aria-hidden>{hasBase && <span className="absolute bottom-3 h-7 w-20 rounded-lg bg-[#62A7D9] shadow-md" />}{hasWalls && <><span className="absolute bottom-10 left-[36%] h-9 w-8 rounded-t-md bg-[#E98978] shadow-md" /><span className="absolute bottom-10 right-[36%] h-9 w-8 rounded-t-md bg-[#E98978] shadow-md" /></>}{hasRoof && <span className="absolute bottom-[4.75rem] h-8 w-24 rounded-t-[36px] bg-[#83A86A] shadow-md" />}<div className={`absolute bottom-3 ${hasRoof ? 'right-[17%]' : hasWalls ? 'right-[29%]' : hasBase ? 'left-[43%]' : 'left-[15%]'} transition-all duration-500`}><CritterAvatar type="bear" size={42} expression={hasRoof ? 'grateful' : 'worried'} /></div></div><div className="text-center"><span className="block text-xl" aria-hidden>🏠</span><span className="font-body text-[10px] font-bold text-[#5C6872]">COTTAGE</span></div></div>
       <div className="rounded-2xl border border-[#BCC8D2] bg-[#FFF8E6] px-4 py-3 text-center shadow-md"><p className="font-body text-xs font-bold uppercase tracking-[.14em] text-[#5C6872]">Build step {Math.min(stepIndex + 1, 3)} of 3</p><p className="mt-1 font-display text-base leading-snug text-[#49392C]">{message}</p></div>
-      <div className="grid w-full grid-cols-3 gap-3" aria-label="Original building block choices">{BRICK_BUILD_STEPS.map((step) => { const isUsed = usedBlocks.includes(step.id); const isActive = step.id === activeStep.id && !isFinishing; return <button key={step.id} type="button" onClick={() => chooseBlock(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already placed' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'}`}><span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>{isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}</button>; })}</div>
+      <div className="grid w-full grid-cols-3 gap-3" aria-label="Original building block choices">{BRICK_BUILD_STEPS.map((step) => { const isUsed = usedBlocks.includes(step.id); const isActive = step.id === activeStep.id && !isFinishing; return <button key={step.id} type="button" onClick={() => chooseBlock(step.id)} disabled={isUsed || isFinishing} aria-label={`${step.tool}${isUsed ? ', already placed' : ''}`} className={`min-h-[136px] rounded-3xl border-2 px-2 py-3 text-center shadow-lg transition-transform active:scale-95 disabled:opacity-60 ${isUsed ? 'border-[#A6C98F] bg-[#EAF4EF]' : isActive ? 'border-[#D4A35E] bg-[#FFF8E6] ring-2 ring-[#F4DEB6]' : 'border-[#D7E6E0] bg-white/90'} ${showAnswer && step.id === activeStep.id ? 'ring-4 ring-[#F5C842]/45' : ''}`}><span className="block text-5xl" aria-hidden>{isUsed ? '✓' : step.icon}</span><span className="mt-2 block font-display text-sm leading-tight text-[#49392C]">{step.tool}</span>{isActive && <span className="mt-1 block font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#A85C41]">Try this</span>}</button>; })}</div>
       <p className="min-h-7 text-center font-body text-xs text-white/90">Build one soft block at a time. There is no rush.</p>
     </div>
   );
@@ -865,7 +909,7 @@ function SequencePuzzle({ count, onComplete }: { count: number; onComplete: () =
     const ns = [...selected, idx];
     if (ns[ns.length-1] !== ns.length-1) {
       setWrong(true); setTimeout(()=>{ setWrong(false); setSelected([]); },800);
-      playError(); return;
+      playGentleRetry('try again'); return;
     }
     setSelected(ns);
     if (ns.length===stages.length) setTimeout(onComplete,600);
@@ -880,7 +924,7 @@ function SequencePuzzle({ count, onComplete }: { count: number; onComplete: () =
           return (
             <button key={i} onClick={()=>pick(i)}
               className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all active:scale-95
-                ${done ? 'border-[#F5C842] bg-[#F5C842]/20' : wrong ? 'border-red-400 bg-red-400/10' : 'border-white/20 bg-white/10 hover:bg-white/20'}`}>
+                ${done ? 'border-[#F5C842] bg-[#F5C842]/20' : wrong ? 'border-[#F5C842] bg-[#F5C842]/10' : 'border-white/20 bg-white/10 hover:bg-white/20'}`}>
               <span className="text-3xl">{stages[stageIdx][0]}</span>
               <span className="text-white/70 text-xs font-body">{stages[stageIdx][1]}</span>
               {done && <span className="text-[#F5C842] text-xs font-bold">#{pos+1}</span>}
@@ -916,7 +960,7 @@ function SortingPuzzle({ count, onComplete }: { count: number; onComplete: () =>
       const ns = {...sorted, [catIdx]:[...sorted[catIdx],dragging]};
       setSorted(ns);
       if (Object.values(ns).flat().length===allItems.length) setTimeout(onComplete,600);
-    } else { playError(); }
+    } else { playGentleRetry('try again'); }
     setDragging(null);
   };
   return (
@@ -970,7 +1014,7 @@ function FindToolsPuzzle({ count, onComplete }: { count: number; onComplete: () 
       playSnap();
       const nf = new Set(found); nf.add(item); setFound(nf);
       if (nf.size===targets.length) setTimeout(onComplete,600);
-    } else { playError(); }
+    } else { playGentleRetry('try again'); }
   };
   return (
     <div className="flex flex-col items-center gap-2 w-full">
@@ -1015,7 +1059,7 @@ function DragDropPuzzle({ mission, onComplete }: { mission: MissionData; onCompl
   const drop = (zoneIdx: number) => {
     if (dragging === null) return;
     const nextExpected = placed.size;
-    if (requiresOrder && zoneIdx !== nextExpected) { playError(); setDragging(null); return; }
+    if (requiresOrder && zoneIdx !== nextExpected) { playGentleRetry('try again'); setDragging(null); return; }
     if (placed.has(zoneIdx)) { setDragging(null); return; }
     playSnap();
     const np = new Set(placed); np.add(zoneIdx); setPlaced(np);
@@ -1075,7 +1119,7 @@ function ShapeFitPuzzle({ count, onComplete }: { count: number; onComplete: () =
       playSnap();
       const np = {...placed,[slotIdx]:dragging}; setPlaced(np);
       if (Object.keys(np).length===count) setTimeout(onComplete,600);
-    } else { playError(); }
+    } else { playGentleRetry('try again'); }
     setDragging(null);
   };
   return (
@@ -1125,7 +1169,7 @@ function SpotDifferencePuzzle({ count, onComplete }: { count: number; onComplete
       playSnap();
       const nf = new Set(found); nf.add(i); setFound(nf);
       if (nf.size===count) setTimeout(onComplete,600);
-    } else { playError(); }
+    } else { playGentleRetry('try again'); }
   };
   const altItems = baseItems.map((item,i) => diffPositions.includes(i) ? '❓' : item);
   return (

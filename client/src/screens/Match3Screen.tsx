@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { CarePairCelebrationTheme } from '../game/audioPreferences';
-import { playButton, playCarePairCelebrationSound, playComplete, playError, playMatch } from '../game/sounds';
+import { playButton, playCarePairCelebrationSound, playComplete, playMatch } from '../game/sounds';
+import { playGentleRetryFeedback, type GentleRetryKey } from '../game/characterAudio';
 
 interface Props {
   onClose: () => void;
@@ -51,6 +52,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [matchedIds, setMatchedIds] = useState<string[]>(() => celebrationPreview ? CARE_PAIR_CARDS.map((card) => card.id) : []);
   const [message, setMessage] = useState(celebrationPreview ? 'All the care pairs are together. You made a kind picture garden!' : 'Choose two pictures that belong together.');
+  const [hintPairId, setHintPairId] = useState<string | null>(null);
 
   const selected = CARE_PAIR_CARDS.find((card) => card.id === selectedId) ?? null;
   const complete = matchedIds.length === CARE_PAIR_CARDS.length;
@@ -61,6 +63,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
 
     if (!selected) {
       playButton();
+      setHintPairId(null);
       setSelectedId(card.id);
       setMessage(`You chose ${card.label}. Now find its friend.`);
       return;
@@ -68,6 +71,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
 
     if (selected.id === card.id) {
       playButton();
+      setHintPairId(null);
       setSelectedId(null);
       setMessage('That picture can rest for a moment. Choose two pictures that belong together.');
       return;
@@ -77,6 +81,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
       const nextMatched = [...matchedIds, selected.id, card.id];
       playMatch();
       setMatchedIds(nextMatched);
+      setHintPairId(null);
       setSelectedId(null);
       if (nextMatched.length === CARE_PAIR_CARDS.length) {
         playComplete();
@@ -88,14 +93,16 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
       return;
     }
 
-    playError();
+    playGentleRetryFeedback(card.label.toLowerCase() as GentleRetryKey);
+    setHintPairId(selected.pairId);
     setSelectedId(null);
-    setMessage('Those pictures are different. That is okay—try two other pictures.');
+    setMessage(`That’s the ${card.label.toLowerCase()}. Let’s try again. Find the other ${selected.label}.`);
   };
 
   const startAgain = () => {
     playButton();
     setSelectedId(null);
+    setHintPairId(null);
     setMatchedIds([]);
     setMessage('Choose two pictures that belong together.');
   };
@@ -125,6 +132,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
             const state = cardState(card, selectedId, matchedIds);
             const together = state === 'together';
             const chosen = state === 'chosen';
+            const hinted = hintPairId === card.pairId && !together;
             return (
               <button
                 key={card.id}
@@ -132,7 +140,7 @@ export default function Match3Screen({ onClose, critterName, critterEmoji, reduc
                 onClick={() => chooseCard(card)}
                 disabled={together || complete}
                 aria-label={`${card.label} picture, ${state}`}
-                className={`min-h-28 rounded-3xl border-2 p-4 text-center shadow-sm transition-transform duration-150 focus:outline-none focus:ring-4 focus:ring-[#F3C587] active:scale-[0.97] ${card.tone} ${together ? 'border-[#79A96B] opacity-75' : chosen ? 'border-[#D77B5F] ring-2 ring-[#F3C587]' : 'border-[#CDAF8D] hover:-translate-y-0.5'}`}
+                className={`min-h-28 rounded-3xl border-2 p-4 text-center shadow-sm transition-transform duration-150 focus:outline-none focus:ring-4 focus:ring-[#F3C587] active:scale-[0.97] ${card.tone} ${together ? 'border-[#79A96B] opacity-75' : chosen ? 'border-[#D77B5F] ring-2 ring-[#F3C587]' : 'border-[#CDAF8D] hover:-translate-y-0.5'} ${hinted ? 'ring-4 ring-[#F5C842]/50' : ''}`}
               >
                 <span aria-hidden="true" className="block text-5xl leading-none">{card.icon}</span>
                 <span className="mt-2 block font-body text-sm font-bold text-[#5A3D2B]">{together ? 'Together' : 'Tap me'}</span>

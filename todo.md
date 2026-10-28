@@ -549,3 +549,11 @@
 - [x] Diagnose and repair silent Listen/Replay playback, including saved preference behavior and a clear unavailable state.
 - [x] Add regression coverage, verify Pip’s Meadow in-browser at desktop and phone sizes, then complete release validation.
 - [x] Save a deployable checkpoint and synchronize the verified repair to GitHub.
+
+## Gentle Wrong-Choice Guidance
+
+- [x] Add a warm, parent-preference-respecting spoken retry system that names a tapped picture or helper without failure language or overlapping harsh error tones.
+- [x] Add sweet recorded feedback for picture-choice, planning-tool, Care Pair Picnic, and Camp Learning wrong choices; repeat the question in the matching visible caption.
+- [x] Give the correct answer a calm gold visual glow after a gentle retry, while retaining a non-animated readable state for Reduce Motion.
+- [x] Update parent-facing voice controls, cover audio/caption/highlight behavior with regression tests, and verify phone and desktop interaction flows.
+- [ ] Run complete release validation, checkpoint, and synchronize the verified guidance update to GitHub.
