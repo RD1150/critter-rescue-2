@@ -567,4 +567,4 @@
 - [x] Transform the existing storybook into a Bestie Book with simple visual memory pages for the three starter rescues and an easy return to Camp.
 - [x] Keep optional learning activities available but visually secondary to the Bestie-and-rescue path, without removing current family-safe content.
 - [x] Add focused state, UI, and flow regression coverage; verify phone/tablet/desktop normal and Reduce Motion first-play paths; run full release validation.
-- [ ] Save a checkpoint and synchronize the verified Bestie rebuild to GitHub.
+- [x] Save a checkpoint and synchronize the verified Bestie rebuild to GitHub.
