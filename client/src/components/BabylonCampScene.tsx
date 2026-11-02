@@ -9,6 +9,7 @@ import type { HomeDecoration, SanctuarySeason } from '../game/store';
 import { getSanctuaryGrowth } from '../game/sanctuaryGrowth';
 import { getCelebrationMotion, type CareCelebration } from '../game/critterCelebrations';
 import { PLUSH_IMAGES } from './CritterAvatar';
+import type { FlagshipStoryId } from '../game/flagshipStories';
 
 type Color3 = Babylon.Color3;
 type Mesh = Babylon.Mesh;
@@ -54,6 +55,7 @@ type Props = {
   season?: SanctuarySeason;
   celebration?: CareCelebration | null;
   reduceMotion?: boolean;
+  completedFlagshipStories?: FlagshipStoryId[];
   className?: string;
 };
 
@@ -269,6 +271,51 @@ function createSanctuaryGrowth(scene: Scene, kindnessMoments: number, shadow: Sh
   }
 }
 
+/** Three fixed, story-led landmarks. They are intentionally calm scenery, not unlock currency. */
+function createFlagshipLandmarks(scene: Scene, completedStories: readonly FlagshipStoryId[], shadow: ShadowGenerator) {
+  const complete = new Set(completedStories);
+  const wood = makeMaterial(scene, 'flagship-wood', '#8A5737');
+  const leaf = makeMaterial(scene, 'flagship-leaf', '#548B50');
+  const water = makeMaterial(scene, 'flagship-water', '#6EB9CE', 0.12);
+  const nest = makeMaterial(scene, 'flagship-nest', '#6A4931');
+  const lantern = makeMaterial(scene, 'flagship-lantern', '#F5C842', 0.68);
+  const addShadow = (mesh: Mesh) => shadow.addShadowCaster(mesh);
+
+  if (complete.has('pip-flower-path')) {
+    [[-3.5, -3.55], [-3.14, -3.2], [-2.78, -2.83], [-2.42, -2.5], [-2.05, -2.18]].forEach(([x, z], index) => {
+      createFlower(scene, x, z, ['#F1B4C0', '#F5C842', '#B69DE8'][index % 3]);
+    });
+    const perch = MeshBuilder.CreateCylinder('flagship-pip-nest-perch', { height: 0.7, diameterTop: 0.16, diameterBottom: 0.28, tessellation: 8 }, scene);
+    perch.position = new Vector3(-1.75, 0.35, -2.0); perch.material = wood; addShadow(perch);
+    const tinyNest = MeshBuilder.CreateTorus('flagship-pip-twig-nest', { diameter: 0.55, thickness: 0.12, tessellation: 14 }, scene);
+    tinyNest.position = new Vector3(-1.75, 0.74, -2.0); tinyNest.rotation.x = Math.PI / 2; tinyNest.material = nest; addShadow(tinyNest);
+  }
+
+  if (complete.has('finn-riverside-crossing')) {
+    const river = MeshBuilder.CreateDisc('flagship-finn-river', { radius: 1.18, tessellation: 32 }, scene);
+    river.position = new Vector3(3.8, 0.03, -3.4); river.rotation.x = Math.PI / 2; river.scaling.x = 1.55; river.material = water;
+    [-0.56, 0, 0.56].forEach((offset, index) => {
+      const plank = MeshBuilder.CreateBox(`flagship-finn-bridge-plank-${index}`, { width: 0.34, height: 0.12, depth: 1.58 }, scene);
+      plank.position = new Vector3(3.8 + offset, 0.25, -3.4); plank.material = wood; addShadow(plank);
+    });
+    [-0.9, 0.9].forEach((offset, index) => {
+      const reed = MeshBuilder.CreateCylinder(`flagship-finn-reed-${index}`, { height: 0.72, diameter: 0.06, tessellation: 6 }, scene);
+      reed.position = new Vector3(3.8 + offset, 0.36, -3.0); reed.material = leaf; addShadow(reed);
+    });
+  }
+
+  if (complete.has('wren-cozy-nest')) {
+    const willow = MeshBuilder.CreateCylinder('flagship-wren-willow', { height: 1.5, diameterTop: 0.22, diameterBottom: 0.38, tessellation: 9 }, scene);
+    willow.position = new Vector3(-3.8, 0.75, 3.8); willow.material = wood; addShadow(willow);
+    const willowCrown = MeshBuilder.CreateSphere('flagship-wren-willow-crown', { diameter: 1.25, segments: 10 }, scene);
+    willowCrown.position = new Vector3(-3.8, 1.85, 3.8); willowCrown.scaling = new Vector3(1.05, 0.72, 0.92); willowCrown.material = leaf; addShadow(willowCrown);
+    const cozyNest = MeshBuilder.CreateTorus('flagship-wren-nest', { diameter: 0.7, thickness: 0.15, tessellation: 16 }, scene);
+    cozyNest.position = new Vector3(-3.42, 1.42, 3.56); cozyNest.rotation.x = Math.PI / 2; cozyNest.material = nest; addShadow(cozyNest);
+    const glow = MeshBuilder.CreateSphere('flagship-wren-lantern', { diameter: 0.2, segments: 8 }, scene);
+    glow.position = new Vector3(-3.1, 0.55, 3.35); glow.material = lantern; addShadow(glow);
+  }
+}
+
 function makePlushie(
   scene: Scene,
   type: CritterType,
@@ -335,7 +382,7 @@ function makePlushie(
   return { root, body, face };
 }
 
-export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend = null, onRescueTrailClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', celebration = null, reduceMotion = false, className = '' }: Props) {
+export default function BabylonCampScene({ companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend = null, onRescueTrailClick, onDecorationRendered, homeDecor = {}, kindnessMoments = 0, season = 'summer', celebration = null, reduceMotion = false, completedFlagshipStories = [], className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -400,6 +447,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       seasonalDot.position = new Vector3(x, 0.16, z); seasonalDot.material = makeMaterial(scene, `seasonal-keepsake-mat-${season}-${index}`, seasonal.accent, 0.2); shadow.addShadowCaster(seasonalDot);
     });
     createSanctuaryGrowth(scene, kindnessMoments, shadow);
+    createFlagshipLandmarks(scene, completedFlagshipStories, shadow);
 
     // Campfire with stone ring and animated warm flame.
     const stoneMat = makeMaterial(scene, 'fire-stones', '#9A836A');
@@ -532,7 +580,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       disposed = true;
       cleanup?.();
     };
-  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend, onRescueTrailClick, onDecorationRendered, homeDecor, kindnessMoments, season, celebration, reduceMotion]);
+  }, [companionType, rescuedCritters, onCompanionClick, onCritterClick, onHomeClick, rescueFriend, onRescueTrailClick, onDecorationRendered, homeDecor, kindnessMoments, season, celebration, reduceMotion, completedFlagshipStories]);
 
   return <canvas ref={canvasRef} className={`absolute inset-0 w-full h-full touch-none ${className}`} aria-label="Interactive 3D Critter Rescue camp" />;
 }

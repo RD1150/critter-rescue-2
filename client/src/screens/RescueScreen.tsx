@@ -18,6 +18,7 @@ import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchCho
 import { playSnap, playPickup, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
 import BabylonMeadowRescueScene from '../components/BabylonMeadowRescueScene';
+import { getFlagshipStoryForMission } from '../game/flagshipStories';
 
 interface Props {
   mission: MissionData;
@@ -77,11 +78,13 @@ function PipMeadowIntro({ onStart }: { onStart: () => void }) {
 // ── Completion overlay ─────────────────────────
 function CompletionOverlay({ mission, onDone, isPipMeadow = false }: { mission: MissionData; onDone: () => void; isPipMeadow?: boolean }) {
   const [preferences] = useAudioPreferences();
+  const flagshipStory = getFlagshipStoryForMission(mission);
   const [showSecond, setShowSecond] = useState(false);
   useEffect(() => {
+    if (flagshipStory) return;
     const t = setTimeout(() => setShowSecond(true), isPipMeadow ? 450 : 2000);
     return () => clearTimeout(t);
-  }, [isPipMeadow]);
+  }, [flagshipStory, isPipMeadow]);
   if (isPipMeadow) {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#103B2A]/36 px-5">
@@ -90,7 +93,20 @@ function CompletionOverlay({ mission, onDone, isPipMeadow = false }: { mission: 
           <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A56C20]">Sunny Meadow is glowing</p>
           <h1 id="pip-meadow-complete-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">You made a path for Pip.</h1>
           <p className="font-display mt-2 text-sm italic text-[#5C4D3C]">A few little flowers bloom to say thank you.</p>
-          {showSecond && <button onClick={onDone} className="btn-coral mt-5 w-full text-base">Bring Pip home</button>}
+          <button onClick={onDone} className="btn-coral mt-5 w-full text-base">Bring Pip home</button>
+        </section>
+      </div>
+    );
+  }
+  if (flagshipStory) {
+    return (
+      <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#103B2A]/42 px-5">
+        <section aria-labelledby="flagship-rescue-complete-title" className="w-full max-w-sm rounded-[1.75rem] border border-[#E2C9AB] bg-[#FFF9EF] px-6 py-6 text-center shadow-2xl" style={{ borderTop: '4px solid #F5C842' }}>
+          <CritterAvatar type={flagshipStory.friend.type} size={100} expression="grateful" animate />
+          <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A56C20]">A gentle homecoming</p>
+          <h1 id="flagship-rescue-complete-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">{flagshipStory.homecomingTitle}</h1>
+          <p className="font-display mt-2 text-sm italic text-[#5C4D3C]">{flagshipStory.homecomingMessage}</p>
+          <button onClick={onDone} className="btn-coral mt-5 w-full text-base">Bring {flagshipStory.friend.name} home</button>
         </section>
       </div>
     );

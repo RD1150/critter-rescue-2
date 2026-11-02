@@ -5,6 +5,7 @@ import { CritterData, CritterType, MissionType, ZONES, ZONE_UNLOCK_THRESHOLDS, g
 import { getKindnessMoments } from './sanctuaryGrowth';
 import type { FriendshipDuo } from './friendshipDuos';
 import type { NatureDiscoveryKey } from './natureDiscoveries';
+import { getFlagshipStory, type FlagshipStoryId } from './flagshipStories';
 
 export interface NurseryGraduate {
   careKey: string;
@@ -59,6 +60,9 @@ export interface ParentProgressSummary {
 
 export interface GameState {
   selectedCompanion: string | null;
+  completedFlagshipStories: FlagshipStoryId[];
+  lastFlagshipHomecoming: FlagshipStoryId | null;
+  bestieCareMoments: number;
   forestHarmony: number;
   campFlowersCount: number;
   rescueCompletedCount: number;
@@ -120,6 +124,9 @@ export function loadState(): GameState {
       const hydrated: GameState = {
         ...fresh,
         ...saved,
+        completedFlagshipStories: Array.isArray(saved.completedFlagshipStories) ? saved.completedFlagshipStories : [],
+        lastFlagshipHomecoming: saved.lastFlagshipHomecoming ?? null,
+        bestieCareMoments: saved.bestieCareMoments ?? 0,
         unlockedZones: saved.unlockedZones ?? fresh.unlockedZones,
         zoneTaskProgress: { ...fresh.zoneTaskProgress, ...(saved.zoneTaskProgress ?? {}) },
         nurseryCare: saved.nurseryCare ?? {},
@@ -154,6 +161,9 @@ export function saveState(state: GameState): void {
 export function createFreshState(): GameState {
   return {
     selectedCompanion: null,
+    completedFlagshipStories: [],
+    lastFlagshipHomecoming: null,
+    bestieCareMoments: 0,
     forestHarmony: 0,
     campFlowersCount: 0,
     rescueCompletedCount: 0,
@@ -367,6 +377,58 @@ export function completeRescue(
       zoneTaskProgress: newProgress,
     },
   };
+}
+
+export interface FlagshipStoryCompletion {
+  newState: GameState;
+  completed: boolean;
+  alreadyCompleted: boolean;
+}
+
+/**
+ * Completes one of the three calm Bestie adventures. This is deliberately separate
+ * from legacy zone counters: the permanent sanctuary change is driven by a stable
+ * story ID, never by points, care totals, or a timer.
+ */
+export function completeFlagshipStory(state: GameState, storyId: FlagshipStoryId): FlagshipStoryCompletion {
+  if (state.completedFlagshipStories.includes(storyId)) {
+    return { newState: state, completed: false, alreadyCompleted: true };
+  }
+  const story = getFlagshipStory(storyId);
+  if (!story) return { newState: state, completed: false, alreadyCompleted: false };
+
+  const keepsake: Keepsake = {
+    id: `flagship-${storyId}`,
+    source: 'rescue',
+    critterName: story.friend.name,
+    critterType: story.friend.type,
+    title: story.title,
+    message: story.memoryLine,
+    createdAt: Date.now(),
+  };
+  const newState = addActivity({
+    ...state,
+    completedFlagshipStories: [...state.completedFlagshipStories, storyId],
+    lastFlagshipHomecoming: storyId,
+    rescueCompletedCount: state.rescueCompletedCount + 1,
+    keepsakes: state.keepsakes.some((entry) => entry.id === keepsake.id) ? state.keepsakes : [keepsake, ...state.keepsakes].slice(0, 36),
+  }, { rescueCount: 1 });
+  saveState(newState);
+  return { newState, completed: true, alreadyCompleted: false };
+}
+
+export function acknowledgeFlagshipHomecoming(state: GameState): GameState {
+  if (!state.lastFlagshipHomecoming) return state;
+  const newState = { ...state, lastFlagshipHomecoming: null };
+  saveState(newState);
+  return newState;
+}
+
+export function careForBestie(state: GameState): { newState: GameState; moments: number } {
+  const moments = state.bestieCareMoments + 1;
+  const newState = addActivity({ ...state, bestieCareMoments: moments }, { homeCareMoments: 1 });
+  saveState(newState);
+  return { newState, moments };
 }
 
 export interface CareResult {

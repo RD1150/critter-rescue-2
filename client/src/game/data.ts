@@ -2,6 +2,7 @@
 // Critter Rescue — Game Data
 // Zones, critters, missions, and progression
 // ─────────────────────────────────────────────
+import type { FlagshipStoryId } from './flagshipStories';
 
 export type MissionType =
   | 'bridge' | 'clearPath' | 'shelter' | 'guidePath'
@@ -75,6 +76,8 @@ export interface MissionData {
   requiresOrder: boolean;
   taskIndex: number;
   introText: string;
+  /** Present only for the three calm Bestie story adventures. */
+  flagshipStoryId?: FlagshipStoryId;
 }
 
 export interface ZoneInfo {

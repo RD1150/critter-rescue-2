@@ -10,7 +10,7 @@ vi.mock('../game/seasonalSoundscape', () => ({ startParentSelectedSoundscape: vi
 
 describe('ParentSettingsScreen first-play tip', () => {
   it('offers brief grown-up co-play guidance without adding it to the child flow', () => {
-    render(<ParentSettingsScreen onBack={vi.fn()} onLock={vi.fn()} onOpenProgress={vi.fn()} onOpenGallery={vi.fn()} onOpenActivityGuide={vi.fn()} onOpenBuildPrompts={vi.fn()} onOpenParentInformation={vi.fn()} />);
+    render(<ParentSettingsScreen onBack={vi.fn()} onLock={vi.fn()} onOpenProgress={vi.fn()} onOpenGallery={vi.fn()} onOpenActivityGuide={vi.fn()} onOpenBuildPrompts={vi.fn()} onOpenParentInformation={vi.fn()} selectedBestieType="fox" onChangeBestie={vi.fn()} />);
     expect(screen.getByText('Grown-up first-play tip')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Follow their lead, then name one kind thing.' })).toBeTruthy();
     expect(screen.getByText(/There is no right pace and no need to finish everything/i)).toBeTruthy();
@@ -21,6 +21,7 @@ describe('ParentSettingsScreen first-play tip', () => {
     const themeControl = screen.getByRole('combobox', { name: 'Choose Care Pairs celebration theme' }) as HTMLSelectElement;
     expect(themeControl.value).toBe('garden');
     expect(screen.getByText(/gentle child-tap feedback during picture play/i)).toBeTruthy();
+    expect((screen.getByRole('combobox', { name: 'Choose a different Bestie' }) as HTMLSelectElement).value).toBe('fox');
     expect(screen.getByRole('button', { name: 'Lock' })).toBeTruthy();
   });
 });

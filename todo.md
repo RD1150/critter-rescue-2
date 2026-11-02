@@ -557,3 +557,14 @@
 - [x] Give the correct answer a calm gold visual glow after a gentle retry, while retaining a non-animated readable state for Reduce Motion.
 - [x] Update parent-facing voice controls, cover audio/caption/highlight behavior with regression tests, and verify phone and desktop interaction flows.
 - [x] Run complete release validation, checkpoint, and synchronize the verified guidance update to GitHub.
+
+## Focused Bestie Sanctuary Rebuild
+
+- [x] Reframe the six existing companion choices as permanent, switchable Besties with an explicit child-friendly promise and no guilt, streak, hunger, or absence mechanics.
+- [x] Add a small optional Bestie nook in the 3D sanctuary with calm return/care acknowledgement, stored locally and fully usable without audio.
+- [x] Create a guided three-story first-play path using existing Pip Meadow, Finn Riverside, and Wren Nest rescue mechanics, so each story has a friend, one clear help action, a homecoming, and a lasting sanctuary landmark.
+- [x] Persist flagship-story completion and friendly homecomings locally without exposing points, counters, locked purchases, or timer pressure.
+- [x] Transform the existing storybook into a Bestie Book with simple visual memory pages for the three starter rescues and an easy return to Camp.
+- [x] Keep optional learning activities available but visually secondary to the Bestie-and-rescue path, without removing current family-safe content.
+- [x] Add focused state, UI, and flow regression coverage; verify phone/tablet/desktop normal and Reduce Motion first-play paths; run full release validation.
+- [ ] Save a checkpoint and synchronize the verified Bestie rebuild to GitHub.

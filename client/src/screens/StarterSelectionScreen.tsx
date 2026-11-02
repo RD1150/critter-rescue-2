@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-// StarterSelectionScreen — choose your companion
+// StarterSelectionScreen — choose your Bestie
 // ─────────────────────────────────────────────
 import React, { useState } from 'react';
 import CritterAvatar from '../components/CritterAvatar';
@@ -46,7 +46,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
         <div className="flex flex-col items-center pt-5 pb-2 px-4 gap-1 animate-rise-in">
           <img src="/manus-storage/game-logo_a4abbdba.png" alt="Critter Rescue" className="w-14 h-14 drop-shadow-md" />
           <h1 className="font-display text-3xl font-bold text-[#2D2418] tracking-tight">Critter Rescue</h1>
-          <p className="text-[#5C4D3C] text-sm font-body italic">Field Rescue Journal — Choose your companion</p>
+          <p className="text-[#5C4D3C] text-sm font-body italic">Choose your Bestie for cozy rescue adventures</p>
           {/* Map-line divider */}
           <div className="flex items-center gap-2 mt-1 w-full max-w-xs">
             <div className="flex-1 h-px bg-[#5C4D3C]/20"/>
@@ -60,7 +60,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
           {STARTER_COMPANIONS.map(({ type, name, personality }) => {
             const isChosen = chosen === type;
             return (
-              <button key={type} onClick={() => { playButton(); setChosen(type); }}
+              <button key={type} onClick={() => { playButton(); setChosen(type); }} aria-pressed={isChosen}
                 className={`flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-200 relative
                   ${isChosen
                     ? 'bg-[#E66B5B]/10 scale-105 shadow-md'
@@ -86,7 +86,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
             style={{ background: 'oklch(0.99 0.01 80)', border: '1px solid oklch(0.88 0.03 75)',
               boxShadow: '0 2px 8px oklch(0 0 0 / 0.06)', borderTop: '3px solid #E66B5B' }}>
             <p className="font-display italic text-[#2D2418] text-sm leading-relaxed text-center">
-              "The forest is quiet. Somewhere out there,<br/>a small creature needs a friend."
+              "Pick one plush Bestie. You will help little friends<br/>and make the sanctuary cozy together."
             </p>
             {/* Wax-stamp accent */}
             <div className="absolute -bottom-3 right-4 w-6 h-6 rounded-full bg-[#E66B5B] flex items-center justify-center shadow-sm">
@@ -99,7 +99,7 @@ export default function StarterSelectionScreen({ onSelect }: Props) {
         <div className="flex justify-center mt-3 pb-4 animate-rise-in" style={{ animationDelay: '300ms' }}>
           <button onClick={handleConfirm} disabled={!chosen}
             className="btn-coral text-base px-10 disabled:opacity-40 disabled:cursor-not-allowed">
-            Begin the Rescue
+            {chosen ? `Make ${STARTER_COMPANIONS.find((companion) => companion.type === chosen)?.name ?? 'my friend'} my Bestie` : 'Choose a Bestie'}
           </button>
         </div>
 

@@ -32,7 +32,7 @@ import ParentBuildPromptsScreen from './screens/ParentBuildPromptsScreen';
 import ParentLegalScreen, { type ParentLegalPage } from './screens/ParentLegalScreen';
 import ParentalGateScreen from './screens/ParentalGateScreen';
 
-import { acknowledgeDailyReward, acknowledgeNurseryGraduate, buildDailyTrail, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
+import { acknowledgeDailyReward, acknowledgeFlagshipHomecoming, acknowledgeNurseryGraduate, buildDailyTrail, careForBestie, careForHome, chooseHomeDecoration, clearKeepsakes, completeBedtimeWindDown, completeCarePlay, completeDailyTrailRescue, completeFlagshipStory, completeFriendshipDuo, completeTeamRescue, getNextDailyMission, getSanctuarySeason, loadState, rememberSeasonalMoment, removeKeepsake, restoreKeepsakes, saveState, completeRescue, careForCritter, GameState, HomeDecoration, NurseryGraduate, recordLearningRound, LearningMilestoneKey, CarePlayKind, Keepsake, SanctuarySeason, recordNatureDiscovery, recordWeatherWonder } from './game/store';
 import { CritterData, CritterType, getRescuedCritters, getZoneTask, MissionData, STARTER_COMPANIONS, ZONES } from './game/data';
 import { playButton } from './game/sounds';
 import { getAudioPreferences, saveAudioPreferences, useAudioPreferences } from './game/audioPreferences';
@@ -48,6 +48,7 @@ import { getLearningFocusLaunch } from './game/learningFocus';
 import type { TeamRescue } from './game/teamRescue';
 import { getCelebrationPath } from './game/celebrationPaths';
 import { getParentGateExpiry, grantParentGateAccess, hasParentGateAccess, revokeParentGateAccess } from './game/parentalGate';
+import { createFlagshipMission, getFlagshipStoryForMission, getFlagshipStoryFriends, getNextFlagshipStory } from './game/flagshipStories';
 
 type Scene =
   | 'loading'
@@ -154,6 +155,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const previewMode = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('preview') : null;
     const publicInformationPath = window.location.pathname === '/privacy' ? 'privacy' : window.location.pathname === '/terms' ? 'terms' : window.location.pathname === '/faq' ? 'faq' : null;
     const preview3d = previewMode === 'camp3d';
+    const previewBestieCamp = previewMode === 'bestiecamp';
     const previewNursery = previewMode === 'nursery3d';
     const previewJournal = previewMode === 'journal';
     const previewGraduate = previewMode === 'graduate';
@@ -205,7 +207,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     if (previewReducedMotion && !getAudioPreferences().reduceMotion) {
       saveAudioPreferences({ ...getAudioPreferences(), reduceMotion: true });
     }
-    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewCarePairs || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentGate || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
+    const previewRequested = Boolean(publicInformationPath) || previewLoading || previewZoneSelector || preview3d || previewBestieCamp || previewNursery || previewJournal || previewGraduate || previewFirstPlay || previewRescue || previewRescue2 || previewRescue3 || previewQuietCount || previewPictureRhyme || previewLetterSound || previewAlliteration || previewHabitatMatch || previewSyllableClap || previewRiverRescue || previewNestRescue || previewLodgeRescue || previewTellingTime || previewGardenSort || previewBrickBuild || previewAnimalHomeMatch || previewCarePairs || previewActivityGuide || previewCreativeBlocks || previewParentBuildPrompts || previewParentGate || previewParentPrivacy || previewParentTerms || previewParentFaq || previewWeather || previewCelebrationPath || previewParentSettings || previewDailyProgress || previewDailyReward || previewHomeCare || previewLearning || previewParentProgress || previewStorybook || previewCarePlay || previewGallery || previewCampGrowth || previewBedtime || previewCelebration || previewNature || previewNaturePrint || previewTeamRescue;
     const basePreviewState = previewRequested
       ? { ...s, selectedCompanion: s.selectedCompanion || 'fox', rescueCompletedCount: previewFirstPlay ? 0 : Math.max(s.rescueCompletedCount, 3), forestHarmony: previewFirstPlay ? 0 : Math.max(s.forestHarmony, 20), unlockedZones: previewFirstPlay ? ['meadow'] : s.unlockedZones.includes('riverside') ? s.unlockedZones : ['meadow', 'riverside'], zoneTaskProgress: previewFirstPlay ? { ...s.zoneTaskProgress, meadow: 0, riverside: 0, deepwoods: 0, mountain: 0 } : { ...s.zoneTaskProgress, meadow: Math.max(s.zoneTaskProgress.meadow ?? 0, 3) }, lastNurseryGraduate: previewGraduate ? { careKey: 'preview-ember', name: 'Ember', type: 'fox' as CritterType } : s.lastNurseryGraduate }
       : s;
@@ -214,7 +216,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       ? { ...basePreviewState, dailyTrail: { ...previewTrail, completedKeys: previewDailyReward ? previewTrail.missions.map((mission) => mission.key) : [previewTrail.missions[0].key], rewardEarned: previewDailyReward }, lastDailyReward: previewDailyReward ? 'A new little bloom is resting in the sanctuary.' : null }
       : basePreviewState;
     const datedPreviewState = previewParentProgress ? { ...previewState, rescueCompletedCount: Math.max(previewState.rescueCompletedCount, 8), learningMilestones: { color: 4, shape: 3, pattern: 2 }, nurseryVisits: Math.max(previewState.nurseryVisits, 5), homeCare: { 'squirrel-nutty': 3, 'bird-pip': 2 }, activityLog: { ...previewState.activityLog, [new Date().toISOString().slice(0, 10)]: { rescueCount: 2, learningRounds: 3, homeCareMoments: 1, nurseryCareMoments: 1, carePlayMoments: 2, dailyTrailCompleted: false } } } : previewState;
-    const storyPreviewState = previewStorybook ? { ...datedPreviewState, rescueCompletedCount: Math.max(datedPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...datedPreviewState.zoneTaskProgress, meadow: Math.max(datedPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, homeDecor: { 'squirrel-nutty': 'acorn-lantern' as HomeDecoration, 'bird-pip': 'cloud-pillow' as HomeDecoration } } : datedPreviewState;
+    const storyPreviewState = (previewStorybook || previewBestieCamp) ? { ...datedPreviewState, rescueCompletedCount: Math.max(datedPreviewState.rescueCompletedCount, 3), completedFlagshipStories: ['pip-flower-path', 'finn-riverside-crossing', 'wren-cozy-nest'] as GameState['completedFlagshipStories'], zoneTaskProgress: { ...datedPreviewState.zoneTaskProgress, meadow: Math.max(datedPreviewState.zoneTaskProgress.meadow ?? 0, 1) }, homeDecor: { 'bird-pip': 'cloud-pillow' as HomeDecoration, 'fish-finn': 'acorn-lantern' as HomeDecoration, 'bird-wren': 'petal-garland' as HomeDecoration } } : datedPreviewState;
     const carePreviewState = previewCarePlay ? { ...storyPreviewState, rescueCompletedCount: Math.max(storyPreviewState.rescueCompletedCount, 13), unlockedZones: ['meadow', 'riverside', 'deepwoods'], zoneTaskProgress: { ...storyPreviewState.zoneTaskProgress, meadow: Math.max(storyPreviewState.zoneTaskProgress.meadow ?? 0, 4), riverside: Math.max(storyPreviewState.zoneTaskProgress.riverside ?? 0, 3), deepwoods: Math.max(storyPreviewState.zoneTaskProgress.deepwoods ?? 0, 7) } } : storyPreviewState;
     const growthPreviewState = previewCampGrowth ? { ...carePreviewState, homeCare: { ...carePreviewState.homeCare, 'squirrel-nutty': 5, 'otter-splash': 3 }, nurseryVisits: Math.max(carePreviewState.nurseryVisits, 4), carePlayWins: { ...carePreviewState.carePlayWins, 'squirrel-nutty': 3, 'otter-splash': 2 } } : carePreviewState;
     const familyPreviewState = previewGallery ? { ...growthPreviewState, rescueCompletedCount: Math.max(growthPreviewState.rescueCompletedCount, 4), zoneTaskProgress: { ...growthPreviewState.zoneTaskProgress, meadow: Math.max(growthPreviewState.zoneTaskProgress.meadow ?? 0, 4) }, keepsakes: [{ id: 'preview-nutty', source: 'care-play' as const, critterName: 'Nutty', critterType: 'squirrel' as CritterType, title: 'Nutty: Acorns tucked away', message: 'You helped make a cozy little stash.', createdAt: Date.now() }, { id: 'preview-pip', source: 'care-play' as const, critterName: 'Pip', critterType: 'bird' as CritterType, title: 'Pip: Nest fluffed with care', message: 'You helped make a soft, safe resting place.', createdAt: Date.now() }] } : growthPreviewState;
@@ -228,7 +230,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setScene('loading');
       } else if (previewZoneSelector) {
         setScene('camp');
-      } else if (preview3d) {
+      } else if (preview3d || previewBestieCamp) {
         setScene('camp');
       } else if (previewNursery) {
         setScene('nursery');
@@ -239,7 +241,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
       } else if (previewFirstPlay) {
         setScene('camp');
       } else if (previewRescue) {
-        setCurrentMission(getZoneTask('meadow', 0));
+        setCurrentMission(createFlagshipMission('pip-flower-path'));
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
       } else if (previewRescue2) {
@@ -275,11 +277,11 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
         setCurrentZoneBg(ZONES[0].bgColors);
         setScene('rescue');
       } else if (previewRiverRescue) {
-        setCurrentMission(getZoneTask('riverside', 9));
+        setCurrentMission(createFlagshipMission('finn-riverside-crossing'));
         setCurrentZoneBg(ZONES[1].bgColors);
         setScene('rescue');
       } else if (previewNestRescue) {
-        setCurrentMission(getZoneTask('deepwoods', 8));
+        setCurrentMission(createFlagshipMission('wren-cozy-nest'));
         setCurrentZoneBg(ZONES[2].bgColors);
         setScene('rescue');
       } else if (previewLodgeRescue) {
@@ -374,6 +376,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     transition('camp', 100);
   }, [state, transition]);
 
+  const handleChangeBestie = useCallback((companion: CritterType) => {
+    if (!state || state.selectedCompanion === companion) return;
+    const newState = { ...state, selectedCompanion: companion };
+    setState(newState);
+    saveState(newState);
+  }, [state]);
+
   const handleStartRescue = useCallback((zone: string) => {
     if (!state) return;
     playButton();
@@ -383,6 +392,19 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     const zoneInfo = ZONES.find(z => z.id === zone) || ZONES[0];
     setCurrentMission(mission);
     setCurrentZoneBg(zoneInfo.bgColors);
+    transition('rescue', 100);
+  }, [state, transition]);
+
+  const handleStartFlagshipStory = useCallback(() => {
+    if (!state) return;
+    const nextStory = getNextFlagshipStory(state.completedFlagshipStories);
+    if (!nextStory) return;
+    const mission = createFlagshipMission(nextStory.id);
+    const zoneInfo = ZONES.find((zone) => zone.id === mission.zone) || ZONES[0];
+    playButton();
+    setCurrentMission(mission);
+    setCurrentZoneBg(zoneInfo.bgColors);
+    setActiveDailyKey(null);
     transition('rescue', 100);
   }, [state, transition]);
 
@@ -402,6 +424,14 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
 
   const handleRescueComplete = useCallback(() => {
     if (!state || !currentMission) return;
+    const flagshipStory = getFlagshipStoryForMission(currentMission);
+    if (flagshipStory) {
+      const outcome = completeFlagshipStory(state, flagshipStory.id);
+      setState(outcome.newState);
+      setActiveDailyKey(null);
+      transition('camp', 300);
+      return;
+    }
     const normalOutcome = completeRescue(
       state,
       currentMission.zone,
@@ -536,6 +566,16 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setCareCelebration(getCareCelebration(critter.name, critter.type, result.careCount));
     return result.careCount;
   }, [state]);
+  const handleCareBestie = useCallback(() => {
+    if (!state) return 0;
+    const result = careForBestie(state);
+    setState(result.newState);
+    return result.moments;
+  }, [state]);
+  const handleAcknowledgeFlagshipHomecoming = useCallback(() => {
+    if (!state) return;
+    setState(acknowledgeFlagshipHomecoming(state));
+  }, [state]);
   const handleCompleteBedtime = useCallback(() => {
     if (!state) return;
     const companion = STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion) ?? STARTER_COMPANIONS[0];
@@ -577,6 +617,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
               campFlowersCount={state.campFlowersCount}
               rescueCount={state.rescueCompletedCount}
               companionType={state.selectedCompanion || 'bunny'}
+              flagshipStoryIds={state.completedFlagshipStories}
+              onStartFlagshipStory={handleStartFlagshipStory}
+              bestieCareMoments={state.bestieCareMoments}
+              onCareBestie={handleCareBestie}
+              lastFlagshipHomecoming={state.lastFlagshipHomecoming}
+              onAcknowledgeFlagshipHomecoming={handleAcknowledgeFlagshipHomecoming}
               unlockedZones={state.unlockedZones}
               zoneTaskProgress={state.zoneTaskProgress}
               onStartRescue={handleStartRescue}
@@ -674,7 +720,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
             />
           )}
           {scene === 'parentGate' && <ParentalGateScreen onContinue={handleParentGateContinue} onBack={() => transition('camp', 100)} onGrant={grantParentGateAccess} />}
-          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onLock={handleLockParentArea} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} onOpenParentInformation={handleOpenParentInformation} />}
+          {scene === 'parentSettings' && <ParentSettingsScreen onBack={handleCloseParentSettings} onLock={handleLockParentArea} onOpenProgress={handleOpenParentProgress} onOpenGallery={handleOpenGallery} onOpenActivityGuide={handleOpenActivityGuide} onOpenBuildPrompts={handleOpenParentBuildPrompts} onOpenParentInformation={handleOpenParentInformation} selectedBestieType={(state.selectedCompanion || 'bunny') as CritterType} onChangeBestie={handleChangeBestie} />}
           {scene === 'activityGuide' && <ActivityLibraryGuideScreen onBack={handleCloseActivityGuide} onOpenCreativeBuilder={handleOpenCreativeBlocks} />}
           {scene === 'creativeBlocks' && <CreativeBlockBuilderScreen onBack={handleCloseActivityGuide} />}
           {scene === 'parentBuildPrompts' && <ParentBuildPromptsScreen onBack={handleCloseParentBuildPrompts} />}
@@ -682,7 +728,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'parentTerms' && <ParentLegalScreen page="terms" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentFaq' && <ParentLegalScreen page="faq" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
-          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
+          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={[...getFlagshipStoryFriends(state.completedFlagshipStories), ...getRescuedCritters(state.zoneTaskProgress)]} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} selectedBestieType={(state.selectedCompanion || 'bunny') as CritterType} completedFlagshipStories={state.completedFlagshipStories} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onCompleteDuo={handleCompleteFriendshipDuo} onBack={handleCloseCarePlay} />}
           {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} onRemove={handleRemoveKeepsake} onRestore={handleRestoreKeepsakes} onClear={handleClearKeepsakes} />}
           {scene === 'bedtime' && <BedtimeWindDownScreen companionName={STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion)?.name || 'Clover'} companionType={(state.selectedCompanion || 'bunny') as CritterType} reduceMotion={audioPreferences.reduceMotion} onComplete={handleCompleteBedtime} onBack={handleCloseBedtime} />}
