@@ -17,10 +17,9 @@ import { BRICK_BUILD_STEPS, BrickBuildBlockId } from '../game/brickBuild';
 import { ANIMAL_HOME_MATCH_CHOICES, ANIMAL_HOME_MATCH_ROUNDS, AnimalHomeMatchChoiceId } from '../game/animalHomeMatch';
 import { playSnap, playPickup, playComplete, playButton, playChime, playFlip, playMatch, playPatternNote, playCatch, playMilestone } from '../game/sounds';
 import PreReaderDirection from '../components/PreReaderDirection';
-import BabylonMeadowRescueScene from '../components/BabylonMeadowRescueScene';
+import BabylonMeadowRescueScene, { distanceToTraceSegment } from '../components/BabylonMeadowRescueScene';
 import { getFlagshipStoryForMission } from '../game/flagshipStories';
 import FlagshipPlanningRescue from '../components/FlagshipPlanningRescue';
-
 interface Props {
   mission: MissionData;
   companionType: string;
@@ -69,6 +68,7 @@ function PipMeadowIntro({ onStart }: { onStart: () => void }) {
         <p className="mt-2 font-body text-[10px] font-bold uppercase tracking-[.15em] text-[#A85C41]">Sunny Meadow</p>
         <h1 id="pip-meadow-intro-title" className="font-display mt-1 text-2xl font-bold text-[#2D2418]">Pip needs a little path.</h1>
         <p className="font-display mt-2 text-sm italic text-[#5C4D3C]">“We’ll make it together.”</p>
+        <p className="mt-2 font-body text-sm text-[#5C4D3C]">Start at the big circle. Slide along the dotted line to Pip—or tap each next dot.</p>
         <PreReaderDirection directionKey="tracing" className="mt-3" />
         <button autoFocus onClick={onStart} className="btn-coral mt-4 w-full text-base">Help Pip</button>
       </section>
@@ -1210,7 +1210,7 @@ function SpotDifferencePuzzle({ count, onComplete }: { count: number; onComplete
 }
 
 // ── Tracing Puzzle ─────────────────────────────
-function TracingPuzzle({ difficulty, onComplete }: { difficulty: number; onComplete: () => void }) {
+export function TracingPuzzle({ difficulty, onComplete }: { difficulty: number; onComplete: () => void }) {
   const pointCount = difficulty <= 2 ? 7 : difficulty <= 3 ? 10 : 14;
   const tolerance = difficulty <= 2 ? 36 : 28;
   const W = Math.min(window.innerWidth - 32, 360);
@@ -1221,33 +1221,42 @@ function TracingPuzzle({ difficulty, onComplete }: { difficulty: number; onCompl
   }), [pointCount, W]);
   const [traced, setTraced] = useState(0);
   const tracedRef = useRef(0);
+  const dragging = useRef(false);
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const check = (cx: number, cy: number) => {
-    const idx = tracedRef.current;
-    if (idx>=points.length) return;
-    const p = points[idx];
-    if (Math.hypot(cx-p.x,cy-p.y)<tolerance) {
-      tracedRef.current=idx+1; setTraced(idx+1);
-      if (idx+1>=points.length) setTimeout(onComplete,500);
-    }
+  const follow = (index: number) => {
+    if (index !== tracedRef.current || index >= points.length) return;
+    tracedRef.current = index + 1;
+    setTraced(index + 1);
+    if (index + 1 === points.length) onComplete();
   };
-  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (e.buttons===0) return;
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    check(e.clientX-rect.left, e.clientY-rect.top);
+  const check = (event: React.PointerEvent<SVGSVGElement>, moving: boolean) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    const from = moving && lastPointer.current ? lastPointer.current : point;
+    while (tracedRef.current < points.length && distanceToTraceSegment(points[tracedRef.current], from, point) <= tolerance) follow(tracedRef.current);
+    lastPointer.current = point;
   };
   const pathD = points.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
   return (
     <div className="flex flex-col items-center gap-2 w-full">
-      <p className="text-white/80 text-sm font-body">Trace the dotted path</p>
+      <p className="text-white text-sm font-body">Start at the big circle. Slide along the dots—or tap the next one.</p>
       <div className="w-full rounded-xl bg-white/5 border border-white/10 overflow-hidden" style={{height:H+16}}>
         <svg ref={svgRef} width={W} height={H} className="mx-auto block touch-none cursor-crosshair"
-          onPointerMove={onPointerMove} onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);check(e.nativeEvent.offsetX,e.nativeEvent.offsetY);}}>
-          <path d={pathD} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={3} strokeDasharray="6 8" />
-          <path d={points.slice(0,traced+1).map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ')} fill="none" stroke="#F5C842" strokeWidth={4} strokeLinecap="round" />
+          role="application" tabIndex={0} aria-label="Dotted rescue path. Start at the big circle, then slide or tap each next dot. Enter follows the next dot."
+          onPointerDown={event => { dragging.current = true; lastPointer.current = null; event.currentTarget.setPointerCapture?.(event.pointerId); check(event, false); }}
+          onPointerMove={event => { if (dragging.current) check(event, true); }}
+          onPointerUp={event => { dragging.current = false; lastPointer.current = null; if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); }}
+          onPointerCancel={() => { dragging.current = false; lastPointer.current = null; }}
+          onKeyDown={event => { if (['Enter', ' '].includes(event.key)) { event.preventDefault(); follow(tracedRef.current); } }}>
+          <path d={pathD} fill="none" stroke="#FFF9EF" strokeWidth={6} strokeDasharray="1 12" strokeLinecap="round" />
+          <path d={points.slice(0,traced).map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ')} fill="none" stroke="#F5C842" strokeWidth={5} strokeLinecap="round" />
           {points.map((p,i)=>(
-            <circle key={i} cx={p.x} cy={p.y} r={i<traced?5:8} fill={i<traced?'#F5C842':'rgba(255,255,255,0.4)'} />
+            <g key={i} role="button" aria-label={i === traced ? i === 0 ? 'Start here on the rescue path' : 'Next dot on the rescue path' : `Rescue path dot ${i + 1}`} tabIndex={i === traced ? 0 : -1} aria-disabled={i !== traced} onClick={() => follow(i)}>
+              {i === traced && <circle cx={p.x} cy={p.y} r={18} fill="none" stroke="#F5C842" strokeWidth={3} />}
+              <circle cx={p.x} cy={p.y} r={i<traced?7:11} fill={i<traced?'#F5C842':'#FFF9EF'} stroke="#96642D" strokeWidth={2} />
+              <circle cx={p.x} cy={p.y} r={22} fill="transparent" />
+            </g>
           ))}
         </svg>
       </div>
@@ -1330,7 +1339,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
   if (isPipMeadow) {
     return (
       <div className="game-screen overflow-hidden bg-[#6AAFC0]">
-        <BabylonMeadowRescueScene active={!showIntro && !completed} completed={completed} reduceMotion={reduceMotion} onPathComplete={handlePuzzleComplete} />
+        <BabylonMeadowRescueScene active={!showIntro && !completed && !showExit} completed={completed} reduceMotion={reduceMotion} onPathComplete={handlePuzzleComplete} />
         <div className="pointer-events-none absolute inset-0 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(13,54,48,.34) 0%, transparent 23%, transparent 68%, rgba(13,54,48,.44) 100%)' }} />
         <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <button onClick={() => { playButton(); setShowExit(true); }} className="pointer-events-auto rounded-full border border-[#E2C9AB] bg-[#FFF9EF]/95 px-4 py-2.5 font-body text-sm font-bold text-[#2D2418] shadow-lg active:scale-95" aria-label="Back to camp">← Camp</button>
@@ -1338,8 +1347,9 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
         </header>
         {!showIntro && !completed && <aside aria-label="Pip rescue direction" className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="pointer-events-auto mx-auto max-w-sm rounded-3xl border border-[#E2C9AB] bg-[#FFF9EF]/95 px-4 py-3 text-center shadow-xl backdrop-blur-sm">
-            <p className="font-display text-base font-bold text-[#2D2418]">Follow Pip’s glowing dots</p>
-            <PreReaderDirection directionKey="tracing" className="mt-1.5" />
+            <p className="font-display text-base font-bold text-[#2D2418]">Follow the dotted line to Pip</p>
+            <p className="mt-1 font-body text-sm text-[#5C4D3C]">Start at the big circle. Slide—or tap the next dot.</p>
+            <div className="mt-2 flex justify-center"><PreReaderDirection directionKey="tracing" buttonOnly /></div>
           </div>
         </aside>}
         {showIntro && <PipMeadowIntro onStart={() => setShowIntro(false)} />}

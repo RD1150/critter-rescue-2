@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type * as Babylon from '@babylonjs/core';
 import { loadBabylon } from '../lib/babylonRuntime';
+import CritterAvatar from './CritterAvatar';
 
 type Props = {
   active: boolean;
@@ -10,22 +11,102 @@ type Props = {
   className?: string;
 };
 
+type ScreenPoint = { x: number; y: number };
+const DOT_COUNT = 7;
+
+export function distanceToTraceSegment(point: ScreenPoint, from: ScreenPoint, to: ScreenPoint): number {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const lengthSquared = dx * dx + dy * dy;
+  const t = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, ((point.x - from.x) * dx + (point.y - from.y) * dy) / lengthSquared));
+  return Math.hypot(point.x - from.x - t * dx, point.y - from.y - t * dy);
+}
+
 /**
- * A small self-contained toy diorama for Pip's first Meadow rescue. The path
- * dots are actual Babylon meshes: children may glide across them or tap the
- * next large glowing dot. React owns the surrounding instructions and state.
+ * The dotted route is drawn above the toy world as well as in it, so lighting,
+ * small screens, or a failed engine can never hide the actual tracing activity.
  */
 export default function BabylonMeadowRescueScene({ active, completed, reduceMotion, onPathComplete, className = '' }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const completeRef = useRef(onPathComplete);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const live = useRef({ active, completed, reduceMotion, onPathComplete });
+  const syncRef = useRef<(() => void) | null>(null);
+  const tracedRef = useRef(0);
+  const systemReduced = useRef(false);
+  const notifiedRef = useRef(false);
+  const dragging = useRef(false);
+  const lastPointer = useRef<ScreenPoint | null>(null);
+  const [traced, setTraced] = useState(0);
+  const [sceneState, setSceneState] = useState<'loading' | 'ready' | 'fallback'>('loading');
+  const [layout, setLayout] = useState<{ width: number; height: number; points: ScreenPoint[] }>({ width: 375, height: 812, points: [] });
+
+  const fallbackPoints = Array.from({ length: DOT_COUNT }, (_, index) => ({
+    x: layout.width / 2 + (index / (DOT_COUNT - 1) - 0.5) * Math.min(layout.width - 76, 620),
+    y: layout.height * 0.46 + Math.sin(index * 0.92) * 26,
+  }));
+  const screenPoints = layout.points.length === DOT_COUNT && sceneState === 'ready' ? layout.points : fallbackPoints;
+  const pointRef = useRef(screenPoints);
+  pointRef.current = screenPoints;
+
+  const followDot = (index: number) => {
+    if (!live.current.active || live.current.completed || notifiedRef.current || index !== tracedRef.current) return;
+    tracedRef.current += 1;
+    setTraced(tracedRef.current);
+    syncRef.current?.();
+    if (tracedRef.current === DOT_COUNT) {
+      notifiedRef.current = true;
+      live.current.onPathComplete();
+    }
+  };
+
+  const tracePointer = (event: React.PointerEvent<SVGSVGElement>, moving: boolean) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    const previous = moving && lastPointer.current ? lastPointer.current : point;
+    // A quick swipe can cross several dots between browser pointer events.
+    // Process the swept segment in order, with a finger-sized forgiving margin.
+    for (let count = 0; count < DOT_COUNT; count++) {
+      const next = pointRef.current[tracedRef.current];
+      if (!next || distanceToTraceSegment(next, previous, point) > 28) break;
+      const before = tracedRef.current;
+      followDot(before);
+      if (tracedRef.current === before) break;
+    }
+    lastPointer.current = point;
+  };
 
   useEffect(() => {
-    completeRef.current = onPathComplete;
-  }, [onPathComplete]);
+    live.current = { active, completed, reduceMotion, onPathComplete };
+    if (!active) { dragging.current = false; lastPointer.current = null; }
+    syncRef.current?.();
+  }, [active, completed, reduceMotion, onPathComplete]);
+
+  useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    if (!media) return;
+    const update = () => { systemReduced.current = media.matches; syncRef.current?.(); };
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+    const resize = () => setLayout((previous) => ({ ...previous, width: element.clientWidth || window.innerWidth || 375, height: element.clientHeight || window.innerHeight || 812 }));
+    resize();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
+    observer?.observe(element);
+    window.addEventListener('resize', resize);
+    return () => { observer?.disconnect(); window.removeEventListener('resize', resize); };
+  }, []);
 
   useEffect(() => {
     let disposed = false;
     let cleanup: (() => void) | null = null;
+    let ownedEngine: Babylon.Engine | null = null;
+    let ownedScene: Babylon.Scene | null = null;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -33,23 +114,26 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
       if (disposed) return;
 
       const engine = new B.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, adaptToDeviceRatio: true });
+      ownedEngine = engine;
       const scene = new B.Scene(engine);
-      scene.clearColor = B.Color4.FromHexString('#6AAFC0');
+      ownedScene = scene;
+      scene.clearColor = B.Color4.FromHexString('#E9EEE2');
       scene.ambientColor = new B.Color3(0.55, 0.48, 0.35);
 
-      const camera = new B.ArcRotateCamera('pip-meadow-camera', -Math.PI / 2.3, 1.08, 15.5, new B.Vector3(0, 0.7, 0), scene);
+      const camera = new B.ArcRotateCamera('pip-meadow-camera', -Math.PI / 2, 0.82, 15.5, new B.Vector3(0, 0.7, 0), scene);
+      camera.mode = B.Camera.ORTHOGRAPHIC_CAMERA;
       camera.lowerRadiusLimit = 15.5;
       camera.upperRadiusLimit = 15.5;
-      camera.lowerBetaLimit = 1.08;
-      camera.upperBetaLimit = 1.08;
+      camera.lowerBetaLimit = 0.82;
+      camera.upperBetaLimit = 0.82;
 
       const sky = new B.HemisphericLight('meadow-sky', new B.Vector3(0.25, 1, 0.15), scene);
       sky.diffuse = B.Color3.FromHexString('#FFF0C9');
       sky.groundColor = B.Color3.FromHexString('#356242');
-      sky.intensity = 0.9;
+      sky.intensity = 0.8;
       const sunshine = new B.PointLight('meadow-sunshine', new B.Vector3(-2, 6, 2), scene);
       sunshine.diffuse = B.Color3.FromHexString('#FFE0A8');
-      sunshine.intensity = 1.7;
+      sunshine.intensity = 0.65;
       sunshine.range = 16;
       const shadow = new B.ShadowGenerator(1024, sunshine);
       shadow.useBlurExponentialShadowMap = true;
@@ -71,7 +155,6 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
 
       const soil = makeMaterial('meadow-path-soil', '#D7B77F');
       const trail = B.MeshBuilder.CreateTorus('meadow-trail-ring', { diameter: 10.8, thickness: 0.18, tessellation: 56 }, scene);
-      trail.rotation.x = Math.PI / 2;
       trail.position.y = 0.04;
       trail.material = soil;
 
@@ -190,99 +273,63 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
         shadow.addShadowCaster(dot);
         const ring = B.MeshBuilder.CreateTorus(`pip-path-ring-${index}`, { diameter: 0.66, thickness: 0.045, tessellation: 20 }, scene);
         ring.position = point.add(new B.Vector3(0, -0.1, 0));
-        ring.rotation.x = Math.PI / 2;
         ring.material = makeMaterial(`pip-path-ring-mat-${index}`, '#FFF5C2', 0.62);
         ring.isPickable = false;
         dotRings.push(ring);
         // This near-invisible felt disc provides a generous tap/drag landing
         // area around each visible dot. It keeps the interaction kind on small
         // screens and avoids a thin-path precision requirement.
-        const touchTarget = B.MeshBuilder.CreateDisc(`pip-path-touch-target-${index}`, { radius: 0.68, tessellation: 24 }, scene);
+        const touchTarget = B.MeshBuilder.CreateDisc(`pip-path-touch-target-${index}`, { radius: 0.68, tessellation: 24, sideOrientation: B.Mesh.DOUBLESIDE }, scene);
         touchTarget.position = point.add(new B.Vector3(0, -0.04, 0));
         touchTarget.rotation.x = Math.PI / 2;
         touchTarget.material = touchTargetMaterial;
         touchTarget.metadata = { pathIndex: index };
       });
 
+      const stitchMaterial = makeMaterial('pip-path-stitch-material', '#FFF9EF', 0.7);
+      for (let segment = 0; segment < pathPoints.length - 1; segment++) {
+        for (let stitch = 1; stitch <= 5; stitch++) {
+          const bead = B.MeshBuilder.CreateSphere(`pip-path-stitch-${segment}-${stitch}`, { diameter: 0.12, segments: 8 }, scene);
+          bead.position = B.Vector3.Lerp(pathPoints[segment], pathPoints[segment + 1], stitch / 6);
+          bead.material = stitchMaterial;
+          bead.isPickable = false;
+        }
+      }
+
       const startMarker = B.MeshBuilder.CreateTorus('pip-path-start-marker', { diameter: 0.95, thickness: 0.06, tessellation: 24 }, scene);
       startMarker.position = pathPoints[0].add(new B.Vector3(0, -0.12, 0));
-      startMarker.rotation.x = Math.PI / 2;
       startMarker.material = makeMaterial('pip-path-start-marker-mat', '#FFE98E', 0.9);
       startMarker.isPickable = false;
 
-      let tracing = false;
-      let nextDot = 0;
-      let completedPath = completed;
-      const paintNextDot = (index: number) => {
-        if (!active || completedPath || index !== nextDot) return;
-        const dot = scene.getMeshByName(`pip-path-dot-${index}`) as Babylon.Mesh | null;
-        if (!dot) return;
-        dot.material = dotDone;
-        dot.scaling = new B.Vector3(1.22, 1.22, 1.22);
-        dotRings[index].visibility = 0.38;
-        nextDot += 1;
-        if (nextDot >= pathPoints.length) {
-          completedPath = true;
-          pathPoints.forEach((_, dotIndex) => {
-            const finished = scene.getMeshByName(`pip-path-dot-${dotIndex}`) as Babylon.Mesh | null;
-            if (finished) finished.material = dotDone;
-          });
-          completeRef.current();
-        }
+      const sync = () => {
+        pathPoints.forEach((_, index) => {
+          const dot = scene.getMeshByName(`pip-path-dot-${index}`) as Babylon.Mesh;
+          dot.material = index < tracedRef.current ? dotDone : dotWaiting;
+          dotRings[index].visibility = index === tracedRef.current ? 1 : index < tracedRef.current ? 0.4 : 0.3;
+        });
+        startMarker.setEnabled(tracedRef.current === 0);
       };
-      const pointerCoordinates = (event: PointerEvent) => {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: (event.clientX - rect.left) * (engine.getRenderWidth() / rect.width),
-          y: (event.clientY - rect.top) * (engine.getRenderHeight() / rect.height),
-        };
-      };
-      const traceAtPointer = (event: PointerEvent) => {
-        if (!active || completedPath) return;
-        const pointer = pointerCoordinates(event);
-        const pick = scene.pick(pointer.x, pointer.y);
-        const pathIndex = (pick?.pickedMesh?.metadata as { pathIndex?: number } | undefined)?.pathIndex;
-        if (typeof pathIndex === 'number') paintNextDot(pathIndex);
-      };
-      const onPointerDown = (event: PointerEvent) => {
-        tracing = true;
-        canvas.setPointerCapture?.(event.pointerId);
-        traceAtPointer(event);
-      };
-      const onPointerMove = (event: PointerEvent) => {
-        if (tracing) traceAtPointer(event);
-      };
-      const onPointerUp = (event: PointerEvent) => {
-        tracing = false;
-        if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-      };
-      const onKeyDown = (event: KeyboardEvent) => {
-        if (!active || completedPath || !['Enter', ' ', 'Spacebar'].includes(event.key)) return;
-        event.preventDefault();
-        paintNextDot(nextDot);
-      };
-      canvas.addEventListener('pointerdown', onPointerDown);
-      canvas.addEventListener('pointermove', onPointerMove);
-      canvas.addEventListener('pointerup', onPointerUp);
-      canvas.addEventListener('pointercancel', onPointerUp);
-      canvas.addEventListener('keydown', onKeyDown);
+      syncRef.current = sync;
+      sync();
 
       let elapsed = 0;
       scene.onBeforeRenderObservable.add(() => {
         const seconds = engine.getDeltaTime() / 1000;
         elapsed += seconds;
-        if (reduceMotion) {
+        const completedPath = live.current.completed || tracedRef.current === DOT_COUNT;
+        if (live.current.reduceMotion || systemReduced.current) {
           pipRoot.position.y = 0.06;
           pipRoot.rotation.z = 0;
           startMarker.visibility = 0.9;
+          bloomMeshes.forEach((bloom) => { bloom.scaling.y = 1; });
           return;
         }
         pipRoot.position.y = 0.06 + (completedPath ? Math.sin(elapsed * 3.4) * 0.12 : Math.sin(elapsed * 1.7) * 0.045);
         pipRoot.rotation.z = completedPath ? Math.sin(elapsed * 2.4) * 0.12 : 0;
         startMarker.visibility = 0.62 + Math.sin(elapsed * 3) * 0.28;
-        if (active && !completedPath) {
+        if (live.current.active && !completedPath) {
           dotRings.forEach((ring, index) => {
-            ring.visibility = index === nextDot ? 0.74 + Math.sin(elapsed * 4.2) * 0.2 : 0.3;
+            ring.visibility = index === tracedRef.current ? 0.74 + Math.sin(elapsed * 4.2) * 0.2 : 0.3;
           });
         }
         if (completedPath) {
@@ -293,25 +340,75 @@ export default function BabylonMeadowRescueScene({ active, completed, reduceMoti
       });
 
       engine.runRenderLoop(() => scene.render());
-      const resize = () => engine.resize();
+      const resize = () => {
+        engine.resize();
+        const width = canvas.clientWidth || window.innerWidth || 375;
+        const height = canvas.clientHeight || window.innerHeight || 812;
+        const worldWidth = Math.max(8, 7.5 * width / height);
+        camera.orthoLeft = -worldWidth / 2;
+        camera.orthoRight = worldWidth / 2;
+        camera.orthoTop = worldWidth * height / width / 2;
+        camera.orthoBottom = -camera.orthoTop;
+        scene.render();
+        const viewport = camera.viewport.toGlobal(width, height);
+        const points = pathPoints.map((point) => {
+          const projected = B.Vector3.Project(point, B.Matrix.Identity(), scene.getTransformMatrix(), viewport);
+          return { x: projected.x, y: projected.y };
+        });
+        if (!disposed) setLayout({ width, height, points });
+      };
+      const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
+      observer?.observe(canvas);
       window.addEventListener('resize', resize);
       cleanup = () => {
+        observer?.disconnect();
         window.removeEventListener('resize', resize);
-        canvas.removeEventListener('pointerdown', onPointerDown);
-        canvas.removeEventListener('pointermove', onPointerMove);
-        canvas.removeEventListener('pointerup', onPointerUp);
-        canvas.removeEventListener('pointercancel', onPointerUp);
-        canvas.removeEventListener('keydown', onKeyDown);
+        engine.stopRenderLoop();
         scene.dispose();
         engine.dispose();
       };
-    }).catch((error) => console.error('Critter Rescue Meadow scene could not load:', error));
+      resize();
+      setSceneState('ready');
+    }).catch(() => {
+      syncRef.current = null;
+      if (cleanup) { cleanup(); cleanup = null; }
+      else { ownedEngine?.stopRenderLoop(); ownedScene?.dispose(); ownedEngine?.dispose(); }
+      if (!disposed) setSceneState('fallback');
+    });
 
     return () => {
       disposed = true;
+      syncRef.current = null;
       cleanup?.();
     };
-  }, [active, completed, reduceMotion]);
+  }, []);
 
-  return <canvas ref={canvasRef} tabIndex={0} role="application" className={`absolute inset-0 h-full w-full touch-none ${className}`} aria-label="Pip's interactive Sunny Meadow flower path. Tap or glide across the glowing dots in order. Press Enter to follow one dot at a time." />;
+  const path = screenPoints.map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ');
+  const finishedPath = screenPoints.slice(0, traced).map((point, index) => `${index ? 'L' : 'M'}${point.x},${point.y}`).join(' ');
+  const start = screenPoints[0];
+  const end = screenPoints[screenPoints.length - 1];
+  return <div ref={containerRef} className={`absolute inset-0 bg-[#E9EEE2] ${className}`} data-scene-state={sceneState} data-traced-dots={traced}>
+    {sceneState !== 'ready' && <div className="absolute inset-0 bg-gradient-to-b from-[#E9EEE2] to-[#B9CC9D]" aria-hidden="true"><div className="absolute left-[10%] top-[25%] h-24 w-20 rounded-full bg-[#8DA77C]" /><div className="absolute right-[10%] top-[27%] h-20 w-16 rounded-full bg-[#91AB80]" /><div className="absolute inset-x-[7%] top-[40%] h-[18%] rounded-[50%] bg-[#DCE5C7]" /><div className="absolute" style={{ left: end.x - 36, top: end.y - 95 }}><CritterAvatar type="bird" size={72} /></div></div>}
+    <canvas ref={canvasRef} aria-hidden="true" className={`absolute inset-0 h-full w-full ${sceneState === 'ready' ? '' : 'invisible'}`} />
+    <svg ref={svgRef} width="100%" height="100%" tabIndex={0} role="application"
+      aria-label="Pip's dotted flower path. Start at Start here and slide along the dots to Pip, or tap the next dot. Press Enter to follow the next dot."
+      className="absolute inset-0 touch-none focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-[#FFF9EF]"
+      onPointerDown={(event) => { dragging.current = true; lastPointer.current = null; event.currentTarget.setPointerCapture?.(event.pointerId); tracePointer(event, false); }}
+      onPointerMove={(event) => { if (dragging.current) tracePointer(event, true); }}
+      onPointerUp={(event) => { dragging.current = false; lastPointer.current = null; if (event.currentTarget.hasPointerCapture?.(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); }}
+      onPointerCancel={() => { dragging.current = false; lastPointer.current = null; }}
+      onKeyDown={(event) => { if (['Enter', ' '].includes(event.key)) { event.preventDefault(); followDot(tracedRef.current); } }}>
+      <path d={path} fill="none" stroke="#FFF9EF" strokeWidth={13} strokeLinecap="round" />
+      <path data-testid="pip-dotted-route" d={path} fill="none" stroke="#96642D" strokeWidth={5} strokeDasharray="1 13" strokeLinecap="round" />
+      <path d={finishedPath} fill="none" stroke="#DB9B2F" strokeWidth={9} strokeLinecap="round" />
+      {screenPoints.map((point, index) => <g key={index} role="button" tabIndex={active && !completed && index === traced ? 0 : -1} aria-label={index === 0 && traced === 0 ? 'Start here. Trace to Pip.' : index === traced ? 'Next dot on Pip’s path' : `Dot ${index + 1} on Pip’s path`} aria-disabled={!active || completed || index !== traced} onClick={() => followDot(index)} className="cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#5D3D2A]" data-path-index={index}>
+        {index === traced && !completed && <circle cx={point.x} cy={point.y} r={25} fill="#FFF9EF" stroke="#A56C20" strokeWidth={3} />}
+        <circle cx={point.x} cy={point.y} r={17} fill={index < traced ? '#F2BC4D' : '#FFF8DA'} stroke="#96642D" strokeWidth={3} />
+        <circle cx={point.x} cy={point.y} r={8} fill={index < traced ? '#A56C20' : '#E6AC35'} />
+        <circle cx={point.x} cy={point.y} r={28} fill="transparent" />
+      </g>)}
+    </svg>
+    {active && !completed && traced === 0 && <div className="pointer-events-none absolute rounded-xl border-2 border-[#A56C20] bg-[#FFF9EF] px-2 py-1 font-body text-sm font-bold text-[#5D3D2A] shadow-md" style={{ left: Math.max(6, start.x - 38), top: start.y - 67 }}>Start here ↓</div>}
+    <p className="sr-only" role="status">{traced === DOT_COUNT ? 'Pip’s whole path is ready.' : traced === 0 ? 'Start here, then follow the dotted line to Pip.' : 'Keep following the dotted line. Your flowers stay lit.'}</p>
+  </div>;
 }

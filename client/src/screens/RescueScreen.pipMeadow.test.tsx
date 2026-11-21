@@ -28,7 +28,8 @@ describe('Pip Meadow 3D-first rescue', () => {
     expect(screen.queryByText(/Three easy steps/i)).toBeNull();
     expect(screen.queryByRole('button', { name: /Hear Pip/i })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Help Pip' }));
-    expect(screen.getByText('Follow Pip’s glowing dots')).toBeTruthy();
+    expect(screen.getByText('Follow the dotted line to Pip')).toBeTruthy();
+    expect(screen.getByText('Start at the big circle. Slide—or tap the next dot.')).toBeTruthy();
     expect(meadowScene).toHaveBeenLastCalledWith(expect.objectContaining({ active: true, completed: false, reduceMotion: false }));
   });
 

@@ -577,3 +577,9 @@
 - [x] Add favorite-story replay from the Bestie Book while preserving saved landmarks and preventing duplicate rescue rewards or memories.
 - [x] Verify focused and full tests, TypeScript, web/native builds, reduced-motion/mobile/desktop layouts, and real browser interactions; record limitations honestly.
 - [x] Save the verified checkpoint and synchronize the improvement pass to GitHub.
+
+## Pip Tracing Clarity Repair — November 2026
+- [x] Add an unmistakable connected dotted path, clear start/next cues, and phone-safe framing in Pip’s 3D Meadow.
+- [x] Verify forgiving real tap/drag input, progress-preserving motion updates, and a usable engine-failure fallback.
+- [x] Explain start-and-slide or next-dot tapping clearly; cover regression and responsive playthroughs.
+- [ ] Run tests/build validation, save a checkpoint, and synchronize the repair to GitHub.
