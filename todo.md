@@ -582,4 +582,4 @@
 - [x] Add an unmistakable connected dotted path, clear start/next cues, and phone-safe framing in Pip’s 3D Meadow.
 - [x] Verify forgiving real tap/drag input, progress-preserving motion updates, and a usable engine-failure fallback.
 - [x] Explain start-and-slide or next-dot tapping clearly; cover regression and responsive playthroughs.
-- [ ] Run tests/build validation, save a checkpoint, and synchronize the repair to GitHub.
+- [x] Run tests/build validation, save a checkpoint, and synchronize the repair to GitHub.
