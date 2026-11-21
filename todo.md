@@ -576,4 +576,4 @@
 - [x] Refine camp lighting and toy-diorama details; remove confusing floating flame shapes and improve visual coherence without remote 3D textures.
 - [x] Add favorite-story replay from the Bestie Book while preserving saved landmarks and preventing duplicate rescue rewards or memories.
 - [x] Verify focused and full tests, TypeScript, web/native builds, reduced-motion/mobile/desktop layouts, and real browser interactions; record limitations honestly.
-- [ ] Save the verified checkpoint and synchronize the improvement pass to GitHub.
+- [x] Save the verified checkpoint and synchronize the improvement pass to GitHub.
