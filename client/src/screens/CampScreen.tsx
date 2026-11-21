@@ -5,7 +5,8 @@ import BabylonCampScene from '../components/BabylonCampScene';
 import CritterAvatar from '../components/CritterAvatar';
 import { CritterData, CritterType, getRescuedCritters, getStarterCompanion, getZoneTask, ZONES } from '../game/data';
 import { playButton, playComplete, playNibble, playPet, playTrailStart, playTrailTreasure, playWelcome } from '../game/sounds';
-import { playCharacterAudio, playDailyTrailVoice } from '../game/characterAudio';
+import { hasCharacterAudio, playCharacterAudio, playDailyTrailVoice } from '../game/characterAudio';
+import { getAudioPreferences, useAudioPreferences } from '../game/audioPreferences';
 import { DailyTrailState, HomeDecoration, NurseryGraduate, SanctuarySeason } from '../game/store';
 import type { CareCelebration } from '../game/critterCelebrations';
 import PreReaderDirection from '../components/PreReaderDirection';
@@ -72,7 +73,6 @@ export default function CampScreen({
   companionType,
   flagshipStoryIds = [],
   onStartFlagshipStory,
-  bestieCareMoments = 0,
   onCareBestie,
   lastFlagshipHomecoming = null,
   onAcknowledgeFlagshipHomecoming,
@@ -83,7 +83,6 @@ export default function CampScreen({
   lastDailyReward,
   onStartDailyTrail,
   onAcknowledgeDailyReward,
-  homeCare,
   onCareHome,
   onOpenJournal,
   onOpenMatch3,
@@ -124,9 +123,33 @@ export default function CampScreen({
   const [showFirstGuide, setShowFirstGuide] = useState(() => flagshipStoryIds.length === 0);
   const [showBestieNook, setShowBestieNook] = useState(false);
   const [bestieMessage, setBestieMessage] = useState('');
+  const [bestieAction, setBestieAction] = useState<'rest' | 'pet' | 'snack' | 'wave' | 'hello'>('rest');
+  const [audioPreferences] = useAudioPreferences();
+  const [systemReduceMotion, setSystemReduceMotion] = useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
+  const [globalReduceMotion, setGlobalReduceMotion] = useState(false);
+  const campRef = useRef<HTMLDivElement>(null);
   const [logoFailed, setLogoFailed] = useState(false);
   const dialogueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dailyRewardVoicePlayed = useRef<string | null>(null);
+  const bestie = getStarterCompanion(companionType);
+  const motionReduced = reduceMotion || audioPreferences.reduceMotion || systemReduceMotion || globalReduceMotion;
+  const canListenToBestie = audioPreferences.spokenDirectionsEnabled && audioPreferences.voiceVolume > 0.02 && hasCharacterAudio(bestie.name, 'intro');
+
+  useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const syncSystemMotion = () => setSystemReduceMotion(media?.matches ?? false);
+    syncSystemMotion();
+    media?.addEventListener?.('change', syncSystemMotion);
+    const syncGlobalMotion = () => setGlobalReduceMotion(Boolean(campRef.current?.closest('.reduce-motion-mode')));
+    syncGlobalMotion();
+    const observer = new MutationObserver(syncGlobalMotion);
+    let ancestor = campRef.current?.parentElement;
+    while (ancestor) {
+      observer.observe(ancestor, { attributes: true, attributeFilter: ['class'] });
+      ancestor = ancestor.parentElement;
+    }
+    return () => { media?.removeEventListener?.('change', syncSystemMotion); observer.disconnect(); };
+  }, []);
 
   const rescuedCritters = useMemo(() => {
     const allFriends = [...getFlagshipStoryFriends(flagshipStoryIds), ...getRescuedCritters(zoneTaskProgress)];
@@ -141,13 +164,6 @@ export default function CampScreen({
   const dailyCompleted = dailyTrail.completedKeys.length;
   const dailyDone = dailyTrail.rewardEarned;
   const learningFocus = getLearningFocusLaunch(learningTheme);
-
-  const companionLines = useMemo(() => {
-    if (flagshipStoryIds.length === 0) return ['Hi, friend! We help little animals together.', 'This is our cozy camp. Let’s help Pip first!', 'A little friend is waiting in Sunny Meadow. Let’s go together!'];
-    if (nextFlagshipStory) return ['Look at our little camp growing!', 'Every rescued friend makes the sanctuary cozier.', `Let’s help ${nextFlagshipStory.friend.name} next.`];
-    if (allComplete) return ['Every critter has a safe place here.', 'You made this sanctuary possible.', 'The forest is singing for you today.'];
-    return ['Our plushie friends are so happy here.', 'There is always room for one more friend.', 'The rescue trail is waiting.'];
-  }, [allComplete, flagshipStoryIds.length, nextFlagshipStory]);
 
   useEffect(() => {
     playWelcome();
@@ -174,11 +190,31 @@ export default function CampScreen({
 
   const handleCompanionClick = useCallback(() => {
     playButton();
-    const bestie = getStarterCompanion(companionType);
-    playCharacterAudio(bestie.name, nextFlagshipStory ? 'help' : 'thanks');
-    setBestieMessage(companionLines[Math.floor(Math.random() * companionLines.length)]);
+    setShowMobilePlayMenu(false);
+    setSelectedHomeFriend(null);
+    setBestieAction('rest');
+    setBestieMessage(`Hi, friend! It’s ${bestie.name}. Let’s get cozy.`);
     setShowBestieNook(true);
-  }, [companionLines, companionType, nextFlagshipStory]);
+  }, [bestie.name]);
+
+  const doBestieCare = (kind: 'pet' | 'snack' | 'wave' | 'hello') => {
+    // A deliberate child action is saved once; visiting and listening are not care scores.
+    onCareBestie?.();
+    setBestieAction(kind);
+    if (kind === 'pet') {
+      playPet();
+      setBestieMessage(`${bestie.name} leans into your gentle pet. So soft and cozy!`);
+    } else if (kind === 'snack') {
+      playNibble();
+      setBestieMessage(`${bestie.name} nibbles the little berry. Munch, munch, yum!`);
+    } else if (kind === 'wave') {
+      playButton();
+      setBestieMessage(`${bestie.name} waves a little paw back. Hello over there!`);
+    } else {
+      playButton();
+      setBestieMessage(`${bestie.name} gives you a happy nod. I’m glad we’re together.`);
+    }
+  };
 
   const handleFriendClick = useCallback((critter: CritterData) => {
     playButton();
@@ -187,6 +223,7 @@ export default function CampScreen({
   }, []);
   const handleHomeClick = useCallback((critter: CritterData) => {
     playButton();
+    setShowBestieNook(false);
     setSelectedHomeFriend(critter);
     setHomeCareMessage(`Tap a kind action for ${critter.name}.`);
   }, []);
@@ -249,7 +286,7 @@ export default function CampScreen({
   const homecomingStory = getFlagshipStory(lastFlagshipHomecoming);
 
   return (
-    <div className="game-screen overflow-hidden bg-[#103B2A] select-none">
+    <div ref={campRef} className="game-screen overflow-hidden bg-[#103B2A] select-none">
       <BabylonCampScene
         companionType={companionType as CritterType}
         rescuedCritters={rescuedCritters}
@@ -262,7 +299,7 @@ export default function CampScreen({
         kindnessMoments={kindnessMoments}
         season={season}
         celebration={celebration}
-        reduceMotion={reduceMotion}
+        reduceMotion={motionReduced}
         completedFlagshipStories={flagshipStoryIds}
       />
 
@@ -288,6 +325,14 @@ export default function CampScreen({
         </div>
       </div>
 
+      {/* A quiet picture-led alternative to finding the companion's 3D mesh. */}
+      <button onClick={handleCompanionClick} aria-label={`Visit ${bestie.name}`} aria-expanded={showBestieNook} aria-controls="camp-bestie-nook"
+        className="absolute right-3 top-[88px] z-20 flex min-h-12 items-center gap-2 rounded-2xl border border-[#D9C8A8] bg-[#FFF9EF]/95 px-3 py-1.5 text-[#5D3D2A] shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F5C842]"
+        style={{ minHeight: 48, minWidth: 44 }}>
+        <span aria-hidden="true"><CritterAvatar type={bestie.type} size={36} expression="happy" /></span>
+        <span className="font-body text-sm font-bold">Visit {bestie.name}</span>
+      </button>
+
       {/* Dialogue from an interactive 3D companion */}
       {dialogue && (
         <div className="absolute z-20 top-[86px] left-1/2 -translate-x-1/2 w-[min(300px,84vw)] pointer-events-none animate-pop-in">
@@ -299,13 +344,29 @@ export default function CampScreen({
       )}
 
       {showBestieNook && (
-        <div className="absolute z-40 left-1/2 top-[94px] w-[min(330px,88vw)] -translate-x-1/2">
-          <section className={`paper-card relative px-4 py-4 text-center shadow-xl ${reduceMotion ? '' : 'animate-pop-in'}`} style={{ borderTop: '3px solid #B69DE8' }} aria-label="Bestie nook">
-            <button onClick={() => setShowBestieNook(false)} className="absolute right-2 top-1.5 text-lg text-[#5C4D3C]/60" aria-label="Close Bestie nook">×</button>
-            <div className="flex items-center justify-center gap-2"><CritterAvatar type={companionType as CritterType} size={56} expression="happy" animate={!reduceMotion} /><div className="text-left"><p className="font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#75619C]">Your Bestie</p><h2 className="font-display text-lg font-bold text-[#2D2418]">A cozy hello</h2></div></div>
-            <p className="mt-2 font-display text-sm italic text-[#5C4D3C]">“{bestieMessage || 'I’m glad we are here together.'}”</p>
-            <button onClick={() => { playPet(); const moments = onCareBestie?.() ?? bestieCareMoments + 1; setBestieMessage(moments === 1 ? 'That was a very gentle hello.' : 'That felt cozy. Thank you, friend.'); }} className="mt-3 w-full rounded-xl bg-[#F6D9DD] px-3 py-3 font-body text-sm font-bold text-[#4A3022] active:scale-95">🖐️ Gentle Bestie hello</button>
-            <p className="mt-2 font-body text-[10px] text-[#5C4D3C]/75">Tap your Bestie in camp whenever you want a calm hello.</p>
+        <div className="absolute z-40 left-1/2 top-[88px] w-[min(350px,92vw)] -translate-x-1/2">
+          <section id="camp-bestie-nook" className={`paper-card relative overflow-y-auto overscroll-contain px-4 pb-4 text-center shadow-xl ${motionReduced ? '' : 'motion-safe:animate-pop-in'}`}
+            style={{ borderTop: '3px solid #B69DE8', maxHeight: 'calc(100dvh - 190px)' }} aria-label="Bestie nook" data-reduced-motion={motionReduced}>
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-[#FFF9EF] py-2 text-left">
+              <div><p className="font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#75619C]">Your Bestie</p><h2 className="font-display text-xl font-bold text-[#2D2418]">Hello, {bestie.name}!</h2></div>
+              <button onClick={() => setShowBestieNook(false)} className="min-h-11 min-w-11 rounded-xl text-2xl text-[#5C4D3C] focus-visible:outline focus-visible:outline-2" aria-label="Close Bestie nook">×</button>
+            </div>
+            <div className="relative mx-auto flex h-32 w-40 items-center justify-center rounded-[2rem] bg-[#EFE7FA]" data-bestie-response={bestieAction}>
+              <div data-testid="bestie-pose" style={{ transform: motionReduced ? 'none' : bestieAction === 'pet' ? 'rotate(-6deg) scale(1.04)' : bestieAction === 'snack' ? 'translateY(5px) rotate(4deg)' : bestieAction === 'wave' ? 'rotate(8deg)' : bestieAction === 'hello' ? 'translateY(-4px)' : 'none', transition: motionReduced ? 'none' : 'transform 180ms ease-out' }}>
+                <CritterAvatar type={bestie.type} size={112} expression={bestieAction === 'pet' ? 'grateful' : bestieAction === 'wave' || bestieAction === 'hello' ? 'excited' : 'happy'} animate={false} />
+              </div>
+              {bestieAction !== 'rest' && <span aria-hidden="true" className="absolute bottom-1 right-1 rounded-full bg-[#FFF9EF] p-1.5 text-3xl">{bestieAction === 'pet' ? '♥' : bestieAction === 'snack' ? '🍓' : bestieAction === 'wave' ? '👋' : '💬'}</span>}
+            </div>
+            <p role="status" aria-live="polite" aria-atomic="true" className="mt-3 min-h-12 font-display text-base leading-snug text-[#4A3022]">{bestieMessage}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button onClick={() => doBestieCare('pet')} className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#F6D9DD] px-2 py-3 font-body text-sm font-bold text-[#4A3022]"><span aria-hidden="true" className="text-xl">🖐️</span>Gentle pet</button>
+              <button onClick={() => doBestieCare('snack')} className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#F7E6B8] px-2 py-3 font-body text-sm font-bold text-[#4A3022]"><span aria-hidden="true" className="text-xl">🍓</span>Give a snack</button>
+              <button onClick={() => doBestieCare('wave')} className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#E2EEDB] px-2 py-3 font-body text-sm font-bold text-[#394E35]"><span aria-hidden="true" className="text-xl">👋</span>Wave</button>
+              <button onClick={() => doBestieCare('hello')} className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#E6EDF8] px-2 py-3 font-body text-sm font-bold text-[#31446C]"><span aria-hidden="true" className="text-xl">💬</span>Say hello</button>
+            </div>
+            {canListenToBestie && <button onClick={() => { const preferences = getAudioPreferences(); if (preferences.spokenDirectionsEnabled && preferences.voiceVolume > 0.02) playCharacterAudio(bestie.name, 'intro'); }} aria-label={`Listen to ${bestie.name}’s recorded hello`} className="mt-3 min-h-11 rounded-xl border border-[#B69DE8] bg-[#FFF9EF] px-3 py-2 font-body text-sm font-bold text-[#604B83]"><span aria-hidden="true">🔊 </span>Listen to {bestie.name}</button>}
+            <p className="mt-2 font-body text-xs text-[#5C4D3C]">Stay for a cozy moment, or go play whenever you like.</p>
+            <button onClick={() => setShowBestieNook(false)} className="mt-2 min-h-11 w-full rounded-xl border border-[#B99773] bg-[#FFF9EF] px-3 py-2 font-body text-sm font-bold text-[#5D3D2A]">Back to camp</button>
           </section>
         </div>
       )}
@@ -342,7 +403,7 @@ export default function CampScreen({
             <p className="font-body text-xs text-[#5C4D3C] mt-2">{homeCareMessage}</p>
             <div className="grid grid-cols-2 gap-2 mt-3"><button onClick={() => doHomeCare('feed')} className="rounded-xl bg-[#F7E6B8] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🍓 Give a snack</button><button onClick={() => doHomeCare('pet')} className="rounded-xl bg-[#F6D9DD] px-3 py-2.5 font-body text-sm font-bold text-[#4A3022] active:scale-95">🖐️ Gentle pet</button></div>
             <button onClick={() => { playButton(); setSelectedHomeFriend(null); onOpenCarePlay(); }} className="mt-3 w-full rounded-xl bg-[#6EB9CE] px-3 py-3 font-body text-sm font-bold text-white active:scale-95">✨ Play a cozy care game</button>
-            <p className="font-body text-[10px] text-[#5C4D3C]/70 mt-2">{homeCare[selectedHomeFriend.id] ?? 0} kind care moments at this home</p>
+            <p className="font-body text-xs text-[#5C4D3C] mt-2">A cozy home for little moments together.</p>
           </div>
         </div>
       )}
@@ -401,13 +462,13 @@ export default function CampScreen({
       )}
 
       {/* One child-facing next step stays large; quieter choices live behind a single "More play" pocket. */}
-      <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-3 pointer-events-none">
+      <div className="absolute z-20 bottom-0 left-0 right-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none">
         {showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(270px,78vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(255,249,239,.96)', border: '1px solid #E2C9AB', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🍃</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#A85C41]">Grown-up time check</p><p className="font-body text-[10px] leading-snug text-[#5C4D3C]">Would a cuddle, stretch, or quiet rest feel good now?</p></div><button onClick={onDismissPlaytimeSuggestion} className="rounded-lg bg-[#EAF4EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#3D7A58] active:scale-95">Not yet</button></div></div>}
         {bedtimeReminderEnabled && rescueCount > 0 && !showPlaytimeSuggestion && <div className="pointer-events-auto mb-2 ml-auto w-[min(250px,72vw)] rounded-2xl px-3 py-2" style={{ background: 'rgba(32,50,86,.92)', border: '1px solid rgba(255,245,194,.38)', boxShadow: '0 5px 14px rgba(0,0,0,.22)' }}><div className="flex items-center gap-2"><span className="text-xl">🌙</span><div className="min-w-0 flex-1"><p className="font-body text-[9px] uppercase tracking-[.12em] font-bold text-[#FFF5C2]">Quiet ending, if wanted</p><p className="font-body text-[10px] leading-snug text-white/82">A grown-up asked us to offer a calm goodnight whenever play feels complete.</p></div><button onClick={() => { playButton(); onOpenBedtime(); }} className="rounded-lg bg-[#FFF9EF] px-2 py-1.5 font-body text-[10px] font-bold text-[#31446C] active:scale-95">Rest</button></div></div>}
-        {showMobilePlayMenu && <section id="camp-more-play" aria-label="More gentle play" className="pointer-events-auto mb-2 ml-auto w-full max-w-xl rounded-3xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-3 shadow-lg"><p className="font-display text-base font-bold text-[#2D2418]">More play</p><p className="mt-0.5 font-body text-[10px] text-[#5C4D3C]">Choose a little activity when you are ready.</p><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`} className="btn-parchment px-3 py-2.5 text-xs">{LEARNING_THEME_DETAILS[learningTheme].icon} Today’s focus</button>}<button onClick={beginDailyTrail} disabled={dailyDone} className="btn-parchment px-3 py-2.5 text-xs disabled:opacity-60">🎒 {dailyDone ? 'Trail resting' : 'Little trail'}</button><button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment px-3 py-2.5 text-xs">🧸 Cozy homes</button><button onClick={() => { playButton(); onOpenCarePlay(); }} className="btn-parchment px-3 py-2.5 text-xs">🫶 Care time</button><button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment px-3 py-2.5 text-xs">🌈 Little learning</button><button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment px-3 py-2.5 text-xs">🧩 Care pairs</button><button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment px-3 py-2.5 text-xs">📚 Storybook</button><button onClick={() => { playButton(); onOpenJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🍃 Nature journal</button><button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🌦️ Nature play</button><button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment px-3 py-2.5 text-xs">☁️ Weather</button>{celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment px-3 py-2.5 text-xs">{celebrationPath.icon} Celebration trail</button>}<button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment px-3 py-2.5 text-xs">🤝 Help together</button><button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-parchment px-3 py-2.5 text-xs">🗺️ Choose a trail</button></div></section>}
+        {showMobilePlayMenu && <section id="camp-more-play" aria-label="More gentle play" tabIndex={0} style={{ maxHeight: 'min(45dvh, calc(100dvh - 270px))' }} className="pointer-events-auto mb-2 ml-auto w-full max-w-xl overflow-y-auto overscroll-contain rounded-3xl border border-[#D9C8A8] bg-[#FFF8E6]/95 p-3 shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#F5C842]"><p className="font-display text-base font-bold text-[#2D2418]">More play</p><p className="mt-0.5 font-body text-[10px] text-[#5C4D3C]">Choose a little activity when you are ready.</p><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">{learningFocus && <button onClick={() => { playButton(); onStartLearningFocus(); }} aria-label={`Start today’s ${LEARNING_THEME_DETAILS[learningTheme].label.toLowerCase()} focus`} className="btn-parchment px-3 py-2.5 text-xs">{LEARNING_THEME_DETAILS[learningTheme].icon} Today’s focus</button>}<button onClick={beginDailyTrail} disabled={dailyDone} className="btn-parchment px-3 py-2.5 text-xs disabled:opacity-60">🎒 {dailyDone ? 'Trail resting' : 'Little trail'}</button><button onClick={() => { playButton(); onOpenNursery(); }} className="btn-parchment px-3 py-2.5 text-xs">🧸 Cozy homes</button><button onClick={() => { playButton(); onOpenCarePlay(); }} className="btn-parchment px-3 py-2.5 text-xs">🫶 Care time</button><button onClick={() => { playButton(); onOpenLearning(); }} className="btn-parchment px-3 py-2.5 text-xs">🌈 Little learning</button><button onClick={() => { playButton(); onOpenMatch3(); }} className="btn-parchment px-3 py-2.5 text-xs">🧩 Care pairs</button><button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-parchment px-3 py-2.5 text-xs">📚 Storybook</button><button onClick={() => { playButton(); onOpenJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🍃 Nature journal</button><button onClick={() => { playButton(); onOpenNatureJournal(); }} className="btn-parchment px-3 py-2.5 text-xs">🌦️ Nature play</button><button onClick={() => { playButton(); onOpenWeatherWonder(); }} className="btn-parchment px-3 py-2.5 text-xs">☁️ Weather</button>{celebrationPath && <button onClick={() => { playButton(); onOpenCelebrationPath(); }} className="btn-parchment px-3 py-2.5 text-xs">{celebrationPath.icon} Celebration trail</button>}<button onClick={() => { playButton(); onOpenTeamRescue(); }} className="btn-parchment px-3 py-2.5 text-xs">🤝 Help together</button><button onClick={() => { playButton(); setShowZoneSelect(true); }} className="btn-parchment px-3 py-2.5 text-xs">🗺️ Choose a trail</button></div></section>}
         <div className="flex items-end gap-2">
           <div className="pointer-events-auto flex min-w-0 flex-1 items-center gap-3 rounded-3xl px-3 py-3" style={{ background: 'oklch(0.97 0.02 80 / 0.96)', border: '1.5px solid oklch(0.85 0.03 75)', boxShadow: '0 4px 16px oklch(0 0 0 / 0.22)', borderTop: '2.5px solid #E66B5B' }}>{primaryFriend && <CritterAvatar type={primaryFriend.type} size={43} expression="worried" animate={!reduceMotion} />}<div className="min-w-0 flex-1"><p className="font-display text-sm text-[#2D2418]">{primaryPrompt}</p><p className="font-body text-[10px] text-[#5C4D3C]">{primaryNote}</p></div>{primaryFriend ? <button onClick={beginNextRescue} className="btn-coral min-h-14 shrink-0 px-4 py-3 text-sm shadow-xl">{`Help ${primaryFriend.name}`}</button> : <button onClick={() => { playButton(); onOpenStorybook(); }} className="btn-coral min-h-14 shrink-0 px-4 py-3 text-sm shadow-xl">Bestie Book</button>}</div>
-          <button onClick={() => { playButton(); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="camp-more-play" className="pointer-events-auto btn-parchment min-h-14 shrink-0 px-3 py-2.5 text-xs shadow-lg">{showMobilePlayMenu ? 'Close' : 'More play'}</button>
+          <button onClick={() => { playButton(); setShowBestieNook(false); setShowMobilePlayMenu((shown) => !shown); }} aria-expanded={showMobilePlayMenu} aria-controls="camp-more-play" className="pointer-events-auto btn-parchment min-h-14 shrink-0 px-3 py-2.5 text-xs shadow-lg">{showMobilePlayMenu ? 'Close' : 'More play'}</button>
         </div>
       </div>
 

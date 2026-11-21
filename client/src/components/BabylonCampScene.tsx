@@ -24,12 +24,12 @@ let ArcRotateCamera!: typeof Babylon.ArcRotateCamera;
 let Color3!: typeof Babylon.Color3;
 let Color4!: typeof Babylon.Color4;
 let DynamicTexture!: typeof Babylon.DynamicTexture;
+let DirectionalLight!: typeof Babylon.DirectionalLight;
 let Engine!: typeof Babylon.Engine;
 let ExecuteCodeAction!: typeof Babylon.ExecuteCodeAction;
 let HemisphericLight!: typeof Babylon.HemisphericLight;
 let Mesh!: typeof Babylon.Mesh;
 let MeshBuilder!: typeof Babylon.MeshBuilder;
-let PointLight!: typeof Babylon.PointLight;
 let Scene!: typeof Babylon.Scene;
 let ShadowGenerator!: typeof Babylon.ShadowGenerator;
 let StandardMaterial!: typeof Babylon.StandardMaterial;
@@ -38,7 +38,7 @@ let TransformNode!: typeof Babylon.TransformNode;
 let Vector3!: typeof Babylon.Vector3;
 
 function initializeBabylon(B: typeof Babylon) {
-  ({ ActionManager, ArcRotateCamera, Color3, Color4, DynamicTexture, Engine, ExecuteCodeAction, HemisphericLight, Mesh, MeshBuilder, PointLight, Scene, ShadowGenerator, StandardMaterial, Texture, TransformNode, Vector3 } = B);
+  ({ ActionManager, ArcRotateCamera, Color3, Color4, DynamicTexture, DirectionalLight, Engine, ExecuteCodeAction, HemisphericLight, Mesh, MeshBuilder, Scene, ShadowGenerator, StandardMaterial, Texture, TransformNode, Vector3 } = B);
 }
 
 type Props = {
@@ -78,52 +78,61 @@ function makeMaterial(scene: Scene, name: string, hex: string, emissive = 0): St
   return material;
 }
 
-function label(scene: Scene, parent: TransformNode, text: string, y: number, accent = '#F6EAD2') {
-  const texture = new DynamicTexture(`label-${text}`, { width: 512, height: 128 }, scene, true);
-  texture.hasAlpha = true;
-  texture.drawText(text, null, 84, 'bold 54px Nunito Sans', accent, 'transparent', true);
-  const material = new StandardMaterial(`label-mat-${text}`, scene);
-  material.diffuseTexture = texture;
-  material.opacityTexture = texture;
-  material.emissiveColor = new Color3(0.22, 0.18, 0.12);
-  material.disableLighting = true;
-  const plate = MeshBuilder.CreatePlane(`label-${text}`, { width: 1.45, height: 0.36 }, scene);
-  plate.parent = parent;
-  plate.position.y = y;
-  plate.billboardMode = Mesh.BILLBOARDMODE_ALL;
-  plate.material = material;
-  plate.isPickable = false;
-}
-
-function createTree(scene: Scene, position: Vector3, scale: number, leafMaterial: StandardMaterial, trunkMaterial: StandardMaterial, shadow: ShadowGenerator) {
+function createTree(scene: Scene, position: Vector3, scale: number, leafMaterial: StandardMaterial, trunkMaterial: StandardMaterial, shadow: ShadowGenerator, highlightMaterial = leafMaterial) {
   const root = new TransformNode(`tree-${position.x}-${position.z}`, scene);
   root.position = position;
-  const trunk = MeshBuilder.CreateCylinder(`trunk-${position.x}-${position.z}`, { height: scale * 2.2, diameterTop: scale * 0.38, diameterBottom: scale * 0.58, tessellation: 10 }, scene);
+  const trunk = MeshBuilder.CreateCylinder(`trunk-${position.x}-${position.z}`, { height: scale * 1.8, diameterTop: scale * 0.28, diameterBottom: scale * 0.42, tessellation: 12 }, scene);
   trunk.parent = root;
-  trunk.position.y = scale * 1.1;
+  trunk.position.y = scale * 0.9;
   trunk.material = trunkMaterial;
+  trunk.isPickable = false;
   shadow.addShadowCaster(trunk);
-  const canopy = MeshBuilder.CreateSphere(`canopy-${position.x}-${position.z}`, { diameter: scale * 2.3, segments: 12 }, scene);
-  canopy.parent = root;
-  canopy.position.y = scale * 2.55;
-  canopy.scaling = new Vector3(1, 1.12, 1);
-  canopy.material = leafMaterial;
-  shadow.addShadowCaster(canopy);
-  const puff = MeshBuilder.CreateSphere(`canopy-puff-${position.x}-${position.z}`, { diameter: scale * 1.55, segments: 10 }, scene);
-  puff.parent = root;
-  puff.position = new Vector3(scale * 0.75, scale * 2.3, scale * 0.12);
-  puff.material = leafMaterial;
-  shadow.addShadowCaster(puff);
+  // Overlapping, softly flattened lobes read as a sewn felt crown, not a cone.
+  [[0, 2.25, 0, 2.15], [-0.68, 1.98, 0.16, 1.48], [0.65, 2.08, 0.1, 1.6], [0.12, 2.7, -0.08, 1.35]].forEach(([x, y, z, diameter], index) => {
+    const canopy = MeshBuilder.CreateSphere(`canopy-${position.x}-${position.z}-${index}`, { diameter: scale * diameter, segments: 12 }, scene);
+    canopy.parent = root;
+    canopy.position = new Vector3(scale * x, scale * y, scale * z);
+    canopy.scaling = new Vector3(1, 0.82, 0.9);
+    canopy.material = index === 3 ? highlightMaterial : leafMaterial;
+    canopy.isPickable = false;
+    shadow.addShadowCaster(canopy);
+  });
   return root;
 }
 
-function createFlower(scene: Scene, x: number, z: number, color: string) {
-  const stem = MeshBuilder.CreateCylinder(`stem-${x}-${z}`, { height: 0.34, diameter: 0.04, tessellation: 6 }, scene);
-  stem.position = new Vector3(x, 0.17, z);
-  stem.material = makeMaterial(scene, `stem-mat-${x}-${z}`, '#3F7F45');
-  const bloom = MeshBuilder.CreateSphere(`bloom-${x}-${z}`, { diameter: 0.24, segments: 8 }, scene);
-  bloom.position = new Vector3(x, 0.39, z);
-  bloom.material = makeMaterial(scene, `bloom-mat-${x}-${z}`, color, 0.04);
+function createFlower(scene: Scene, x: number, z: number, color: string, parent?: TransformNode, name = `flower-${x}-${z}`, scale = 1) {
+  const sharedMaterial = (key: string, hex: string) => (scene.getMaterialByName(key) as StandardMaterial | null) ?? makeMaterial(scene, key, hex);
+  const leaf = sharedMaterial('flower-leaf', '#86A57E');
+  const petal = sharedMaterial(`flower-petal-${color}`, color);
+  const center = sharedMaterial('flower-center', '#E8C98F');
+  const parts: Mesh[] = [];
+  const add = (part: Mesh, material: StandardMaterial) => { part.material = material; part.isPickable = false; parts.push(part); };
+  const stem = MeshBuilder.CreateCylinder(`${name}-stem`, { height: 0.3 * scale, diameter: 0.035 * scale, tessellation: 6 }, scene);
+  stem.position = new Vector3(x, 0.15 * scale, z);
+  add(stem, leaf);
+  const smallLeaf = MeshBuilder.CreateSphere(`${name}-leaf`, { diameter: 0.14 * scale, segments: 8 }, scene);
+  smallLeaf.position = new Vector3(x + 0.065 * scale, 0.14 * scale, z);
+  smallLeaf.scaling = new Vector3(1, 0.25, 0.5);
+  smallLeaf.rotation.z = 0.5;
+  add(smallLeaf, leaf);
+  for (let i = 0; i < 5; i++) {
+    const angle = i * Math.PI * 2 / 5;
+    const bloom = MeshBuilder.CreateSphere(`${name}-petal-${i}`, { diameter: 0.19 * scale, segments: 8 }, scene);
+    bloom.position = new Vector3(x + Math.cos(angle) * 0.1 * scale, 0.32 * scale, z + Math.sin(angle) * 0.1 * scale);
+    bloom.scaling = new Vector3(1, 0.32, 0.68);
+    bloom.rotation.y = -angle;
+    add(bloom, petal);
+  }
+  const pollen = MeshBuilder.CreateSphere(`${name}-center`, { diameter: 0.12 * scale, segments: 8 }, scene);
+  pollen.position = new Vector3(x, 0.345 * scale, z);
+  pollen.scaling.y = 0.45;
+  add(pollen, center);
+  // Merge each flower to keep the small diorama economical on phones.
+  const flower = Mesh.MergeMeshes(parts, true, false, undefined, false, true)!;
+  flower.name = name;
+  flower.parent = parent ?? null;
+  flower.isPickable = false;
+  return flower;
 }
 
 type HomeStyle = 'acorn-nook' | 'pond-patch' | 'nest-perch' | 'garden-hideout' | 'honey-hut';
@@ -157,12 +166,12 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
   const detail = HOME_DETAILS[critter.type] ?? { style: 'garden-hideout' as HomeStyle, title: 'Cozy Corner' };
   const root = new TransformNode(`home-${critter.name}`, scene);
   root.position = position;
-  const soil = makeMaterial(scene, `home-soil-${critter.name}`, '#6A4931');
-  const wood = makeMaterial(scene, `home-wood-${critter.name}`, '#8A5737');
+  const soil = makeMaterial(scene, `home-soil-${critter.name}`, '#947662');
+  const wood = makeMaterial(scene, `home-wood-${critter.name}`, '#BA9474');
   const cream = makeMaterial(scene, `home-cream-${critter.name}`, '#F1DFC3');
-  const water = makeMaterial(scene, `home-water-${critter.name}`, '#6EB9CE', 0.08);
-  const leaf = makeMaterial(scene, `home-leaf-${critter.name}`, '#548B50');
-  const petal = makeMaterial(scene, `home-petal-${critter.name}`, '#E89A9E', 0.05);
+  const water = makeMaterial(scene, `home-water-${critter.name}`, '#AED3D2', 0.03);
+  const leaf = makeMaterial(scene, `home-leaf-${critter.name}`, '#91AF83');
+  const petal = makeMaterial(scene, `home-petal-${critter.name}`, '#E7B7BF');
   const homeParts: Mesh[] = [];
   const addShadow = (part: Mesh) => { homeParts.push(part); shadow.addShadowCaster(part); };
 
@@ -186,7 +195,7 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
     const stump = MeshBuilder.CreateCylinder(`home-stump-${critter.name}`, { height: 1.05, diameterTop: 0.38, diameterBottom: 0.58, tessellation: 10 }, scene);
     stump.parent = root; stump.position.y = 0.52; stump.material = wood; addShadow(stump);
     const nest = MeshBuilder.CreateTorus(`home-nest-${critter.name}`, { diameter: 0.88, thickness: 0.16, tessellation: 18 }, scene);
-    nest.parent = root; nest.rotation.x = Math.PI / 2; nest.position.y = 1.1; nest.material = soil; addShadow(nest);
+    nest.parent = root; nest.position.y = 1.1; nest.material = soil; addShadow(nest);
     const egg = MeshBuilder.CreateSphere(`home-egg-${critter.name}`, { diameter: 0.22, segments: 8 }, scene);
     egg.parent = root; egg.position = new Vector3(-0.1, 1.18, 0); egg.material = cream; addShadow(egg);
   } else if (detail.style === 'honey-hut') {
@@ -202,8 +211,8 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
     const rock = MeshBuilder.CreateSphere(`home-rock-${critter.name}`, { diameter: 0.78, segments: 10 }, scene);
     rock.parent = root; rock.position = new Vector3(0.04, 0.27, 0.1); rock.scaling = new Vector3(1.15, 0.72, 0.72); rock.material = cream; addShadow(rock);
     for (let i = 0; i < 2; i++) {
-      const flower = MeshBuilder.CreateSphere(`home-flower-${critter.name}-${i}`, { diameter: 0.19, segments: 8 }, scene);
-      flower.parent = root; flower.position = new Vector3(-0.4 + i * 0.8, 0.31, -0.16); flower.material = petal; addShadow(flower);
+      const flower = createFlower(scene, -0.4 + i * 0.8, -0.16, '#E7B7BF', root, `home-flower-${critter.name}-${i}`, 0.75);
+      addShadow(flower);
     }
   }
   const decorationPlan = getHomeDecorationRenderPlan(decoration);
@@ -236,49 +245,54 @@ function createCritterHome(scene: Scene, critter: CritterData, position: Vector3
   }
   const careRing = MeshBuilder.CreateTorus(`home-care-ring-${critter.name}`, { diameter: 1.45, thickness: 0.055, tessellation: 28 }, scene);
   careRing.parent = root;
-  careRing.rotation.x = Math.PI / 2;
   careRing.position.y = 0.06;
   careRing.material = petal;
-  careRing.actionManager = new ActionManager(scene);
-  careRing.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, onCare));
-  label(scene, root, `${critter.name}'s ${detail.title}`, detail.style === 'nest-perch' ? 1.62 : 1.24, '#FBE8CA');
+  // The whole home is a care target, not only a narrow ring. Readable names live in the React HUD.
+  root.getChildMeshes().forEach((part) => {
+    part.isPickable = true;
+    part.actionManager = new ActionManager(scene);
+    part.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, onCare));
+  });
   return root;
 }
 
 function createSanctuaryGrowth(scene: Scene, kindnessMoments: number, shadow: ShadowGenerator) {
   const growth = getSanctuaryGrowth(kindnessMoments);
   if (!growth.propKey) return;
-  const wood = makeMaterial(scene, 'kindness-growth-wood', '#8A5737');
-  const leaf = makeMaterial(scene, 'kindness-growth-leaf', '#6EAA62');
-  const water = makeMaterial(scene, 'kindness-growth-water', '#6EB9CE', 0.12);
-  const bloom = makeMaterial(scene, 'kindness-growth-bloom', '#F1B4C0', 0.1);
+  const wood = makeMaterial(scene, 'kindness-growth-wood', '#B99A79');
+  const leaf = makeMaterial(scene, 'kindness-growth-leaf', '#91AF83');
+  const water = makeMaterial(scene, 'kindness-growth-water', '#AED3D2', 0.03);
   const addShadow = (mesh: Mesh) => shadow.addShadowCaster(mesh);
   if (kindnessMoments >= 3) {
     [-0.62, 0.62].forEach((x, index) => { const post = MeshBuilder.CreateCylinder(`kindness-arbor-post-${index}`, { height: 1.25, diameter: 0.13, tessellation: 8 }, scene); post.position = new Vector3(0.2 + x, 0.63, -4.15); post.material = wood; addShadow(post); });
-    const arch = MeshBuilder.CreateTorus('kindness-arbor-arch', { diameter: 1.22, thickness: 0.11, tessellation: 20 }, scene);
-    arch.position = new Vector3(0.2, 1.28, -4.15); arch.rotation.x = Math.PI / 2; arch.scaling.y = 1.18; arch.material = leaf; addShadow(arch);
+    const archPath = Array.from({ length: 17 }, (_, index) => {
+      const angle = Math.PI * index / 16;
+      return new Vector3(0.2 + Math.cos(angle) * 0.62, 1.25 + Math.sin(angle) * 0.48, -4.15);
+    });
+    const arch = MeshBuilder.CreateTube('kindness-arbor-arch', { path: archPath, radius: 0.065, tessellation: 8 }, scene);
+    arch.material = leaf; arch.isPickable = false; addShadow(arch);
   }
   if (kindnessMoments >= 8) {
     const bowl = MeshBuilder.CreateCylinder('kindness-ripple-bowl', { height: 0.22, diameterTop: 0.95, diameterBottom: 0.72, tessellation: 18 }, scene);
     bowl.position = new Vector3(2.15, 0.12, -3.65); bowl.material = water; addShadow(bowl);
     const ripple = MeshBuilder.CreateTorus('kindness-ripple-ring', { diameter: 0.56, thickness: 0.035, tessellation: 18 }, scene);
-    ripple.position = new Vector3(2.15, 0.245, -3.65); ripple.rotation.x = Math.PI / 2; ripple.material = makeMaterial(scene, 'kindness-ripple-ring-mat', '#EAF8FF', 0.4);
+    ripple.position = new Vector3(2.15, 0.245, -3.65); ripple.material = makeMaterial(scene, 'kindness-ripple-ring-mat', '#EAF8FF', 0.08);
   }
   if (kindnessMoments >= 15) {
-    [-0.45, -0.15, 0.15, 0.45].forEach((offset, index) => { const flower = MeshBuilder.CreateSphere(`kindness-bloom-flower-${index}`, { diameter: 0.27, segments: 8 }, scene); flower.position = new Vector3(-2.25 + offset, 0.32 + (index % 2) * 0.08, -3.75 + (index % 2) * 0.18); flower.material = bloom; addShadow(flower); });
-    const stem = MeshBuilder.CreateCylinder('kindness-bloom-stem', { height: 0.52, diameter: 0.07, tessellation: 6 }, scene);
-    stem.position = new Vector3(-2.25, 0.26, -3.7); stem.material = leaf; addShadow(stem);
+    [-0.45, -0.15, 0.15, 0.45].forEach((offset, index) => {
+      addShadow(createFlower(scene, -2.25 + offset, -3.75 + (index % 2) * 0.18, '#E7B7BF', undefined, `kindness-bloom-flower-${index}`, 1 + (index % 2) * 0.2));
+    });
   }
 }
 
 /** Three fixed, story-led landmarks. They are intentionally calm scenery, not unlock currency. */
 function createFlagshipLandmarks(scene: Scene, completedStories: readonly FlagshipStoryId[], shadow: ShadowGenerator) {
   const complete = new Set(completedStories);
-  const wood = makeMaterial(scene, 'flagship-wood', '#8A5737');
-  const leaf = makeMaterial(scene, 'flagship-leaf', '#548B50');
-  const water = makeMaterial(scene, 'flagship-water', '#6EB9CE', 0.12);
-  const nest = makeMaterial(scene, 'flagship-nest', '#6A4931');
-  const lantern = makeMaterial(scene, 'flagship-lantern', '#F5C842', 0.68);
+  const wood = makeMaterial(scene, 'flagship-wood', '#B99A79');
+  const leaf = makeMaterial(scene, 'flagship-leaf', '#91AF83');
+  const water = makeMaterial(scene, 'flagship-water', '#AED3D2', 0.03);
+  const nest = makeMaterial(scene, 'flagship-nest', '#A38973');
+  const lantern = makeMaterial(scene, 'flagship-lantern', '#EED4A0', 0.18);
   const addShadow = (mesh: Mesh) => shadow.addShadowCaster(mesh);
 
   if (complete.has('pip-flower-path')) {
@@ -288,7 +302,7 @@ function createFlagshipLandmarks(scene: Scene, completedStories: readonly Flagsh
     const perch = MeshBuilder.CreateCylinder('flagship-pip-nest-perch', { height: 0.7, diameterTop: 0.16, diameterBottom: 0.28, tessellation: 8 }, scene);
     perch.position = new Vector3(-1.75, 0.35, -2.0); perch.material = wood; addShadow(perch);
     const tinyNest = MeshBuilder.CreateTorus('flagship-pip-twig-nest', { diameter: 0.55, thickness: 0.12, tessellation: 14 }, scene);
-    tinyNest.position = new Vector3(-1.75, 0.74, -2.0); tinyNest.rotation.x = Math.PI / 2; tinyNest.material = nest; addShadow(tinyNest);
+    tinyNest.position = new Vector3(-1.75, 0.74, -2.0); tinyNest.material = nest; addShadow(tinyNest);
   }
 
   if (complete.has('finn-riverside-crossing')) {
@@ -310,7 +324,7 @@ function createFlagshipLandmarks(scene: Scene, completedStories: readonly Flagsh
     const willowCrown = MeshBuilder.CreateSphere('flagship-wren-willow-crown', { diameter: 1.25, segments: 10 }, scene);
     willowCrown.position = new Vector3(-3.8, 1.85, 3.8); willowCrown.scaling = new Vector3(1.05, 0.72, 0.92); willowCrown.material = leaf; addShadow(willowCrown);
     const cozyNest = MeshBuilder.CreateTorus('flagship-wren-nest', { diameter: 0.7, thickness: 0.15, tessellation: 16 }, scene);
-    cozyNest.position = new Vector3(-3.42, 1.42, 3.56); cozyNest.rotation.x = Math.PI / 2; cozyNest.material = nest; addShadow(cozyNest);
+    cozyNest.position = new Vector3(-3.42, 1.42, 3.56); cozyNest.material = nest; addShadow(cozyNest);
     const glow = MeshBuilder.CreateSphere('flagship-wren-lantern', { diameter: 0.2, segments: 8 }, scene);
     glow.position = new Vector3(-3.1, 0.55, 3.35); glow.material = lantern; addShadow(glow);
   }
@@ -324,10 +338,10 @@ function makePlushie(
   scale: number,
   interactive: () => void,
   shadow: ShadowGenerator,
-  isCompanion = false,
 ) {
   const root = new TransformNode(`plush-${displayName}`, scene);
   root.position = position;
+  const texturePath = PLUSH_IMAGES[type];
   const plushColor = Color3.FromHexString(FALLBACK_COLORS[type] || '#F2E9E1');
   const bodyMaterial = new StandardMaterial(`plush-body-${displayName}`, scene);
   bodyMaterial.diffuseColor = plushColor;
@@ -342,20 +356,22 @@ function makePlushie(
   body.material = bodyMaterial;
   shadow.addShadowCaster(body);
 
-  const earA = MeshBuilder.CreateSphere(`ear-a-${displayName}`, { diameter: 1, segments: 12 }, scene);
-  earA.parent = root;
-  earA.scaling = new Vector3(scale * 0.22, scale * 0.36, scale * 0.16);
-  earA.position = new Vector3(-scale * 0.36, scale * 1.46, 0);
-  earA.material = bodyMaterial;
-  const earB = earA.clone(`ear-b-${displayName}`) as Mesh;
-  earB.parent = root;
-  earB.position.x = scale * 0.36;
-  shadow.addShadowCaster(earA);
-  shadow.addShadowCaster(earB);
+  // Supplied art already includes ears. Extra ovals above it resemble floating flames.
+  if (!texturePath) {
+    const earA = MeshBuilder.CreateSphere(`ear-a-${displayName}`, { diameter: 1, segments: 12 }, scene);
+    earA.parent = root;
+    earA.scaling = new Vector3(scale * 0.22, scale * 0.36, scale * 0.16);
+    earA.position = new Vector3(-scale * 0.36, scale * 1.46, 0);
+    earA.material = bodyMaterial;
+    const earB = earA.clone(`ear-b-${displayName}`) as Mesh;
+    earB.parent = root;
+    earB.position.x = scale * 0.36;
+    shadow.addShadowCaster(earA);
+    shadow.addShadowCaster(earB);
+  }
 
   // Textured image-plane gives each supplied plush image its exact personality.
   const faceMaterial = new StandardMaterial(`plush-face-${displayName}`, scene);
-  const texturePath = PLUSH_IMAGES[type];
   if (texturePath) {
     const texture = new Texture(texturePath, scene, false, false);
     texture.hasAlpha = true;
@@ -368,6 +384,9 @@ function makePlushie(
   }
   faceMaterial.backFaceCulling = false;
   faceMaterial.specularColor = new Color3(0, 0, 0);
+  // Retain the original warm illustration rather than tinting it forest green.
+  faceMaterial.disableLighting = Boolean(texturePath);
+  if (texturePath) faceMaterial.emissiveColor = new Color3(1, 1, 1);
   const face = MeshBuilder.CreatePlane(`plush-face-${displayName}`, { width: scale * 1.45, height: scale * 1.45 }, scene);
   face.parent = root;
   face.position = new Vector3(0, scale * 0.78, -scale * 0.53);
@@ -377,7 +396,6 @@ function makePlushie(
   face.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, interactive));
   body.actionManager = new ActionManager(scene);
   body.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, interactive));
-  label(scene, root, displayName, scale * 1.88, isCompanion ? '#FBE8CA' : '#F8F2E7');
 
   return { root, body, face };
 }
@@ -395,84 +413,131 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
       initializeBabylon(B);
     const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, adaptToDeviceRatio: true });
     const scene = new Scene(engine);
-    const seasonalPalette: Record<SanctuarySeason, { sky: string; accent: string }> = { spring: { sky: '#103B2A', accent: '#F1B4C0' }, summer: { sky: '#103B2A', accent: '#F5C842' }, autumn: { sky: '#183C2D', accent: '#E8874E' }, winter: { sky: '#153C47', accent: '#B8E0EC' } };
+    const seasonalPalette: Record<SanctuarySeason, { sky: string; grass: string; leaf: string; accent: string }> = {
+      spring: { sky: '#DCE7D6', grass: '#ADC49A', leaf: '#A8BF91', accent: '#E7B7BF' },
+      summer: { sky: '#D9E5D5', grass: '#ABC196', leaf: '#9DB78C', accent: '#E9D299' },
+      autumn: { sky: '#E9E3D4', grass: '#B8BD96', leaf: '#C5AC86', accent: '#D8A18A' },
+      winter: { sky: '#E1EBE8', grass: '#C0CFBE', leaf: '#B0C5B6', accent: '#BED9DB' },
+    };
     const seasonal = seasonalPalette[season];
     scene.clearColor = Color4.FromHexString(seasonal.sky);
-    scene.ambientColor = new Color3(0.38, 0.32, 0.22);
+    scene.ambientColor = new Color3(0.18, 0.2, 0.16);
+    scene.fogMode = Scene.FOGMODE_LINEAR;
+    scene.fogColor = Color3.FromHexString(seasonal.sky);
+    scene.fogStart = 28;
+    scene.fogEnd = 58;
 
-    const camera = new ArcRotateCamera('camp-camera', -Math.PI / 2.15, 1.05, 20.5, new Vector3(0, 1.45, 0), scene);
-    camera.lowerRadiusLimit = 14;
-    camera.upperRadiusLimit = 26;
-    camera.lowerBetaLimit = 0.72;
-    camera.upperBetaLimit = 1.26;
+    const camera = new ArcRotateCamera('camp-camera', -Math.PI / 2, 0.96, 17.8, new Vector3(0, 1.05, 0.3), scene);
+    // A stable horizontal field of view keeps Bestie and the nearest friend in frame on phones.
+    camera.fovMode = ArcRotateCamera.FOVMODE_HORIZONTAL_FIXED;
+    camera.fov = 0.82;
+    camera.lowerRadiusLimit = 13.5;
+    camera.upperRadiusLimit = 24;
+    camera.lowerBetaLimit = 0.74;
+    camera.upperBetaLimit = 1.2;
     camera.wheelPrecision = 42;
     camera.panningSensibility = 0;
+    camera.inertia = reduceMotion ? 0 : 0.75;
     camera.attachControl(canvas, true);
 
     const sky = new HemisphericLight('soft-sky', new Vector3(0.1, 1, 0.3), scene);
-    sky.diffuse = Color3.FromHexString('#F8D8A8');
-    sky.groundColor = Color3.FromHexString('#274F34');
-    sky.intensity = 0.76;
-    const firelight = new PointLight('hearth-glow', new Vector3(0, 3.2, 0), scene);
-    firelight.diffuse = Color3.FromHexString('#FFB86C');
-    firelight.intensity = 2.4;
-    firelight.range = 10;
-    const shadow = new ShadowGenerator(1024, firelight);
+    sky.diffuse = Color3.FromHexString('#FFF5E6');
+    sky.groundColor = Color3.FromHexString('#B6C8A8');
+    sky.intensity = 0.82;
+    const daylight = new DirectionalLight('warm-daylight', new Vector3(-0.45, -1, 0.4), scene);
+    daylight.position = new Vector3(8, 14, -7);
+    daylight.diffuse = Color3.FromHexString('#FFF1D9');
+    daylight.intensity = 0.5;
+    const shadow = new ShadowGenerator(1024, daylight);
     shadow.useBlurExponentialShadowMap = true;
-    shadow.blurKernel = 18;
+    shadow.blurKernel = 24;
+    shadow.setDarkness(0.28);
 
-    const grassMaterial = makeMaterial(scene, 'felt-grass', '#497C45');
+    // A quiet continuous meadow replaces the empty dark void outside the diorama.
+    const meadow = MeshBuilder.CreateGround('sage-meadow', { width: 160, height: 160 }, scene);
+    meadow.position.y = -0.12;
+    meadow.material = makeMaterial(scene, 'sage-meadow-mat', seasonal.sky);
+    meadow.isPickable = false;
+    const grassMaterial = makeMaterial(scene, 'felt-grass', seasonal.grass);
+    const island = MeshBuilder.CreateCylinder('felt-clearing-edge', { height: 0.14, diameter: 19, tessellation: 72 }, scene);
+    island.position.y = -0.07;
+    island.material = makeMaterial(scene, 'felt-clearing-edge-mat', '#C3C7A5');
+    island.isPickable = false;
     const ground = MeshBuilder.CreateDisc('felt-clearing', { radius: 9.5, tessellation: 72 }, scene);
     ground.rotation.x = Math.PI / 2;
     ground.material = grassMaterial;
     ground.receiveShadows = true;
+    ground.isPickable = false;
 
-    const ringMaterial = makeMaterial(scene, 'trail-ring', '#B79861');
+    const ringMaterial = makeMaterial(scene, 'trail-ring', '#D8C6A3');
     const path = MeshBuilder.CreateTorus('stitched-trail', { diameter: 12.5, thickness: 0.12, tessellation: 64 }, scene);
-    path.rotation.x = Math.PI / 2;
+    // Babylon toruses are already horizontal. Rotating this made a giant upright hoop.
     path.position.y = 0.04;
     path.material = ringMaterial;
+    path.isPickable = false;
+    const pebbleMat = makeMaterial(scene, 'path-pebble-mat', '#E2D7BB');
+    [[-4.1, -2.1], [-3.45, -1.85], [-2.75, -1.45], [2.65, -1.55], [3.35, -2], [4.1, -2.35]].forEach(([x, z], index) => {
+      const pebble = MeshBuilder.CreateSphere(`path-pebble-${index}`, { diameter: 0.42, segments: 10 }, scene);
+      pebble.position = new Vector3(x, 0.04, z);
+      pebble.scaling = new Vector3(1.35, 0.18, 0.84);
+      pebble.material = pebbleMat;
+      pebble.isPickable = false;
+      pebble.receiveShadows = true;
+    });
 
-    const trunkMaterial = makeMaterial(scene, 'plush-trunk', '#8C5A3B');
-    const leafMaterialA = makeMaterial(scene, 'plush-leaf-a', '#2E6B45');
-    const leafMaterialB = makeMaterial(scene, 'plush-leaf-b', '#3C844E');
+    const trunkMaterial = makeMaterial(scene, 'plush-trunk', '#B79B7C');
+    const leafMaterialA = makeMaterial(scene, 'plush-leaf-a', seasonal.leaf);
+    const leafMaterialB = makeMaterial(scene, 'plush-leaf-b', '#B7C8A1');
     [
-      [-7.1, -4.4, 1.7, leafMaterialA], [-6.2, 4.3, 1.35, leafMaterialB], [-3.8, 6.7, 1.25, leafMaterialA],
-      [6.6, -4.9, 1.65, leafMaterialB], [7.4, 3.6, 1.4, leafMaterialA], [3.6, 6.8, 1.1, leafMaterialB],
-    ].forEach(([x, z, scale, material]) => createTree(scene, new Vector3(x as number, 0, z as number), scale as number, material as StandardMaterial, trunkMaterial, shadow));
+      [-7.7, -1.6, 1.1, leafMaterialA], [-6.9, 4.3, 1.3, leafMaterialB], [-3.8, 7.1, 1.15, leafMaterialA],
+      [7.7, -1.2, 1.1, leafMaterialB], [7.1, 4.1, 1.3, leafMaterialA], [3.6, 7.1, 1.2, leafMaterialB], [0.2, 8.2, 1.35, leafMaterialA],
+    ].forEach(([x, z, scale, material]) => createTree(scene, new Vector3(x as number, 0, z as number), scale as number, material as StandardMaterial, trunkMaterial, shadow, leafMaterialB));
 
-    [['#E66B5B', -3.4, -1.8], ['#F4C949', -2.1, -3.4], ['#F1B4C0', 3.6, -2.7], ['#E66B5B', 4.6, 1.6], ['#B69DE8', -4.8, 2.6], ['#F4C949', 1.8, 4.9], ['#E66B5B', 4.2, 4.2]].forEach(([color, x, z]) => createFlower(scene, x as number, z as number, color as string));
+    [['#E7B7BF', -3.4, -3.8], ['#E9D299', -2.1, -3.4], ['#E7B7BF', 3.6, -2.7], ['#D6ADAA', 4.6, 1.6], ['#C7BDCF', -4.8, 2.6], ['#E9D299', 1.8, 4.9], ['#E7B7BF', 4.2, 4.2], ['#E7B7BF', 3.85, -2.45], ['#C7BDCF', -4.5, 2.8]].forEach(([color, x, z]) => createFlower(scene, x as number, z as number, color as string));
     [[-5.7, -0.5], [5.7, -0.4], [-1.7, 5.9], [1.8, -5.1]].forEach(([x, z], index) => {
-      const seasonalDot = MeshBuilder.CreateSphere(`seasonal-keepsake-${season}-${index}`, { diameter: 0.22, segments: 8 }, scene);
-      seasonalDot.position = new Vector3(x, 0.16, z); seasonalDot.material = makeMaterial(scene, `seasonal-keepsake-mat-${season}-${index}`, seasonal.accent, 0.2); shadow.addShadowCaster(seasonalDot);
+      const seasonalFlower = createFlower(scene, x, z, seasonal.accent, undefined, `seasonal-keepsake-${season}-${index}`, 0.85);
+      shadow.addShadowCaster(seasonalFlower);
     });
     createSanctuaryGrowth(scene, kindnessMoments, shadow);
     createFlagshipLandmarks(scene, completedFlagshipStories, shadow);
 
-    // Campfire with stone ring and animated warm flame.
-    const stoneMat = makeMaterial(scene, 'fire-stones', '#9A836A');
-    const logMat = makeMaterial(scene, 'fire-logs', '#72472E');
-    for (let i = 0; i < 7; i++) {
-      const a = (i / 7) * Math.PI * 2;
-      const stone = MeshBuilder.CreateSphere(`stone-${i}`, { diameter: 0.56, segments: 10 }, scene);
-      stone.position = new Vector3(Math.cos(a) * 0.94, 0.22, Math.sin(a) * 0.94);
-      stone.scaling.y = 0.65;
-      stone.material = stoneMat;
-      shadow.addShadowCaster(stone);
-    }
-    [0.65, -0.65].forEach((rotation, i) => {
-      const log = MeshBuilder.CreateCylinder(`log-${i}`, { height: 1.55, diameter: 0.22, tessellation: 10 }, scene);
-      log.rotation.z = Math.PI / 2;
-      log.rotation.y = rotation;
-      log.position.y = 0.35;
-      log.material = logMat;
-      shadow.addShadowCaster(log);
+    // A tucked-in tea picnic is welcoming in daylight: no flame or flickering threat.
+    const picnic = new TransformNode('gentle-picnic', scene);
+    picnic.position = new Vector3(1.55, 0, 0.8);
+    const blanket = MeshBuilder.CreateDisc('picnic-blanket', { radius: 1.05, tessellation: 40 }, scene);
+    blanket.parent = picnic;
+    blanket.rotation.x = Math.PI / 2;
+    blanket.position.y = 0.025;
+    blanket.scaling.x = 1.2;
+    blanket.material = makeMaterial(scene, 'picnic-blanket-mat', '#E1BCB4');
+    blanket.receiveShadows = true;
+    const blanketEdge = MeshBuilder.CreateTorus('picnic-stitched-edge', { diameter: 2.0, thickness: 0.035, tessellation: 40 }, scene);
+    blanketEdge.parent = picnic;
+    blanketEdge.position.y = 0.035;
+    blanketEdge.scaling.x = 1.2;
+    blanketEdge.material = makeMaterial(scene, 'picnic-edge-mat', '#F1DDCC');
+    const lanternWood = makeMaterial(scene, 'picnic-lantern-frame-mat', '#AD9275');
+    const lanternGlow = makeMaterial(scene, 'picnic-lantern-glow-mat', '#F4DCAA', 0.16);
+    const lantern = MeshBuilder.CreateCylinder('picnic-lantern', { height: 0.42, diameter: 0.32, tessellation: 12 }, scene);
+    lantern.parent = picnic;
+    lantern.position = new Vector3(0.08, 0.3, 0.08);
+    lantern.material = lanternGlow;
+    [0.08, 0.53].forEach((y, index) => {
+      const cap = MeshBuilder.CreateCylinder(`picnic-lantern-cap-${index}`, { height: 0.07, diameter: 0.4, tessellation: 12 }, scene);
+      cap.parent = picnic; cap.position = new Vector3(0.08, y, 0.08); cap.material = lanternWood;
+      shadow.addShadowCaster(cap);
     });
-    const flameMat = makeMaterial(scene, 'flame-mat', '#FF8B4D', 0.9);
-    const flame = MeshBuilder.CreateSphere('gentle-flame', { diameter: 0.78, segments: 12 }, scene);
-    flame.position = new Vector3(0, 0.88, 0);
-    flame.scaling = new Vector3(0.72, 1.45, 0.72);
-    flame.material = flameMat;
+    const handle = MeshBuilder.CreateTorus('picnic-lantern-handle', { diameter: 0.25, thickness: 0.035, tessellation: 16 }, scene);
+    handle.parent = picnic; handle.rotation.x = Math.PI / 2; handle.position = new Vector3(0.08, 0.62, 0.08); handle.material = lanternWood;
+    const cupMat = makeMaterial(scene, 'picnic-cup-mat', '#F2E4CC');
+    [-0.46, 0.5].forEach((x, index) => {
+      const cup = MeshBuilder.CreateCylinder(`picnic-cup-${index}`, { height: 0.18, diameterTop: 0.22, diameterBottom: 0.18, tessellation: 12 }, scene);
+      cup.parent = picnic; cup.position = new Vector3(x, 0.13, -0.24); cup.material = cupMat;
+      const tea = MeshBuilder.CreateDisc(`picnic-tea-${index}`, { radius: 0.08, tessellation: 12 }, scene);
+      tea.parent = picnic; tea.rotation.x = Math.PI / 2; tea.position = new Vector3(x, 0.225, -0.24); tea.material = lanternWood;
+      shadow.addShadowCaster(cup);
+    });
+    picnic.getChildMeshes().forEach((part) => { part.isPickable = false; });
 
     // Rescue signpost.
     const signPole = MeshBuilder.CreateCylinder('rescue-sign-pole', { height: 2.2, diameter: 0.16, tessellation: 8 }, scene);
@@ -494,14 +559,14 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     // The next friend waits visibly at the trail edge, turning the camp into a
     // place to enter a rescue rather than a background behind a button.
     if (rescueFriend) {
-      makePlushie(scene, rescueFriend.type, `${rescueFriend.name} needs help`, new Vector3(-4.15, 0.02, -1.1), 1.56, () => onRescueTrailClick?.(), shadow);
+      makePlushie(scene, rescueFriend.type, `${rescueFriend.name} needs help`, new Vector3(rescuedCritters.length ? -4.8 : -2.8, 0.02, -1.3), 1.56, () => onRescueTrailClick?.(), shadow);
     }
 
-    const companion = makePlushie(scene, companionType, 'Your Companion', new Vector3(0, 0.02, 2.6), 2.25, onCompanionClick, shadow, true);
+    const companion = makePlushie(scene, companionType, 'Your Companion', new Vector3(0.25, 0.02, -2.25), 1.95, onCompanionClick, shadow);
 
     const friendSlots = [
-      new Vector3(-3.3, 0.02, 2.2), new Vector3(3.3, 0.02, 2.2), new Vector3(-4.8, 0.02, 0.2),
-      new Vector3(4.7, 0.02, 0.1), new Vector3(-2.8, 0.02, -2.2), new Vector3(2.8, 0.02, -2.2),
+      new Vector3(-2.65, 0.02, -1.1), new Vector3(3.65, 0.02, -0.85), new Vector3(-4.8, 0.02, 1.8),
+      new Vector3(4.7, 0.02, 2.1), new Vector3(-2.6, 0.02, 3.7), new Vector3(2.8, 0.02, 3.8),
     ];
     const friendPlushies = rescuedCritters.slice(0, friendSlots.length).map((critter, index) => {
       const slot = friendSlots[index];
@@ -518,31 +583,31 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
         : null;
     const celebrationMotion = celebration ? getCelebrationMotion(celebration.type, celebration.variation) : null;
 
-    const fireflies: Mesh[] = [];
-    const fireflyMat = makeMaterial(scene, 'firefly-mat', '#FFE79A', 1);
-    for (let i = 0; i < 13; i++) {
-      const firefly = MeshBuilder.CreateSphere(`firefly-${i}`, { diameter: 0.09, segments: 6 }, scene);
-      firefly.position = new Vector3(-6 + Math.random() * 12, 0.8 + Math.random() * 3.7, -4 + Math.random() * 7.4);
-      firefly.material = fireflyMat;
-      fireflies.push(firefly);
+    // A few faint seed motes stay at the perimeter, clear of plush faces and tap targets.
+    const motes: Mesh[] = [];
+    const moteMat = makeMaterial(scene, 'seed-mote-mat', '#F4EDD7', 0.08);
+    for (let i = 0; i < 6; i++) {
+      const mote = MeshBuilder.CreateSphere(`seed-mote-${i}`, { diameter: 0.055, segments: 6 }, scene);
+      mote.position = new Vector3((i % 2 ? 1 : -1) * (5.3 + (i % 3) * 0.4), 0.9 + (i % 3) * 0.35, 1 + i * 0.7);
+      mote.material = moteMat;
+      mote.isPickable = false;
+      motes.push(mote);
     }
+    const moteHeights = motes.map((mote) => mote.position.y);
     let elapsed = 0;
-    let autoTurn = 0;
     scene.onBeforeRenderObservable.add(() => {
-      const dt = engine.getDeltaTime() / 1000;
+      const dt = Math.min(engine.getDeltaTime() / 1000, 0.05);
       elapsed += dt;
       if (reduceMotion) {
-        flame.scaling = new Vector3(0.7, 1.36, 0.72);
-        firelight.intensity = 2.2;
         companion.root.position.y = 0.02;
-        fireflies.forEach((fly) => { fly.visibility = 0.75; });
-        if (celebrationPlush) celebrationPlush.root.position.y = 0.02;
+        motes.forEach((mote, index) => { mote.visibility = 0.3; mote.position.y = moteHeights[index]; });
+        if (celebrationPlush) {
+          celebrationPlush.root.position.y = 0.02;
+          celebrationPlush.root.rotation.set(0, 0, 0);
+        }
         return;
       }
-      flame.scaling.y = 1.36 + Math.sin(elapsed * 7) * 0.2;
-      flame.scaling.x = 0.7 + Math.sin(elapsed * 5.5) * 0.07;
-      firelight.intensity = 2.2 + Math.sin(elapsed * 8) * 0.35;
-      companion.root.position.y = 0.02 + Math.sin(elapsed * 2.6) * 0.07;
+      companion.root.position.y = 0.02 + Math.sin(elapsed * 1.8) * 0.035;
       if (celebrationPlush && celebrationMotion) {
         const bounce = Math.abs(Math.sin(elapsed * celebrationMotion.speed)) * celebrationMotion.hop;
         if (celebration?.motion === 'side-sway') {
@@ -559,12 +624,10 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
           celebrationPlush.root.rotation.y = 0;
         }
       }
-      fireflies.forEach((fly, index) => {
-        fly.position.y += Math.sin(elapsed * 1.9 + index) * 0.004;
-        fly.visibility = 0.55 + Math.sin(elapsed * 3 + index * 1.7) * 0.4;
+      motes.forEach((mote, index) => {
+        mote.position.y = moteHeights[index] + Math.sin(elapsed * 0.7 + index) * 0.09;
+        mote.visibility = 0.28 + Math.sin(elapsed * 0.8 + index * 1.7) * 0.1;
       });
-      autoTurn += dt;
-      if (autoTurn > 0.02 && !scene.activeCamera?.inputs.attached.pointers) camera.alpha += dt * 0.012;
     });
 
     engine.runRenderLoop(() => scene.render());
@@ -572,6 +635,7 @@ export default function BabylonCampScene({ companionType, rescuedCritters, onCom
     window.addEventListener('resize', resize);
     cleanup = () => {
       window.removeEventListener('resize', resize);
+      engine.stopRenderLoop();
       scene.dispose();
       engine.dispose();
     };

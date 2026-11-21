@@ -7,7 +7,7 @@ import CampScreen from './CampScreen';
 vi.mock('../components/BabylonCampScene', () => ({ default: () => <div data-testid="camp-scene" /> }));
 vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: string }) => <span aria-label={`${type} plush`} /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playNibble: vi.fn(), playPet: vi.fn(), playTrailStart: vi.fn(), playTrailTreasure: vi.fn(), playWelcome: vi.fn() }));
-vi.mock('../game/characterAudio', () => ({ playDailyTrailVoice: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ playDailyTrailVoice: vi.fn(), playCharacterAudio: vi.fn(), hasCharacterAudio: vi.fn(() => true) }));
 
 function renderCamp(stories: ('pip-flower-path' | 'finn-riverside-crossing' | 'wren-cozy-nest')[]) {
   const onStartFlagshipStory = vi.fn();

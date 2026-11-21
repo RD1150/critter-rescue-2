@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createFlagshipMission, FLAGSHIP_STORIES, getFlagshipStoryForMission, getNextFlagshipStory } from './flagshipStories';
+import { createFlagshipMission, createFlagshipReplayMission, FLAGSHIP_STORIES, getFlagshipStoryForMission, getNextFlagshipStory } from './flagshipStories';
 
 describe('focused Bestie stories', () => {
   it('keeps Pip, Finn, and Wren in one durable, calm story order', () => {
@@ -23,5 +23,13 @@ describe('focused Bestie stories', () => {
     expect(nestMission).toMatchObject({ type: 'nestRescue', taskIndex: -102, flagshipStoryId: 'wren-cozy-nest', critter: { name: 'Wren' } });
     expect(getFlagshipStoryForMission(riverMission)?.landmark).toContain('bridge');
     expect(getFlagshipStoryForMission(nestMission)?.landmark).toContain('nest');
+  });
+
+  it('revisits only saved stories and never advances the next-story path', () => {
+    const completed = ['pip-flower-path'] as const;
+    expect(createFlagshipReplayMission(completed, 'pip-flower-path')).toMatchObject({ flagshipStoryId: 'pip-flower-path', type: 'tracing' });
+    expect(createFlagshipReplayMission(completed, 'finn-riverside-crossing')).toBeNull();
+    expect(getNextFlagshipStory(completed)?.friend.name).toBe('Finn');
+    expect(completed).toEqual(['pip-flower-path']);
   });
 });

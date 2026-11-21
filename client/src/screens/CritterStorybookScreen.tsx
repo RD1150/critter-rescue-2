@@ -6,6 +6,7 @@ import type { HomeDecoration, SanctuarySeason } from '../game/store';
 import { playButton, playComplete } from '../game/sounds';
 import { getSeasonalStoryPage } from '../game/seasonalStoryPages';
 import { FLAGSHIP_STORIES, type FlagshipStoryId } from '../game/flagshipStories';
+import { RotateCcw, ArrowLeft } from 'lucide-react';
 
 type Tab = 'memories' | 'homes' | 'together' | 'season' | 'adoption';
 
@@ -32,6 +33,8 @@ interface Props {
   seasonalKeepsakes: SanctuarySeason[];
   selectedBestieType: CritterType;
   completedFlagshipStories: FlagshipStoryId[];
+  onReplayStory?: (id: FlagshipStoryId) => void;
+  onStartNextStory?: () => void;
   onChooseDecor: (critter: CritterData, decor: HomeDecoration) => void;
   onCelebrateSeason: () => void;
   onBack: () => void;
@@ -44,6 +47,8 @@ export default function CritterStorybookScreen({
   seasonalKeepsakes,
   selectedBestieType,
   completedFlagshipStories,
+  onReplayStory,
+  onStartNextStory,
   onChooseDecor,
   onCelebrateSeason,
   onBack,
@@ -83,20 +88,20 @@ export default function CritterStorybookScreen({
             <h1 className="font-display text-xl font-bold text-white">Bestie Book</h1>
           </div>
         </div>
-        <button onClick={() => { playButton(); onBack(); }} className="paper-card px-3 py-1.5 text-sm font-body text-[#2D2418] active:scale-95">Back to camp</button>
+        <button onClick={() => { playButton(); onBack(); }} className="paper-card flex shrink-0 items-center gap-1 px-3 py-1.5 text-sm font-body text-[#2D2418] active:scale-95"><ArrowLeft size={17} aria-hidden="true" />Back to camp</button>
       </header>
 
-      <main className="mx-auto w-full max-w-md space-y-3">
+      <main className="mx-auto w-full max-w-2xl shrink-0 space-y-3">
         <section className="paper-card relative overflow-hidden p-4" style={{ borderTop: '3px solid #B69DE8' }}>
           <div className="absolute right-3 top-3 opacity-75"><CritterAvatar type={selectedBestieType} size={48} expression="happy" /></div>
           <p className="font-body text-[10px] font-bold uppercase tracking-[.14em] text-[#75619C]">Your Bestie Book</p>
-          <h2 className="font-display mt-1 pr-14 text-lg font-bold text-[#2D2418]">A quiet place for happy memories</h2>
-          <p className="mt-1 pr-12 font-body text-xs text-[#5C4D3C]">Every rescue story stays here, along with the little change it made in your sanctuary.</p>
+          <h2 className="font-display mt-1 pr-14 text-lg font-bold text-[#2D2418]">Visit your favorite little adventures</h2>
+          <p className="mt-1 pr-12 font-body text-sm text-[#5C4D3C]">Play a story again, just for fun. Your friends and their cozy homes stay safe in the sanctuary.</p>
         </section>
 
         <nav aria-label="Bestie Book pages" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {tabs.map(({ key, icon, label }) => (
-            <button key={key} onClick={() => { playButton(); setTab(key); }} className={`rounded-xl px-2 py-2.5 font-body text-xs font-bold ${tab === key ? 'bg-[#E66B5B] text-white' : 'bg-[#F8E8D8] text-[#4A3022]'}`}>{icon} {label}</button>
+            <button key={key} onClick={() => { playButton(); setTab(key); }} aria-pressed={tab === key} className={`rounded-xl px-2 py-2.5 font-body text-xs font-bold ${tab === key ? 'bg-[#B64E43] text-white' : 'bg-[#F8E8D8] text-[#4A3022]'}`}>{icon} {label}</button>
           ))}
         </nav>
 
@@ -106,9 +111,10 @@ export default function CritterStorybookScreen({
               <div className="text-4xl">🌼</div>
               <h2 className="font-display mt-2 text-lg font-bold text-[#2D2418]">Your first page is waiting</h2>
               <p className="mt-1 font-body text-sm text-[#5C4D3C]">Help Pip find a flower path, then come back to remember it with your Bestie.</p>
+              {onStartNextStory && <button aria-label="Help Pip" onClick={() => { playButton(); onStartNextStory(); }} className="btn-coral mt-4 flex min-h-14 w-full items-center justify-center gap-2"><CritterAvatar type="bird" size={32} expression="happy" />Help Pip</button>}
             </section>
           ) : (
-            <section className="space-y-3" aria-label="Bestie story memories">
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Bestie story memories">
               {completedStories.map((story) => (
                 <article key={story.id} className="paper-card relative overflow-hidden p-4" style={{ borderTop: '3px solid #F5C842' }}>
                   <div className="absolute right-4 top-3 text-3xl opacity-70">{story.icon}</div>
@@ -117,9 +123,10 @@ export default function CritterStorybookScreen({
                   <h2 className="font-display mt-1 text-xl font-bold text-[#2D2418]">{story.title}</h2>
                   <p className="mt-2 font-display text-sm italic leading-relaxed text-[#5C4D3C]">“{story.memoryLine}”</p>
                   <div className="mt-3 rounded-2xl bg-[#E2EEDB] px-3 py-2.5"><p className="font-body text-[10px] font-bold uppercase tracking-[.12em] text-[#4D7A49]">Still in the sanctuary</p><p className="mt-1 font-body text-xs text-[#394E35]">You can visit {story.landmark} whenever you return to camp.</p></div>
+                  {onReplayStory && <button onClick={() => { playButton(); onReplayStory(story.id); }} className="btn-coral mt-4 flex min-h-14 w-full items-center justify-center gap-2 text-sm" aria-label={`Play with ${story.friend.name} again`}><RotateCcw size={22} aria-hidden="true" /><CritterAvatar type={story.friend.type} size={32} expression="happy" /><span>Play again</span></button>}
                 </article>
               ))}
-              {completedStories.length < FLAGSHIP_STORIES.length && <p className="px-3 text-center font-body text-xs text-white/85">Another gentle adventure will be ready when you want it.</p>}
+              {completedStories.length < FLAGSHIP_STORIES.length && <div className="rounded-2xl bg-white/10 p-4 text-center sm:col-span-2"><p className="font-body text-sm text-white">Another gentle adventure is ready when you want it.</p>{onStartNextStory && <button onClick={() => { playButton(); onStartNextStory(); }} className="btn-parchment mt-3 min-h-14 w-full">Meet another friend</button>}</div>}
             </section>
           )
         )}

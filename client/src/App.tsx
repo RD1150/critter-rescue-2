@@ -48,7 +48,7 @@ import { getLearningFocusLaunch } from './game/learningFocus';
 import type { TeamRescue } from './game/teamRescue';
 import { getCelebrationPath } from './game/celebrationPaths';
 import { getParentGateExpiry, grantParentGateAccess, hasParentGateAccess, revokeParentGateAccess } from './game/parentalGate';
-import { createFlagshipMission, getFlagshipStoryForMission, getFlagshipStoryFriends, getNextFlagshipStory } from './game/flagshipStories';
+import { createFlagshipMission, createFlagshipReplayMission, getFlagshipStoryForMission, getFlagshipStoryFriends, getNextFlagshipStory, type FlagshipStoryId } from './game/flagshipStories';
 
 type Scene =
   | 'loading'
@@ -133,6 +133,7 @@ const [currentMission, setCurrentMission] = useState<MissionData | null>(null);
 const [currentZoneBg, setCurrentZoneBg] = useState<string[]>(['#87CEEB', '#7EC8A0', '#3E6B2F']);
 const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
   const [activeDailyKey, setActiveDailyKey] = useState<string | null>(null);
+  const [replayingStory, setReplayingStory] = useState<FlagshipStoryId | null>(null);
   const [transitioning, setTransitioning] = useState(false);
   const [careCelebration, setCareCelebration] = useState<CareCelebration | null>(null);
   const fadeRef = useRef<HTMLDivElement>(null);
@@ -405,6 +406,19 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     setCurrentMission(mission);
     setCurrentZoneBg(zoneInfo.bgColors);
     setActiveDailyKey(null);
+    setReplayingStory(null);
+    transition('rescue', 100);
+  }, [state, transition]);
+
+  const handleReplayFlagshipStory = useCallback((id: FlagshipStoryId) => {
+    if (!state) return;
+    const mission = createFlagshipReplayMission(state.completedFlagshipStories, id);
+    if (!mission) return;
+    const zoneInfo = ZONES.find((zone) => zone.id === mission.zone) || ZONES[0];
+    setCurrentMission(mission);
+    setCurrentZoneBg(zoneInfo.bgColors);
+    setActiveDailyKey(null);
+    setReplayingStory(id);
     transition('rescue', 100);
   }, [state, transition]);
 
@@ -424,6 +438,12 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
 
   const handleRescueComplete = useCallback(() => {
     if (!state || !currentMission) return;
+    if (replayingStory && currentMission.flagshipStoryId === replayingStory) {
+      setActiveDailyKey(null);
+      setReplayingStory(null);
+      transition('storybook', 100);
+      return;
+    }
     const flagshipStory = getFlagshipStoryForMission(currentMission);
     if (flagshipStory) {
       const outcome = completeFlagshipStory(state, flagshipStory.id);
@@ -458,12 +478,13 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
     } else {
       transition('camp', 300);
     }
-  }, [state, currentMission, transition, activeDailyKey]);
+  }, [state, currentMission, transition, activeDailyKey, replayingStory]);
 
   const handleRescueBack = useCallback(() => {
     setActiveDailyKey(null);
-    transition('camp', 100);
-  }, [transition]);
+    setReplayingStory(null);
+    transition(replayingStory ? 'storybook' : 'camp', 100);
+  }, [transition, replayingStory]);
 
   const handleZoneUnlockedDone = useCallback(() => {
     if (!state) return;
@@ -728,7 +749,7 @@ const [newZoneUnlocked, setNewZoneUnlocked] = useState<string | null>(null);
           {scene === 'parentTerms' && <ParentLegalScreen page="terms" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentFaq' && <ParentLegalScreen page="faq" onBack={() => requestParentAccess('parentSettings')} onNavigate={handleNavigateParentInformation} />}
           {scene === 'parentProgress' && <ParentProgressScreen state={state} onBack={handleCloseParentProgress} />}
-          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={[...getFlagshipStoryFriends(state.completedFlagshipStories), ...getRescuedCritters(state.zoneTaskProgress)]} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} selectedBestieType={(state.selectedCompanion || 'bunny') as CritterType} completedFlagshipStories={state.completedFlagshipStories} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
+          {scene === 'storybook' && <CritterStorybookScreen rescuedCritters={[...getFlagshipStoryFriends(state.completedFlagshipStories), ...getRescuedCritters(state.zoneTaskProgress)]} homeDecor={state.homeDecor} season={activeCampTheme} seasonalKeepsakes={state.seasonalKeepsakes} selectedBestieType={(state.selectedCompanion || 'bunny') as CritterType} completedFlagshipStories={state.completedFlagshipStories} onReplayStory={handleReplayFlagshipStory} onStartNextStory={handleStartFlagshipStory} onChooseDecor={handleChooseDecor} onCelebrateSeason={handleCelebrateSeason} onBack={handleCloseStorybook} />}
           {scene === 'carePlay' && <CritterCarePlayScreen rescuedCritters={getRescuedCritters(state.zoneTaskProgress)} onComplete={handleCompleteCarePlay} onCompleteDuo={handleCompleteFriendshipDuo} onBack={handleCloseCarePlay} />}
           {scene === 'gallery' && <MemoryGalleryScreen keepsakes={state.keepsakes} onBack={handleCloseGallery} onRemove={handleRemoveKeepsake} onRestore={handleRestoreKeepsakes} onClear={handleClearKeepsakes} />}
           {scene === 'bedtime' && <BedtimeWindDownScreen companionName={STARTER_COMPANIONS.find((entry) => entry.type === state.selectedCompanion)?.name || 'Clover'} companionType={(state.selectedCompanion || 'bunny') as CritterType} reduceMotion={audioPreferences.reduceMotion} onComplete={handleCompleteBedtime} onBack={handleCloseBedtime} />}

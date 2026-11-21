@@ -5,7 +5,7 @@ import { useAudioPreferences } from '../game/audioPreferences';
 import { PRE_READER_DIRECTIONS, type PreReaderDirectionKey } from '../game/preReaderDirections';
 import CritterAvatar from './CritterAvatar';
 
-interface Props { directionKey: PreReaderDirectionKey; compact?: boolean; minimal?: boolean; className?: string; }
+interface Props { directionKey: PreReaderDirectionKey; compact?: boolean; minimal?: boolean; buttonOnly?: boolean; className?: string; }
 type ListenState = 'idle' | 'playing' | 'replay' | 'muted' | 'unavailable';
 
 const PICTURE_CUES: Partial<Record<PreReaderDirectionKey, { before: string; after: string; label: string }>> = {
@@ -23,7 +23,7 @@ const PICTURE_CUES: Partial<Record<PreReaderDirectionKey, { before: string; afte
   animalHomeMatch: { before: '🐶', after: '🏠', label: 'match each animal with its cozy home' },
 };
 
-export default function PreReaderDirection({ directionKey, compact = false, minimal = false, className = '' }: Props) {
+export default function PreReaderDirection({ directionKey, compact = false, minimal = false, buttonOnly = false, className = '' }: Props) {
   const [preferences] = useAudioPreferences();
   const [listenState, setListenState] = useState<ListenState>('idle');
   const acknowledgementTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,6 +67,7 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
   const visualCue = <span role="img" aria-label={`Picture clue: ${pictureCue.label}`} className={`inline-flex items-center gap-1 rounded-lg bg-[#FFF9EF] px-2 py-1 text-base ${compactMode ? 'text-sm' : ''}`}><span>{pictureCue.before}</span><span className="text-[#8C4130]">→</span><span>{pictureCue.after}</span></span>;
 
   if (!preferences.spokenDirectionsEnabled) {
+    if (buttonOnly) return null;
     if (minimal || !preferences.captionsEnabled) return <div className={`inline-flex flex-col items-center gap-1 ${className}`}>{visualCue}</div>;
     return <div className={`rounded-2xl px-3 py-2 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex items-center gap-2">{visualCue}<div><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Try this</p><p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p></div></div></div>;
   }
@@ -75,6 +76,7 @@ export default function PreReaderDirection({ directionKey, compact = false, mini
   const speakingBadge = isSpeaking ? <span className={`inline-flex items-center gap-1.5 rounded-full bg-[#FFF5DC] px-2 py-1 font-body text-[10px] font-bold text-[#5D3D2A] shadow-sm ${preferences.reduceMotion ? '' : 'motion-safe:animate-speaking-pulse'}`}><CritterAvatar type="squirrel" size={18} expression="happy" />Nutty is speaking</span> : null;
   const feedback = listenState === 'playing' || listenState === 'replay' || listenState === 'muted' || listenState === 'unavailable' ? <div role="status" className={`mt-1 flex items-center gap-2 font-body ${compactMode ? 'text-[9px]' : 'text-[10px]'} font-bold text-[#5D3D2A]`}>{speakingBadge}{!isSpeaking && <span>{statusText}</span>}</div> : null;
 
+  if (buttonOnly) return <div className={`flex max-w-[130px] shrink-0 flex-col items-center ${className}`}>{listeningButton}{feedback}</div>;
   if (minimal) return <div className={`inline-flex flex-col items-center gap-1 ${className}`}>{visualCue}{listeningButton}{feedback}</div>;
   if (compact) return <div className={`inline-flex flex-col items-center gap-0.5 ${className}`}>{visualCue}{listeningButton}{feedback}</div>;
   return <div className={`rounded-2xl px-3 py-2.5 text-left ${className}`} style={{ background: 'rgba(248,232,216,.98)', border: '1px solid #D4B58E' }}><div className="flex flex-col gap-2 sm:flex-row sm:items-center"><div data-testid="direction-actions" className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:shrink-0">{visualCue}{listeningButton}</div><div data-testid="direction-copy" className="min-w-0 flex-1"><p className="font-body text-[10px] uppercase tracking-[.12em] text-[#8C4130] font-bold">Listen, then try</p>{preferences.captionsEnabled && <p className="font-display text-[#2D2418] text-sm leading-snug">“{line}”</p>}{feedback}</div></div></div>;

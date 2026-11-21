@@ -9,7 +9,7 @@ vi.mock('../components/CritterAvatar', () => ({ default: ({ type }: { type: stri
 vi.mock('../components/PrintableAdoptionCard', () => ({ default: () => null }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn() }));
 
-const renderBook = (completedFlagshipStories: ('pip-flower-path' | 'finn-riverside-crossing' | 'wren-cozy-nest')[]) => render(
+const renderBook = (completedFlagshipStories: ('pip-flower-path' | 'finn-riverside-crossing' | 'wren-cozy-nest')[], onReplayStory = vi.fn(), onStartNextStory = vi.fn()) => render(
   <CritterStorybookScreen
     rescuedCritters={FLAGSHIP_STORIES.filter((story) => completedFlagshipStories.includes(story.id)).map((story) => story.friend)}
     homeDecor={{}}
@@ -17,6 +17,8 @@ const renderBook = (completedFlagshipStories: ('pip-flower-path' | 'finn-riversi
     seasonalKeepsakes={[]}
     selectedBestieType="fox"
     completedFlagshipStories={completedFlagshipStories}
+    onReplayStory={onReplayStory}
+    onStartNextStory={onStartNextStory}
     onChooseDecor={vi.fn()}
     onCelebrateSeason={vi.fn()}
     onBack={vi.fn()}
@@ -40,5 +42,21 @@ describe('Bestie Book', () => {
     expect(screen.getByText(/riverside bridge/i)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: /Cozy homes/i }));
     expect(screen.getByText(/Pip’s home/i)).toBeTruthy();
+  });
+
+  it('offers a large replay button only for each completed memory', () => {
+    const replay = vi.fn();
+    renderBook(['pip-flower-path'], replay);
+    fireEvent.click(screen.getByRole('button', { name: 'Play with Pip again' }));
+    expect(replay).toHaveBeenCalledWith('pip-flower-path');
+    expect(screen.queryByRole('button', { name: 'Play with Finn again' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Play with Pip again' }).className).toContain('min-h-14');
+  });
+
+  it('starts the first story from an empty Book without a navigation dead end', () => {
+    const start = vi.fn();
+    renderBook([], vi.fn(), start);
+    fireEvent.click(screen.getByRole('button', { name: 'Help Pip' }));
+    expect(start).toHaveBeenCalledOnce();
   });
 });

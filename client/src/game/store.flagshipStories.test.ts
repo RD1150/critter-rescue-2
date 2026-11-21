@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
-import { completeFlagshipStory, createFreshState, loadState } from './store';
+import { acknowledgeFlagshipHomecoming, completeFlagshipStory, createFreshState, loadState } from './store';
 
 describe('Bestie story persistence', () => {
   it('persists each story once, records a homecoming, and never uses counters as story truth', () => {
@@ -25,5 +25,15 @@ describe('Bestie story persistence', () => {
     expect(loaded.homeCare['squirrel-nutty']).toBe(2);
     expect(loaded.completedFlagshipStories).toEqual([]);
     expect(loaded.lastFlagshipHomecoming).toBeNull();
+  });
+
+  it('leaves memories, home decorations, and activity totals untouched on a replay', () => {
+    const saved = acknowledgeFlagshipHomecoming(completeFlagshipStory(createFreshState(), 'pip-flower-path').newState);
+    const before = JSON.stringify(saved);
+    const replay = completeFlagshipStory(saved, 'pip-flower-path');
+    expect(replay.newState).toBe(saved);
+    expect(JSON.stringify(replay.newState)).toBe(before);
+    expect(replay.newState.lastFlagshipHomecoming).toBeNull();
+    expect(replay.newState.keepsakes.filter((entry) => entry.id === 'flagship-pip-flower-path')).toHaveLength(1);
   });
 });

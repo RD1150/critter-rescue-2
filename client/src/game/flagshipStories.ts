@@ -150,3 +150,9 @@ export function createFlagshipMission(id: FlagshipStoryId): MissionData {
 export function getFlagshipStoryForMission(mission: MissionData): FlagshipStory | null {
   return getFlagshipStory(mission.flagshipStoryId);
 }
+
+/** Replay is a visit to an existing memory, never a new reward or a progress reset. */
+export function createFlagshipReplayMission(completed: readonly FlagshipStoryId[], id: FlagshipStoryId): MissionData | null {
+  if (!completed.includes(id) || !getFlagshipStory(id)) return null;
+  return createFlagshipMission(id);
+}

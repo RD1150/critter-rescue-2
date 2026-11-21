@@ -568,3 +568,12 @@
 - [x] Keep optional learning activities available but visually secondary to the Bestie-and-rescue path, without removing current family-safe content.
 - [x] Add focused state, UI, and flow regression coverage; verify phone/tablet/desktop normal and Reduce Motion first-play paths; run full release validation.
 - [x] Save a checkpoint and synchronize the verified Bestie rebuild to GitHub.
+
+## Player Experience Polish — November 2026
+
+- [x] Give flagship Finn and Wren rescues interactive local-geometry 3D worlds with visible cause-and-effect, picture-led tools, gentle retry feedback, and keyboard/non-WebGL alternatives.
+- [x] Make the Bestie easy to find and offer distinct child-paced hello, pet, and snack responses without scores, dependency, guilt, or autoplay.
+- [x] Refine camp lighting and toy-diorama details; remove confusing floating flame shapes and improve visual coherence without remote 3D textures.
+- [x] Add favorite-story replay from the Bestie Book while preserving saved landmarks and preventing duplicate rescue rewards or memories.
+- [x] Verify focused and full tests, TypeScript, web/native builds, reduced-motion/mobile/desktop layouts, and real browser interactions; record limitations honestly.
+- [ ] Save the verified checkpoint and synchronize the improvement pass to GitHub.

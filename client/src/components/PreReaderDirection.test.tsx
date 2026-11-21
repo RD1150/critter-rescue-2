@@ -75,4 +75,21 @@ describe('PreReaderDirection', () => {
     fireEvent.click(within(container).getByRole('button', { name: /Listen to direction:/ }));
     await waitFor(() => expect(within(container).getByRole('status').textContent).toMatch(/Voice volume is off/i));
   });
+
+  it('plays directly from a quiet header without an extra panel or autoplay', async () => {
+    playPreReaderDirection.mockResolvedValueOnce(true);
+    const { container } = render(<PreReaderDirection directionKey="nestRescue" buttonOnly />);
+    expect(playPreReaderDirection).not.toHaveBeenCalled();
+    expect(within(container).queryByRole('img', { name: /Picture clue/ })).toBeNull();
+    fireEvent.click(within(container).getByRole('button', { name: /Listen to direction:/ }));
+    expect(playPreReaderDirection).toHaveBeenCalledOnce();
+    await waitFor(() => expect(within(container).getByRole('status')).toBeTruthy());
+  });
+
+  it('omits the header audio action when parents turn off spoken directions', () => {
+    useAudioPreferences.mockReturnValue([{ spokenDirectionsEnabled: false, captionsEnabled: true }, vi.fn()]);
+    const { container } = render(<PreReaderDirection directionKey="nestRescue" buttonOnly />);
+    expect(container.textContent).toBe('');
+    expect(playPreReaderDirection).not.toHaveBeenCalled();
+  });
 });

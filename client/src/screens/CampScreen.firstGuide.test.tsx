@@ -7,7 +7,7 @@ import CampScreen from './CampScreen';
 vi.mock('../components/BabylonCampScene', () => ({ default: () => <div data-testid="camp-scene" /> }));
 vi.mock('../components/CritterAvatar', () => ({ default: () => <div data-testid="critter-avatar" /> }));
 vi.mock('../game/sounds', () => ({ playButton: vi.fn(), playComplete: vi.fn(), playNibble: vi.fn(), playPet: vi.fn(), playTrailStart: vi.fn(), playTrailTreasure: vi.fn(), playWelcome: vi.fn() }));
-vi.mock('../game/characterAudio', () => ({ playDailyTrailVoice: vi.fn() }));
+vi.mock('../game/characterAudio', () => ({ playDailyTrailVoice: vi.fn(), playCharacterAudio: vi.fn(), hasCharacterAudio: vi.fn(() => true) }));
 
 const renderFirstGuide = () => {
   window.localStorage.setItem('critter-rescue-audio-preferences', JSON.stringify({ spokenDirectionsEnabled: true, captionsEnabled: true }));

@@ -19,6 +19,7 @@ import { playSnap, playPickup, playComplete, playButton, playChime, playFlip, pl
 import PreReaderDirection from '../components/PreReaderDirection';
 import BabylonMeadowRescueScene from '../components/BabylonMeadowRescueScene';
 import { getFlagshipStoryForMission } from '../game/flagshipStories';
+import FlagshipPlanningRescue from '../components/FlagshipPlanningRescue';
 
 interface Props {
   mission: MissionData;
@@ -1266,6 +1267,7 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
   const [tipUsed, setTipUsed] = useState(false);
   const companion = getStarterCompanion(companionType);
   const isPipMeadow = mission.zone === 'meadow' && mission.type === 'tracing' && mission.critter.name === 'Pip';
+  const flagshipStory = getFlagshipStoryForMission(mission);
 
   const handlePuzzleComplete = useCallback(() => {
     setProgress(1);
@@ -1320,6 +1322,10 @@ export default function RescueScreen({ mission, companionType, bgColors, onCompl
       default:              return <CountingPuzzle count={objectCount} onComplete={handlePuzzleComplete} />;
     }
   };
+
+  if (flagshipStory?.id === 'finn-riverside-crossing' || flagshipStory?.id === 'wren-cozy-nest') {
+    return <FlagshipPlanningRescue key={flagshipStory.id} story={flagshipStory} reduceMotion={reduceMotion} onComplete={onComplete} onBack={onBack} />;
+  }
 
   if (isPipMeadow) {
     return (
